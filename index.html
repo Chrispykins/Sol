@@ -1,0 +1,47 @@
+<html>
+
+	<head>
+		<meta name='viewport' content="user-scalable=no">
+		<title>Sol</title>
+		<style>
+			* {
+				padding: 0px;
+				margin: 0px;
+				background-color: #f6f6e7;
+				position: absolute;
+			}
+
+			#loading .loading {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				width: 100px;
+				height: 100px;
+				margin-left: -50px;
+				margin-top: -50px;
+			}
+
+			#loadingText {
+				position: absolute;
+				width: 400px;
+				height: 100px;
+				left: 50%;
+				top: 25%;
+				margin-left: -200px;
+
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id='preload' style='display: none;' preload></div>
+		<div id='loading' style='display: none;'>
+			<img id='loadingText' src='graphics/loading.png'>
+			<img class='loading' id='solBase' src='graphics/solBase.png'>
+			<img class='loading' id='sol' src='graphics/solSingle.png'>			
+		</div>
+		<canvas id='canvas' width='1920px' height='1080px' moz-opaque></canvas>
+		
+	</body>
+	<script type='text/javascript' src='scripts/load.js'></script>
+</html>
