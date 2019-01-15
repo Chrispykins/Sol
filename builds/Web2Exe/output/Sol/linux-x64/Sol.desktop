@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0.0
-Name=Sol
-Comment=
-Exec=C:\Chris\Coding Projects\Sol\builds\Web2Exe/output/Sol/linux-x64/Sol
-Icon=C:\Chris\Coding Projects\Sol\builds\Web2Exe/output/Sol/linux-x64/icon_512.png
-Terminal=false
-Type=Application
-Categories=Utility;Application;
