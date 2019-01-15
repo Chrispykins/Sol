@@ -23,8 +23,6 @@
 			this.layers[i].draw(dt);
 			
 		}
-
-		//context.fillStyle= '#000';
 	}
 
 	global.Screen= Screen;

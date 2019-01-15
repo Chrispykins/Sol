@@ -4,21 +4,24 @@
     var context= global.context;
     var viewport= global.viewport;
 
+    var sprite= new global.SpriteSheet(global.images.portalSheet);
+    sprite.createEvenFrames(200, 200);
+
     //wormhole class
     function Wormhole(options) {
 
-        if (!options) {
-            options= {};
-        }
+        //make sure options exists
+        options= options || {};
+
+        this.entityType = 'wormhole';
 
         this.gridPos= options.gridPos || [0, 0];
 
         this.xy= options.xy || [0, 0];
         this.size= options.size || [0, 0];
 
-        this.sprite= options.sprite || new global.SpriteSheet(global.images.portalSheet);
-        this.sprite.createEvenFrames(200, 200);
-
+        this.sprite= options.sprite || sprite;
+        
         this.animation= new global.SpriteAnimation(this.sprite, {
                 X: this.xy[0] + 20,
                 Y: this.xy[1] + 20,
@@ -44,6 +47,19 @@
 
         this.animation.update(dt);
         this.animation.draw();
+    }
+
+    Wormhole.prototype.onClick= function() {
+
+        return false;
+    }
+
+    Wormhole.prototype.activate = function() {
+        //empty function to prevent errors
+    }
+
+    Wormhole.prototype.undo = function() {
+        //empty function to prevent errors
     }
 
     Wormhole.prototype.save= function() {

@@ -30,6 +30,10 @@
 				margin-left: -200px;
 
 			}
+
+			body {
+				overflow: hidden;
+			}
 		</style>
 	</head>
 
@@ -40,7 +44,7 @@
 			<img class='loading' id='solBase' src='graphics/solBase.png'>
 			<img class='loading' id='sol' src='graphics/solSingle.png'>			
 		</div>
-		<canvas id='canvas' width='1920px' height='1080px' moz-opaque></canvas>
+		<canvas id='canvas' width='1920px' height='1080px' moz-opaque screencanvas='true'></canvas>
 		
 	</body>
 	<script type='text/javascript' src='scripts/load.js'></script>

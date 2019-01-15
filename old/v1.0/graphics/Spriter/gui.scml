@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spriter_data scml_version="1.0" generator="BrashMonkey Spriter" generator_version="r9">
+    <folder id="0">
+        <file id="0" name="replay.png" width="400" height="400" pivot_x="0.5" pivot_y="0.5"/>
+        <file id="1" name="cancel.png" width="400" height="400" pivot_x="0.5" pivot_y="0.5"/>
+    </folder>
+    <entity id="0" name="entity_000">
+        <animation id="0" name="NewAnimation" length="1000" interval="100" l="-200" t="-200" r="199" b="199">
+            <mainline>
+                <key id="0" curve_type="cubic" c1="0" c2="0.995305">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                </key>
+                <key id="1" time="199" curve_type="cubic" c1="0" c2="0">
+                    <object_ref id="0" timeline="0" key="1" z_index="0"/>
+                </key>
+                <key id="2" time="339">
+                    <object_ref id="0" timeline="0" key="2" z_index="0"/>
+                </key>
+                <key id="3" time="456">
+                    <object_ref id="0" timeline="0" key="3" z_index="0"/>
+                </key>
+                <key id="4" time="581">
+                    <object_ref id="0" timeline="0" key="4" z_index="0"/>
+                </key>
+                <key id="5" time="699">
+                    <object_ref id="0" timeline="0" key="5" z_index="0"/>
+                </key>
+                <key id="6" time="899">
+                    <object_ref id="0" timeline="0" key="6" z_index="0"/>
+                </key>
+            </mainline>
+            <timeline id="0" name="replay">
+                <key id="0" spin="-1">
+                    <object folder="0" file="0"/>
+                </key>
+                <key id="1" time="199">
+                    <object folder="0" file="0" angle="300" scale_x="0.7" scale_y="0.7"/>
+                </key>
+                <key id="2" time="339">
+                    <object folder="0" file="0" angle="0" scale_x="0.75" scale_y="0.75"/>
+                </key>
+                <key id="3" time="456">
+                    <object folder="0" file="0" angle="135" scale_x="0.8" scale_y="0.8"/>
+                </key>
+                <key id="4" time="581">
+                    <object folder="0" file="0" angle="247.5" scale_x="0.825" scale_y="0.825"/>
+                </key>
+                <key id="5" time="699">
+                    <object folder="0" file="0" angle="315" scale_x="0.875" scale_y="0.875"/>
+                </key>
+                <key id="6" time="899" spin="0">
+                    <object folder="0" file="0"/>
+                </key>
+            </timeline>
+        </animation>
+        <animation id="1" name="NewAnimation_000" length="1000" interval="100" l="-199" t="-199" r="200" b="200">
+            <mainline>
+                <key id="0" curve_type="cubic" c1="0" c2="0.995305">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                </key>
+                <key id="1" time="200" curve_type="cubic" c1="0.0610329" c2="0.6667">
+                    <object_ref id="0" timeline="0" key="1" z_index="0"/>
+                </key>
+                <key id="2" time="366">
+                    <object_ref id="0" timeline="0" key="2" z_index="0"/>
+                </key>
+                <key id="3" time="799">
+                    <object_ref id="0" timeline="0" key="3" z_index="0"/>
+                </key>
+            </mainline>
+            <timeline id="0" name="cancel">
+                <key id="0" spin="0">
+                    <object folder="0" file="1"/>
+                </key>
+                <key id="1" time="200" spin="0">
+                    <object folder="0" file="1" scale_x="0.5" scale_y="0.5"/>
+                </key>
+                <key id="2" time="366" spin="0">
+                    <object folder="0" file="1" scale_x="0.6" scale_y="0.6"/>
+                </key>
+                <key id="3" time="799" spin="0">
+                    <object folder="0" file="1" scale_x="0.95" scale_y="0.95"/>
+                </key>
+            </timeline>
+        </animation>
+    </entity>
+</spriter_data>

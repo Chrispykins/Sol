@@ -31,6 +31,13 @@
 			var clip= this.clips[this.index];
 			var newNode= sounds[clip].cloneNode();
 			newNode.volume= this.volume * sounds[clip].volume;
+
+			newNode.addEventListener('ended', function end() {
+				that.temp.splice(that.temp.indexOf(this), 1);
+				this.remove();
+				newNode.removeEventListener('ended', end);
+			});
+
 			newNode.play()
 
 			this.temp.push(newNode);
@@ -48,6 +55,7 @@
 
 		newNode.addEventListener('ended', function end() {
 			that.temp.splice(that.temp.indexOf(this), 1);
+			this.remove();
 			newNode.removeEventListener('ended', end);
 		});
 
@@ -62,6 +70,13 @@
 		var clip = this.clips[this.index];
 		var newNode= clip.cloneNode();
 		newNode.volume= this.volume * clip.volume;
+
+		newNode.addEventListener('ended', function end() {
+			that.temp.splice(that.temp.indexOf(this), 1);
+			this.remove();
+			newNode.removeEventListener('ended', end);
+		});
+
 		newNode.play()
 
 		this.temp.push(newNode);
@@ -70,63 +85,89 @@
 	}
 
 	AudioGroup.prototype.stop= function() {
+		
 		for (var i= 0; i < this.temp.length; i++) {
 			this.temp[i].pause();
-			//this.temp[i]= null;
 		}
 
 		this.temp= [];
 	}
 
+	AudioGroup.prototype.fadeTo = function(volume, length) {
 
+		for (var i= 0; i < this.temp.length; i ++) {
+			this.temp[i].fadeTo(volume, length);
+		}
+	}
 
-	HTMLAudioElement.prototype.fadeOut= function(length) {
+	function fadeTo(element, volume, length) {
+	    
+	    if (element.interval) {
+	        element.clearInterval();
+	    }
+	    
+	    element.toVolume = volume;
+	    var fromVolume = element.volume;
+	    var fadeStart = Date.now();
+	    
+	    element.interval = setInterval(function() {
+	        
+	        var progress = (Date.now() - fadeStart) / length;
+	        
+	        if (progress < 1) {
+	        
+	            element.volume = Math.smoothStep(fromVolume, volume, progress);
+	        }
+	        else {
+	            
+	            element.volume = volume;
+	            element.toVolume = undefined;
+	            
+	            element.clearInterval();
+	        }
+	        
+	    }, 10)
 
-		this.fadeStart= Date.now();
-		var origVol= this.volume;
+	    element.clearInterval = function() { clearInterval(element.interval); element.interval = null;}
+	}
 
-		var loop= setInterval(function() {
-			var interpolation = (length - (Date.now() - this.fadeStart))/length
-			interpolation= Math.min(1, Math.max(0, interpolation));
-			if (interpolation > 0.001) {
-				this.volume= interpolation * origVol;
-			}
-			else {
-				this.currentTime= 0;
-				this.pause();
-				this.volume= 1;
-				this.fadeStart= null;
-				clearInterval(loop);
-			}
-		}.bind(this) , 10);
+	HTMLAudioElement.prototype.fadeOut= function(length, endVolume) {
+
+		endVolume = endVolume || 0;
+
+		fadeTo(this, 0, length);
 	}
 
 	HTMLAudioElement.prototype.fadeIn= function(length, endVolume) {
 
-		if (!endVolume) {
-			endVolume= 1;
-		}
-		if (this.paused) {
-			this.play();
-		}
+		endVolume = endVolume || 1;
 
-		this.fadeStart= global.Date.now();
-		var origVol= this.volume;
+		fadeTo(this, endVolume, length);
 
-		var loop= setInterval(function() {
-			var interpolation = (global.Date.now() - this.fadeStart)/length
-			interpolation= global.Math.min(endVolume, global.Math.max(0, interpolation));
-			if (interpolation < 1) {
-				this.volume= interpolation * (endVolume - origVol) + origVol;
-			}
-			else {
-				this.volume= endVolume;
-				this.fadeStart= null;
-				clearInterval(loop);
-			}
-		}.bind(this) , 10);
+		this.play();
 	}
 
 	global.AudioGroup= AudioGroup;
 
 })(Sol);
+
+
+//hook the cloneNode function and add some custom procedures to it so we can access the audio later
+(function(originalClone) {
+
+	HTMLAudioElement.prototype.cloneNode = function() {
+
+		var newNode = originalClone.call(this);
+
+		newNode.volume = this.volume;
+
+		newNode.addEventListener('ended', function end() {
+			this.remove();
+		});
+
+		preload.appendChild(newNode);
+
+		return newNode;
+	}
+
+})(HTMLAudioElement.prototype.cloneNode);

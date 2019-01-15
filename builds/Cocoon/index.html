@@ -1,0 +1,67 @@
+<html>
+
+	<head>
+		<meta name='viewport' content="user-scalable=no">
+		<title>Sol</title>
+		<style>
+			* {
+				padding: 0px;
+				margin: 0px;
+				background-color: #f6f6e7;
+				position: absolute;
+			}
+
+			#loading .loading {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				width: 100px;
+				height: 100px;
+				margin-left: -50px;
+				margin-top: -50px;
+			}
+
+			#loadingText {
+				position: absolute;
+				width: 400px;
+				height: 100px;
+				left: 50%;
+				top: 25%;
+				margin-left: -200px;
+
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id='preload' style='display: none;' preload></div>
+		<div id='loading' style='display: none;'>
+			<img id='loadingText' src='graphics/loading.png'>
+			<img class='loading' id='solBase' src='graphics/solBase.png'>
+			<img class='loading' id='sol' src='graphics/solSingle.png'>			
+		</div>
+		<canvas id='canvas' width='1920px' height='1080px' moz-opaque screencanvas='true'></canvas>
+		
+	</body>
+	<script type='text/javascript' src='scripts/load.js'></script>
+	<script type='text/javascript' src='scripts/resize.js'></script>
+	<script type='text/javascript' src='scripts/viewport.js'></script>
+	<script type='text/javascript' src='scripts/AudioGroup.js'></script>
+	<script type='text/javascript' src='scripts/SpriteAnimation.js'></script>
+	<script type='text/javascript' src='scripts/gui.js'></script>
+	<script type='text/javascript' src='scripts/screen.js'></script>
+	<script type='text/javascript' src='scripts/toolbar.js'></script>
+	<script type='text/javascript' src='scripts/levels.js'></script>
+	<script type='text/javascript' src='scripts/credits.js'></script>
+	<script type='text/javascript' src='scripts/ball.js'></script>
+	<script type='text/javascript' src='scripts/note.js'></script>
+	<script type='text/javascript' src='scripts/twoTone.js'></script>
+	<script type='text/javascript' src='scripts/obstacle.js'></script>
+	<script type='text/javascript' src='scripts/gate.js'></script>
+	<script type='text/javascript' src='scripts/start.js'></script>
+	<script type='text/javascript' src='scripts/wormhole.js'></script>
+	<script type='text/javascript' src='scripts/button.js'></script>
+	<script type='text/javascript' src='scripts/level.js'></script>
+	<script type='text/javascript' src='scripts/input.js'></script>
+	<script type='text/javascript' src='scripts/main.js'></script>
+</html>

@@ -5,11 +5,29 @@
 	var context= global.context;
 	var viewport= global.viewport;
 
+	var sprites= {
+		vert: new global.SpriteSheet(global.images.vertGateSheet),
+		hor: new global.SpriteSheet(global.images.horGateSheet),
+		for: new global.SpriteSheet(global.images.forGateSheet),
+		back: new global.SpriteSheet(global.images.backGateSheet)
+	}
+
+	for (var direction in sprites) {
+		sprites[direction].createEvenFrames(400, 400);
+		global.sprites[direction]= sprites[direction];
+
+		sprites[direction].custom.openPos= [10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+		sprites[direction].custom.closePos= [19, 18, 17, 16, 15, 14, 13, 12, 11, 10];
+		sprites[direction].custom.openNeg= [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+		sprites[direction].custom.closeNeg= [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+	}
+
 	function Gate(options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
+
+		this.entityType = 'gate';
 
 		this.xy= options.xy || [0, 0];
 		this.size= options.size || [0, 0];
@@ -27,8 +45,7 @@
 
 		
 		//animation code
-		this.sprite= options.sprite || new global.SpriteSheet(global.images[this.direction + 'GateSheet']);
-		this.sprite.createEvenFrames(400, 400);
+		this.sprite= options.sprite || sprites[this.direction];
 
 		this.sprite.custom.openPos= [10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 		this.sprite.custom.closePos= [19, 18, 17, 16, 15, 14, 13, 12, 11, 10];
@@ -47,6 +64,9 @@
 
 		this.animation.frameIndex= 10;
 		this.animation.currentFrame= this.animation.spriteSheet.frames[10];
+
+		this.sound= new global.AudioGroup(global.sounds.gate_0, global.sounds.gate_1, global.sounds.gate_2, global.sounds.gate_3);
+
 	}
 
 	Gate.prototype.draw= function(dt) {
@@ -67,12 +87,10 @@
 			if (this.direction == 'hor') {
 
 				if (ball.v[1] > 0) {
-					this.animation.start('openPos');
-					this.open= 'Pos';
+					this.openGate('Pos')
 				}
 				else if (ball.v[1] < 0) {
-					this.animation.start('openNeg');
-					this.open= 'Neg';
+					this.openGate('Neg');
 				}
 
 				ball.v[1] = -ball.v[1];
@@ -81,12 +99,10 @@
 			else if (this.direction == 'vert') {
 
 				if (ball.v[0] > 0) {
-					this.animation.start('openPos');
-					this.open= 'Pos';
+					this.openGate('Pos');
 				}
 				else if (ball.v[0] < 0) {
-					this.animation.start('openNeg');
-					this.open= 'Neg';
+					this.openGate('Neg');
 				}
 
 				ball.v[0]= -ball.v[0];
@@ -94,12 +110,10 @@
 			else if (this.direction == 'back') {
 
 				if (ball.v[0] > 0 || ball.v[1] < 0) {
-					this.animation.start('openPos');
-					this.open= 'Pos';
+					this.openGate('Pos');
 				}
 				else if (ball.v[0] < 0 || ball.v[1] > 0) {
-					this.animation.start('openNeg');
-					this.open= 'Neg';
+					this.openGate('Neg');
 				}
 
 				ball.v= [ball.v[1], ball.v[0]];
@@ -107,17 +121,31 @@
 			else if (this.direction == 'for') {
 
 				if (ball.v[0] > 0 || ball.v[1] > 0) {
-					this.animation.start('openPos');
-					this.open= 'Pos';
+					this.openGate('Pos');
 				}
 				else if (ball.v[0] < 0 || ball.v[1] < 0) {
-					this.animation.start('openNeg');
-					this.open= 'Neg';
+					this.openGate('Neg');
 				}
 
 				ball.v= [-ball.v[1], -ball.v[0]];
 			}
 		}
+	}
+
+	Gate.prototype.openGate= function(direction) {
+
+		this.animation.start('open' + direction);
+		this.open= direction;
+
+		this.sound.play();
+	}
+
+	Gate.prototype.closeGate= function() {
+
+		this.animation.start('close' + this.open);
+		this.open= false;
+
+		this.sound.play();
 	}
 
 	Gate.prototype.save= function() {
@@ -138,25 +166,37 @@
 			click= this.center;
 		}
 		
-		if ( global.Math.distance(click, this.center) < this.size[0]/2.5 ) {
+		if ( global.Math.distance(click, this.center) < this.size[0]/3 ) {
 
-			if (!this.open) {
-				
-				this.animation.start('openPos');
-				this.open= 'Pos';
-			}
+			this.activate();
 
-			else {
-				
-				this.animation.start('close'+ this.open);
-				this.open= false;
-			}
+
+			//register action with undo buffer
+			this.level.undoManager.registerAction(this.gridPos.slice(), this.entityType);
 			
 			return true;
 
 		} else return false;
 
 		
+	}
+
+	Gate.prototype.activate = function() {
+
+		if (!this.open) {
+			
+			this.openGate("Pos");
+		}
+
+		else {
+			
+			this.closeGate();
+		}
+	}
+
+	Gate.prototype.undo = function() {
+
+		this.activate();
 	}
 
 	global.Gate= Gate;

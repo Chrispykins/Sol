@@ -7,9 +7,8 @@
 
 	function Level(options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
 
 		this.number= options.number || 0;
 		this.author= options.author || 'Chris';
@@ -38,6 +37,8 @@
 
 		this.createGrid(options.level);
 
+		this.undoManager = new global.UndoManager({level: this});
+
 		this.canvas= canvas;
 		this.context= context;
 		this.viewport= viewport;
@@ -46,11 +47,21 @@
 
 		this.sounds= {
 			onLoad: global.sounds.level_in,
-			onWin: global.sounds.level_out
+			onWin: global.sounds.level_out,
+			_do: global.sounds._do,
+			mi: global.sounds.mi,
+			fa: global.sounds.fa,
+			fi: global.sounds.fi,
+			sol: global.sounds.sol,
+			do: global.sounds.do
 		}
 
-		this.sounds.onLoad.volume= 0.5;
-		this.sounds.onWin.volume= 0.5;
+		if (this.number== 50) {
+			this.sounds.onLoad= global.sounds.level_in_slow;
+		}
+
+		//this.sounds.onLoad.volume=  global.sounds.level_in.volume * 0.5;
+		//this.sounds.onWin.volume= global.sounds.level_out.volume * 0.5;
 
 		//////////////////////////////////////////////////////////////
 		// Initialization of level complete.
@@ -107,7 +118,14 @@
 				this.viewport.xy[0]+= this.viewportOffset[0];
 				this.viewport.xy[1]+= this.viewportOffset[1];
 
-				this.playSolution();	
+				//launch the level for the credits
+				if (this.number < 0) {
+					this.launch();
+				}
+				else {
+					//otherwise just give the solution to the player
+					this.playSolution();	
+				}
 
 			}
 		}
@@ -122,14 +140,14 @@
 		if (this.numberDisplay && this.number != 0) {
 
 			//calculate the percentage of time passed since the animation started
-			var progress= (global.Date.now() - this.numberDisplay.startTime)/2500;
+			var progress= (global.Date.now() - this.numberDisplay.startTime)/this.numberDisplay.endTime;
 
 			var y= global.Math.smoothStep(this.numberDisplay.startY, this.numberDisplay.endY, progress);
 
 			var number= new String(this.number);
 			var fontSize= new String(parseInt(250 * this.canvas.scale));
 
-			this.context.font= fontSize + 'px times';
+			this.context.font= fontSize + 'px Times';
 			this.context.textAlign= 'center';
 			this.context.fillStyle= '#335168';
 			this.context.fillText(number, 960 * this.canvas.scale, y * this.canvas.scale);
@@ -141,12 +159,15 @@
 					this.numberDisplay= {
 						startTime: global.Date.now(),
 						startY: 525,
-						endY: 2160
+						endY: 2160,
+						endTime: 2500
 					}
 				}
 				else delete this.numberDisplay;
 			
 			}
+
+			this.context.fillStyle= 'black';
 		}
 	}
 
@@ -344,7 +365,7 @@
 
 	Level.prototype.playSolution= function() {
 
-		if (this.number != 0) {
+		if (this.number > 0) {
 			
 			var solution= this.solution;
 
@@ -362,7 +383,11 @@
 					if (solution[index]) {
 
 						for (var i= 0, l= solution[index].length; i < l; i++) {
-							global.sounds[solution[index][i]].cloneNode().play();
+							
+							//adjust volume for multiple notes
+							var temp= global.sounds[solution[index][i]].cloneNode();
+							temp.volume= Math.min( 1, 0.25 + 1/l) * temp.volume;
+							temp.play();
 						}
 					}
 
@@ -465,6 +490,18 @@
 
 		this.playerSolution.push(thisBeat);
 
+		//play the beat
+		for (i= 0, l= thisBeat.length; i < l; i++) {
+			
+			if (thisBeat[i]) {
+				//adjust volume for multiple notes
+				var temp= this.sounds[thisBeat[i]].cloneNode();
+				temp.volume= Math.min( 1, 0.25 + 1/l) * temp.volume;
+				temp.play();
+				
+			}
+		}
+
 		if (this.checkSolution()) {
 
 			this.playing= false;
@@ -481,24 +518,60 @@
 
 		//play woosh out sound
 		this.sounds.onWin.play();
+
+		this.unload();
 		
 		setTimeout(function() {
 			
-			if (global.levels[parseInt(this.number) + 1]) {
+			if (this.number == 0) {
+				global.importLevel(global.levels[parseInt(localStorage.progress) + 1]);
+			}
+			else if (this.number < 0) {
+				global.startGame();
+			}
+
+			else if (global.levels[parseInt(this.number) + 1]) {
 				
 				//load next level
 				global.importLevel(global.levels[parseInt(this.number) + 1]);
+
+				localStorage.progress= this.number
 			}
 			else {
+
+				localStorage.progress= 0;
 				
 				//otherwise display ending screen
-				var comingSoon= new global.Gui( {size: [1920, 1080], image: global.images.endScreen});
-
-				global.currentScreen= new global.Screen('end', [comingSoon]);
+				global.importLevel(global.levels.credits);
 			}
 		}.bind(this), 900);
 
 
+
+	}
+
+	Level.prototype.onExit= function() {
+
+		clearInterval(this.musicBox);
+		this.musicBox= null;
+
+		this.playing= false;
+
+		this.zooming= 1;
+
+		console.log(this.obstacles)
+
+		this.sounds.onLoad.pause();
+		this.sounds.onLoad.currentTime= 0;
+		this.sounds.onWin.pause();
+		this.sounds.onLoad.currentTime= 0;
+	}
+
+	Level.prototype.unload = function() {
+
+		for (var i = 0, l = this.obstacles.length; i < l; i++) {
+			if (this.obstacles[i] instanceof global.Obstacle) this.obstacles[i].sounds.turn.remove();
+		}
 	}
 
 	Level.prototype.onLoad= function() {
@@ -508,6 +581,8 @@
 		// The following code creates the animations that
 		// play when a level is loaded
 		//////////////////////////////////////////////////////////////
+
+
 
 		//focus viewport on level to center level and store final scale
 		this.viewport.focus(this);
@@ -519,12 +594,25 @@
 
 		//start level small and zoom in
 		this.viewport.zoom(0.01);
-		this.zooming= 10;
 
+		//final level should be a bit more epic
+		if (this.number == 50) {
 
+			this.zooming= 3.2;
+
+		}
+		else {
+			this.zooming= 10;
+		}
 
 		//wind sound
 		this.sounds.onLoad.play();
+
+		if (this.number < 0) {
+			global.showCredits();
+			return;
+			//don't show the number if it's the credits sequence
+		}
 
 
 		///////////////////////////////////////////////////////////////
@@ -534,7 +622,12 @@
 		this.numberDisplay= {
 			startTime: global.Date.now(),
 			startY: -200,
-			endY: 525
+			endY: 525,
+			endTime: 2500
+		}
+
+		if (this.number== 50) {
+			this.numberDisplay.endTime= 4000;
 		}
 	}
 
@@ -573,7 +666,9 @@
 	Level.prototype.onBackButton= function() {
 
 		if (this.number != 0) {
-			importLevel(global.levels[0]);
+
+			this.onExit();
+			global.startGame();
 		}
 		else {
 			Cocoon.App.exit();

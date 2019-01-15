@@ -5,9 +5,8 @@
 
 	function Viewport(options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
 
 		this.xy= options.xy || [0, 0];
 		this.canvasPos= options.canvasPos || [0, 0];

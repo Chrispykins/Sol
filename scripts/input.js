@@ -39,14 +39,28 @@
 
 	function onKey(event) {
 
+		//alert(event.which);
+
+		//space bar
 		if (event.which== 32) {
 			global.currentLevel.launch();
+		}
+
+		//backspace or delete
+		if (event.which == 8 || event.which == 46) {
+			onBackButton(event);
+		}
+
+		if (event.which == 90 && event.ctrlKey) {
+			global.currentLevel.undoManager.undo();
 		}
 	}
 
 	function onBackButton(event) {
+		console.log('back')
 		
 		if (global.currentLevel) {
+			
 			global.currentLevel.onBackButton();
 		}
 		else {

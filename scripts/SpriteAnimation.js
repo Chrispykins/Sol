@@ -65,9 +65,8 @@
 	//Sprite Animation class
 	function SpriteAnimation(spriteSheet, options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
 
 		this.spriteSheet= spriteSheet;
 		this.frameIndex= 0; //default frame is the first frame on the sprite sheet

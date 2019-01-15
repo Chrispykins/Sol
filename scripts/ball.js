@@ -5,12 +5,16 @@
 	var context= global.context;
 	var viewport= global.viewport;
 
+	var sprite= new global.SpriteSheet(global.images.ballSheet);
+	sprite.createEvenFrames(100, 100);
+
 
 	function Ball(options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
+
+		this.entityType = "ball";
 
 		this.xy= options.xy || [0, 0];
 		this.size= options.size || [0, 0];
@@ -20,8 +24,7 @@
 
 		this.level= options.level || global.currentLevel;
 
-		this.sprite= options.sprite || new global.SpriteSheet(global.images.ballSheet);
-		this.sprite.createEvenFrames(100, 100);
+		this.sprite= options.sprite || sprite;
 
 		this.animation= new global.SpriteAnimation(this.sprite, {
 			X: this.xy[0],
@@ -73,6 +76,11 @@
 
 		var currentCell= this.level.grid[y][x];
 
+		if (!currentCell) {
+			return [];
+		}
+
+
 		for (var i= 0, l= currentCell.length; i < l; i++) {
 
 			if (currentCell[i] instanceof global.Obstacle || currentCell[i] instanceof global.Gate) {
@@ -80,11 +88,12 @@
 			}
 
 			if (currentCell[i] instanceof global.Note || currentCell[i] instanceof global.TwoTone) {
-				notes = notes.concat( currentCell[i].play() );
+				notes = notes.concat( currentCell[i].activate() );
 			}
 
 			if (currentCell[i] instanceof global.Button) {
 				notes = notes.concat( currentCell[i].activate() );
+
 			}
 
 			if (currentCell[i] instanceof global.Wormhole) {

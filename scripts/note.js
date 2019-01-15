@@ -5,11 +5,27 @@
 	var context= global.context;
 	var viewport= global.viewport;
 
+	var sprites= {
+		 _do: new global.SpriteSheet(global.images._do),
+		 mi: new global.SpriteSheet(global.images.mi),
+		 fa: new global.SpriteSheet(global.images.fa),
+		 fi: new global.SpriteSheet(global.images.fi),
+		 sol: new global.SpriteSheet(global.images.sol),	
+	}
+
+	sprites.do= new global.SpriteSheet(global.images.do);
+
+	for (var solfege in sprites) {
+		sprites[solfege].createEvenFrames(320, 320);
+		global.sprites[solfege]= sprites[solfege];
+	}
+
 	function Note(options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
+
+		this.entityType = 'note';
 
 		this.xy= options.xy || [0, 0];
 		this.size= options.size || [0, 0];
@@ -21,8 +37,7 @@
 
 		this.base= options.base || global.images[this.solfege+'Base'];
 
-		this.sprite= options.sprite || new global.SpriteSheet(global.images[this.solfege]);
-		this.sprite.createEvenFrames(320, 320);
+		this.sprite= options.sprite || sprites[this.solfege];
 
 		this.animation= new global.SpriteAnimation(this.sprite, {
 			X: this.xy[0],
@@ -48,9 +63,7 @@
 		this.animation.draw();
 	}
 
-	Note.prototype.play= function() {
-
-		this.sound.cloneNode().play();
+	Note.prototype.activate= function() {
 
 		//play reverse animation when this animation ends
 		this.animation.onEnd= function() {
@@ -78,6 +91,10 @@
 
 	}
 
+	Note.prototype.undo = function() {
+		//empty function to prevent crashing
+	}
+
 	Note.prototype.save= function() {
 		//empty function to prevent crashing
 	}
@@ -88,7 +105,10 @@
 
 	Note.prototype.onClick= function() {
 
-		this.play();
+		this.activate();
+
+		//the audio from clicking has been separated from the audio from the ball
+		this.sound.cloneNode().play();
 	}
 
 	global.Note= Note;

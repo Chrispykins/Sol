@@ -7,9 +7,10 @@
 
 	function Start(options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
+
+		this.entityType = 'start';
 
 		this.xy= options.xy || [0, 0];
 		this.size= options.size || [0, 0];

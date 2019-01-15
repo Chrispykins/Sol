@@ -8,9 +8,10 @@
 
 	function Button(options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
+
+		this.entityType = "button";
 
 		this.xy= options.xy || [0, 0];
 		this.size= options.size || [0, 0];
@@ -38,6 +39,10 @@
 		}
 
 		this.currentImage= this.images.off;
+
+		this.sound= new global.AudioGroup(global.sounds.button_0, global.sounds.button_1);
+
+		this.sound.volume= 0.3;
 
 		this.viewport= viewport;
 
@@ -113,30 +118,46 @@
 			if (currentCell) {
 
 				for (var j= 0, k= currentCell.length; j < k; j++) {
-					
+
 					if (currentCell[j] instanceof global.Note || currentCell[j] instanceof global.TwoTone) {
-						notes = notes.concat( currentCell[j].play() );
+						notes = notes.concat( currentCell[j].activate() );
 					}
 					else if (currentCell[j] instanceof global.Button) {
 						notes = notes.concat( currentCell[j].activate() );
 					}
 					else {
-						currentCell[j].onClick();
+						currentCell[j].activate();
 					}
 				}
 			}
-			
 		}
 
+		//play sound
+		this.sound.play();
+
+		//change image to pressed button
 		this.currentImage= this.images.on;
 
+		//change image back to normal
 		setTimeout(function() { this.currentImage= this.images.off }.bind(this), 1000/this.level.bps);
 
-
 		return notes;
+	}
 
+	Button.prototype.undo = function() {
 
+		for (var i= 0, l= this.directions.length; i < l; i++) {
 
+			var currentCell= this[ this.directions[i] ];
+
+			if (currentCell) {
+
+				for (var j= 0, k= currentCell.length; j < k; j++) {
+
+					currentCell[j].undo();
+				}
+			}
+		}
 	}
 
 	Button.prototype.revert= function() {
@@ -156,7 +177,19 @@
 
 		if ( global.Math.distance(click, this.center) < this.size[0]/3 ) {
 
-			this.activate();
+			var notes = this.activate();
+
+			for (let i= 0, l= notes.length; i < l; i++) {
+					
+				//adjust volume for multiple notes
+				var temp= global.sounds[notes[i]].cloneNode();
+				temp.volume= Math.min( 1, 0.25 + 1/l) * temp.volume;
+				temp.play();
+			}
+
+			//register action with undo buffer
+			this.level.undoManager.registerAction(this.gridPos.slice(), this.entityType);
+			
 		} else return false;
 
 		return true;

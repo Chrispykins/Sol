@@ -5,11 +5,24 @@
 	var context= global.context;
 	var viewport= global.viewport;
 
+	var sprite= new global.SpriteSheet(global.images.obstacleSheet);
+
+	sprite.createEvenFrames(200, 200);
+
+	sprite.custom.back= [0, 1, 2, 3, 4, 5, 6, 7];
+	sprite.custom.vert= [8, 9, 10, 11, 12, 13, 14, 15];
+	sprite.custom.forward= [16, 17, 18, 19, 20, 21, 22, 23];
+	sprite.custom.hor= [24, 25, 26, 27, 28, 29, 30, 31]
+
+	global.sprites.obstacle= sprite;
+
+
 	function Obstacle(options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
+
+		this.entityType = 'obstacle';
 
 		this.xy= options.xy || [0, 0];
 		this.size= options.size || [0, 0];
@@ -27,13 +40,7 @@
 		this.sound= options.sound;
 		this.level= options.level || global.currentLevel;
 
-		this.sprite= options.sprite || new global.SpriteSheet(global.images.obstacleSheet);
-		this.sprite.createEvenFrames(200, 200);
-
-		this.sprite.custom.back= [0, 1, 2, 3, 4, 5, 6, 7];
-		this.sprite.custom.vert= [8, 9, 10, 11, 12, 13, 14, 15];
-		this.sprite.custom.forward= [16, 17, 18, 19, 20, 21, 22, 23];
-		this.sprite.custom.hor= [24, 25, 26, 27, 28, 29, 30, 31]
+		this.sprite= options.sprite || sprite;
 
 		this.animation= new global.SpriteAnimation(this.sprite, {
 			X: this.xy[0],
@@ -47,6 +54,14 @@
 
 		this.animation.changeAnimation(this.direction);
 
+		this.sounds= {
+			turn: global.sounds.turn.cloneNode(),
+			latch: new global.AudioGroup(global.sounds.latch_0, global.sounds.latch_1)
+		}
+
+		global.sounds.latch_0.volume= 0.5;
+		global.sounds.latch_1.volume= 0.5;
+
 		this.viewport= viewport;
 	}
 
@@ -57,6 +72,9 @@
 
 		if (this.count > 0 && !this.rotating) {
 			this.rotate();
+		}
+		else if (this.count < 0 && !this.rotating) {
+			this.rotateBack();
 		}
 	}
 
@@ -88,6 +106,12 @@
 
 	Obstacle.prototype.rotate= function() {
 
+		//fade in turning sound if not already turning
+		if (!this.rotating) {
+			this.sounds.turn.volume= 0;
+			this.sounds.turn.fadeIn(100);
+		}
+
 		//set flag to keep animation from starting over
 		this.rotating= true;
 
@@ -113,6 +137,9 @@
 				this.rotating= false;
 				this.count= 0;
 				this.animation.speed= 1;
+
+				this.sounds.latch.play();
+				this.sounds.turn.pause();
 			}
 
 		}.bind(this);
@@ -122,6 +149,12 @@
 	}
 
 	Obstacle.prototype.rotateBack= function() {
+
+		//fade in turning sound if not already turning
+		if (!this.rotating) {
+			this.sounds.turn.volume= 0;
+			this.sounds.turn.fadeIn(100);
+		}
 
 		//set flag to keep animation from starting over
 		this.rotating= true;
@@ -133,16 +166,19 @@
 
 			this.animation.changeAnimation(this.direction);
 
-			this.count--;
+			this.count++;
 
 			//check if multiple rotations must happen
-			if (this.count > 0) {
+			if (this.count < 0) {
 				this.rotateBack();
 			}
 			else {
 				this.rotating= false;
 				this.count= 0;
 				this.animation.speed= 1;
+
+				this.sounds.latch.play();
+				this.sounds.turn.pause();
 			}
 
 		}.bind(this);
@@ -181,30 +217,28 @@
 
 			if (distance > 2) {
 				
-				this.count= 1
-				this.rotateBack();
+				distance %= this.enum.length;
+				distance -= this.enum.length;
 			}
 			else if (distance < -2) {
 				
-				this.count= 1;
-				this.rotate();
+				distance %= this.enum.length;
+				distance += this.enum.length;
 			}
 			else {
 
 				if (from < to) {
 					
 					this.count= distance;
-					this.rotate();
 				}
 				else if (from > to) {
 					
 					this.count= -distance;
-					this.rotateBack();
 				}
 			}
 		}
 
-		
+		this.sounds.turn.pause();
 	}
 
 	Obstacle.prototype.onClick= function(click) {
@@ -213,15 +247,29 @@
 			click= this.center;
 		}
 
-		if ( global.Math.distance(click, this.center) < this.size[0]/2.5 ) {
+		if ( global.Math.distance(click, this.center) < this.size[0]/3 ) {
 
-			//increment counter to track the number of clicks
-			this.count++;
+			this.activate();
+
+			//register action with undo buffer
+			this.level.undoManager.registerAction(this.gridPos.slice(), this.entityType);
+
 			return true;
 
 		} else return false;
 
 
+	}
+
+	Obstacle.prototype.activate = function() {
+		
+		//increment counter to track the number of clicks
+		this.count++;
+	}
+
+	Obstacle.prototype.undo = function() {
+
+		this.count--;
 	}
 
 	global.Obstacle= Obstacle;

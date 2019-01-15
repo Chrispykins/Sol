@@ -5,11 +5,14 @@
 	var context= global.context;
 	var viewport= global.viewport;
 
+	//the spriteSheets for TwoTones are defined in note.js
+
 	function TwoTone(options) {
 
-		if (!options) {
-			options= {};
-		}
+		//make sure options exists
+		options= options || {};
+
+		this.entityType = 'twoTone';
 
 		this.xy= options.xy || [0, 0];
 		this.size= options.size || [0, 0];
@@ -27,8 +30,7 @@
 		this.sound_0= options.sound_0 || new global.AudioGroup(global.sounds[this.solfege_0]);
 		this.base_0= options.base_0 || global.images[this.solfege_0+'Base'];
 
-		this.sprite_0= options.sprite_0 || new global.SpriteSheet(global.images[this.solfege_0]);
-		this.sprite_0.createEvenFrames(320, 320);
+		this.sprite_0= options.sprite_0 || global.sprites[this.solfege_0];
 
 		this.animation_0= new global.SpriteAnimation(this.sprite_0, {
 			X: this.xy[0],
@@ -50,8 +52,7 @@
 		this.sound_1= options.sound_1 || new global.AudioGroup(global.sounds[this.solfege_1]);
 		this.base_1= options.base_1 || global.images[this.solfege_1+'Base'];
 
-		this.sprite_1= options.sprite_1 || new global.SpriteSheet(global.images[this.solfege_1]);
-		this.sprite_1.createEvenFrames(320, 320);
+		this.sprite_1= options.sprite_1 || global.sprites[this.solfege_1]
 
 		this.animation_1= new global.SpriteAnimation(this.sprite_1, {
 			X: this.xy[0],
@@ -87,15 +88,17 @@
 		this["animation_"+this.inner].draw();
 	}
 
-	TwoTone.prototype.play= function() {
-
-		this["sound_"+this.outer].play();
+	TwoTone.prototype.activate= function() {
 
 		//swaps the inner and outer notes
 		this.swap();
 
 		//return inner instead of outer because of swap
 		return this["solfege_" + this.inner];
+	}
+
+	TwoTone.prototype.undo = function() {
+		this.swap();
 	}
 
 	//swaps the inner and outer notes, and starts the animations
@@ -145,7 +148,13 @@
 
 	TwoTone.prototype.onClick= function() {
 
-		this.play();
+		//the audio for clicking has been separated from the audio from the ball
+		this["sound_"+this.outer].play();
+
+		this.activate();
+
+		//register action with undo buffer
+		this.level.undoManager.registerAction(this.gridPos.slice(), this.entityType);
 	}
 
 	global.TwoTone= TwoTone;

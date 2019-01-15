@@ -110,9 +110,12 @@
 	
 	function startGame() {
 
+		if (!localStorage.progress) {
+			localStorage.progress= 0;
+		}
+
 		var title= new global.Gui( {size: [1920, 1080], image: images.title} );
 
-		
 		//define fade in for title screen
 		title.fade= new global.Fade('in', 1500);
 
@@ -149,9 +152,41 @@
 		//play title sound
 		sounds.titleSound.play();
 
+
+
 	}
 
+	global.startGame= startGame;
+
+	
+	function showCredits() {
+
+		global.credits= new global.Credits({
+			lines: [
+				{scale: 1.5, text: 'Congratulations!'},
+				{scale: 1, text: ''},
+				{scale: 1, text: 'Created By:'},
+				{scale: 1.5, text: 'Chris Gallegos'},
+				{scale: 1, text: ''},
+				{scale: 1, text: 'Special Thanks To:'},
+				{scale: 1.5, text: 'Ludei, Inc.'},
+				{scale: 1, text: ''},
+				{scale: 1, text: 'Follow Me on Twitter:'},
+				{scale: 1.5, text: '@Chrispykins'},
+				{scale: 1, text: ''},
+				{scale: 1, text: 'Thanks for Playing!'},
+
+			]
+		});
+
+		global.currentScreen.layers.push(global.credits);
+	}
+
+	global.showCredits= showCredits;
+
+	
 	function createLevel(levelData) {
+
 
 		levelData= JSON.parse(levelData);
 
@@ -170,12 +205,15 @@
 
 		global.currentScreen= new global.Screen('level_', [toolbar]);
 
+		if (global.currentLevel) global.currentLevel.unload();
+
 		global.currentLevel= createLevel(levelData);
 
 		global.currentScreen.name+= global.currentLevel.number;
 
-		if (global.currentLevel.number == 1) {
+		if (global.currentLevel.number == 1 && localStorage.firstTime == 'true') {
 			displayTutorial();
+			localStorage.firstTime= 'false';
 		}
 	}
 
@@ -186,6 +224,11 @@
 	var now= global.Date.now();
 	var dt;
 
+	//set up frame counting variables
+	/*var frameCount= 0;
+	var frameTimer= 0;
+	var fps= 0;*/
+
 	global.update= function () {
 
 		if (document.hidden) {
@@ -195,8 +238,24 @@
 		now= global.Date.now();
 		dt= (now - global.lastTick)/1000.0;
 
-		if (global.playing) {
-			global.currentLevel.update(dt);
+		//DEBUG: frame rate counter
+		/*frameTimer+= dt;
+		frameCount++;
+		if (frameTimer > 0.5) {
+			frameTimer+= -0.5;
+			fps= frameCount * 2;
+			frameCount= 0;
+		}*/
+		//END DEBUG
+
+		if (global.gameActive) {
+			if (global.playing) {
+				global.currentLevel.update(dt);
+			}
+
+			if (global.credits) {
+				global.credits.update(dt);
+			}
 		}
 
 		global.lastTick= now;
@@ -211,12 +270,23 @@
 		now= global.Date.now();
 		dt= now - global.lastDraw;
 
-		//reset drawing context
-		global.scale= global.canvas.scale * global.viewport.scale;
-		context.clearRect(0, 0, global.gameDimensions[0], global.gameDimensions[1]);
-		
-		//draw game objects, passing dt variable to update their animations
-		global.currentScreen.draw(dt);
+		if (global.gameActive) {
+
+			//reset drawing context
+			global.scale= global.canvas.scale * global.viewport.scale;
+			context.clearRect(0, 0, global.gameDimensions[0], global.gameDimensions[1]);
+
+			//draw game objects, passing dt variable to update their animations
+			global.currentScreen.draw(dt);
+
+			//DEBUG: frame rate display
+			/*context.font= (30 * canvas.scale).toString() +'px Arial';
+			context.fillStyle= 'black';
+			context.textAlign= 'left';
+			context.fillText(fps.toString(), 50 * canvas.scale, 50 * canvas.scale);*/
+			//END DEBUG
+
+		}
 
 		global.lastDraw= now;
 
@@ -234,6 +304,8 @@
 
 		}
 	});
+
+	global.gameActive = true;
 
 	init();
 

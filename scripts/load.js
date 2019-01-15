@@ -19,12 +19,26 @@ var Sol= {};
 
 	// initialize global variables
 	global.canvas= document.getElementById('canvas');
+	global.canvas.screencanvas= true;
 	global.context= global.canvas.getContext('2d');
 	global.requestAnimationFrame= window.requestAnimationFrame;
 	global.Math= Math;
 	global.Date= Date;
 
+	//check for localStorage
+	if (!localStorage.progress) {
+		localStorage.progress= '0';
+	}
+
+	if (!localStorage.firstTime) {
+		localStorage.firstTime= 'true';
+	}
+
+	//canvas settings
 	global.canvas.imageSmoothingEnabled= false;
+	
+	//shift context by half a pixel for pixel perfect drawing
+	global.context.translate(0.5, 0.5)
 
 	//adding distance formula to Math
 	Math.distance= function(a, b) {
@@ -38,22 +52,16 @@ var Sol= {};
 		return Math.sqrt(dx + dy);
 	}
 
+	Math.lerp = function(start, end, progress) {
+    
+	    return start * (1 - progress) + end * progress;
+	}
 
 	//adding smoothStep to Math for animations
-	Math.smoothStep= function(min, max, progress) {
+	Math.smoothStep= function(start, end, progress) {
 
-		var factor;
-
-		if (progress > 0) {
-			
-			if (progress < 1) {
-				
-				factor = progress * progress * (3 - 2 * progress);
-				return min + (max - min) * factor;
-			}
-			else return max
-		}
-		else return min
+		var x = Math.min(1, Math.max(0, progress));
+	    return Math.lerp(start, end, x * x * (3 - 2 * x));
 	}
 
 	
@@ -114,17 +122,29 @@ var Sol= {};
 
 	function loadSound(filename, fileType) {
 
-		var newSound= document.createElement('audio');
+		var newSound= new Audio('audio/' + filename + fileType);
 
-		newSound.src= 'audio/' + filename + fileType;
+		/*var newSound= document.createElement('audio');
+		newSound.src= filename + fileType;*/
 		newSound.preload= "auto";
-		//newSound.play();
 
 		newSound.addEventListener('canplaythrough', function loaded() {
 			soundsLoaded++;
 			updateLoadingBar();
+
+			//hack to load sound in Cocoon
+			newSound.volume= 0;
+			newSound.play();
+
 			this.removeEventListener('canplaythrough', loaded);
 		});
+
+		newSound.addEventListener('error', function error() {
+
+			loadSound(filename, fileType);
+
+			this.removeEventListener('error', error);
+		})
 
 		preload.appendChild(newSound);
 
@@ -154,7 +174,6 @@ var Sol= {};
 
 					scriptsLoaded++;
 
-
 					if (scriptsLoaded < numScripts) {
 						updateLoadingBar();
 						recurse(count+1);
@@ -178,16 +197,10 @@ var Sol= {};
 	//these arrays are lists of the filenames of the assets that will be loaded into the browser.
 	function loadingManager(assets) {
 
-		if (!assets.images) {
-			assets.images= [];
-		}
-		if (!assets.sounds) {
-			assets.sounds= [];
-		}
-		if (!assets.scripts) {
-			assets.scripts= [];
-		}
-
+		assets.images= assets.images || [];
+		assets.sounds= assets.sounds || [];
+		assets.scripts= assets.scripts || [];
+		
 		var numImages= assets.images.length;
 		var numSounds= assets.sounds.length;
 		var numScripts= assets.scripts.length;
@@ -205,19 +218,28 @@ var Sol= {};
 			fileType= '.wav';
 		}
 		
+		for (i= 0; i < numSounds; i++) {
+			loadSound(assets.sounds[i], fileType);
+		}
 
 		for (var i= 0; i < numImages; i++) {
 			loadImage(assets.images[i]);
 		}
 
-		for (i= 0; i < numSounds; i++) {
-			loadSound(assets.sounds[i], fileType);
-		}
+		
 
 		function retry() {
 
 			if (imagesLoaded == numImages && soundsLoaded == numSounds) {
+				
 				loadScripts(assets.scripts);
+
+				//undo hack to load sound in Cocoon
+				for (var sound in global.sounds) {
+					global.sounds[sound].pause();
+					global.sounds[sound].currentTime=0;
+					global.sounds[sound].volume= 1;
+				}
 			}
 			else {
 				setTimeout(retry, 100);
@@ -252,12 +274,6 @@ var Sol= {};
 		var offset= base.width - progressWidth;
 
 		global.context.drawImage(bar, width/2 - (bar.width - offset)/4, height/2 + offset/4, progressWidth/2, progressWidth/2);
-
-
-		/*bar.style.width= 100 * progress;
-		bar.style.height= 100 * progress;
-		bar.style.marginLeft= -bar.width/2;
-		bar.style.marginTop= -bar.height/2;*/
 	}
 
 
@@ -282,10 +298,6 @@ var Sol= {};
 			'startdown',
 			'startleft',
 			'startright',
-			/*'back',
-			'forward',
-			'vert',
-			'hor',*/
 			'portalSheet',
 			'obstacleSheet',
 			'horGateSheet',
@@ -307,7 +319,6 @@ var Sol= {};
 			'splashScreen',
 			'replaySheet',
 			'cancelSheet',
-			//'noise',
 			'tutorial_1',
 			'tutorial_2',
 			'endScreen'
@@ -323,7 +334,17 @@ var Sol= {};
 			'do',
 			'titleSound',
 			'level_in',
-			'level_out'
+			'level_in_slow',
+			'level_out',
+			'button_0',
+			'button_1',
+			'latch_0',
+			'latch_1',
+			'turn',
+			'gate_0',
+			'gate_1',
+			'gate_2',
+			'gate_3'
 		],
 
 		scripts: [
@@ -336,6 +357,7 @@ var Sol= {};
 			'screen',
 			'toolbar',
 			'levels',
+			'credits',
 			
 			'ball',
 			'note',
@@ -345,11 +367,14 @@ var Sol= {};
 			'start',
 			'wormhole',
 			'button',
+			'undo',
 			'level',
 			'input',
 			'main'
 
 		]
 	});
+
+	global.sounds.turn.loop= true;
 
 })(Sol);

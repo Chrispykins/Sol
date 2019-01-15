@@ -1,0 +1,559 @@
+<html>
+	<head>	
+		<title>Level Editor</title>
+		<link rel="icon" type="image/x-icon" href="graphics/favicon.ico">
+		<style type='text/css'>
+
+			td span {
+				display: block;
+				text-align: center;
+			}
+
+			td {
+				padding: 0px;
+				border-left: 1px solid #ddd;
+				border-bottom: 1px solid #ddd;
+			}
+
+			td > input[type=number] {
+				width: 100%;
+			}
+
+			#editor {
+				vertical-align: top;
+				margin: 5px;
+				border: 4px solid red;
+
+			}
+
+			#editor td div {
+				top: -25px;
+				left: 0px;
+				position: relative;
+			}
+
+			#editor td img {
+				top: 0px;
+				left: 0px;
+				position: absolute;
+			}
+
+			#editor .note {
+				z-index: 0;
+			}
+
+			#editor .obstacle {
+				z-index: 2;
+			}
+
+			#editor .wormhole {
+				z-index: 1;
+			}
+
+			#editor .innerNote {
+				margin: 15px;
+			}
+
+			#tools {
+				display: inline-block;
+			}
+
+			#tools td {
+				border-radius: 15px;
+				width: 90px;
+				height: 30px;
+			}
+
+			#tools td * {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			#tools td img {
+				height: 30px;
+				width: 30px;
+				padding: 3px;
+			}
+
+			#toolDiv {
+				height: 300px;
+				max-width: 250px;
+				display: inline-block;
+			}
+
+			#toolOptions {
+				height: 350px;
+				width: 150px;
+				max-width: 250px;
+				vertical-align: top;
+				margin-top: 5px;
+				display: inline-block;
+			}
+
+			#toolOptions > div * {
+				margin-left: auto;
+			}
+
+			#toolOptions table {
+				box-shadow: 2px 2px 7px;
+			}
+
+			#twoToneOptions table {
+				display: inline-block;
+				margin-left: auto;
+			}
+
+
+			.imgTable td {
+				width: 50px;
+				height: 50px;
+				border-radius: 15px;
+			}
+
+			.imgTable td img {
+				width: 30px;
+				height: 30px;
+				margin-left: auto;
+				margin-right: auto;
+				display: block;
+			}
+
+
+			.selected {
+				box-shadow: inset 0px 0px 20px #49a;
+			}
+
+			.hidden {
+				margin-left: -9999px;
+				position: absolute;
+			}
+
+			.note {
+				z-index: 5;
+			}
+
+			.wormhole {
+				z-index: 4;
+			}
+
+			.obstacle {
+				z-index: 3;
+			}
+
+			.button {
+				z-index: 2;
+			}
+
+			.start { 
+				z-index: 1;
+			 }
+
+		</style>
+	</head>
+
+	<body>
+		
+		<div id='soundFiles' hidden>
+
+			<audio id='_doSound' src="_do.mp3"></audio>
+			<audio id='doSound' src="do.mp3"></audio>
+			<audio id='miSound' src="mi.mp3"></audio>
+			<audio id='faSound' src="fa.mp3"></audio>
+			<audio id='fiSound' src='fi.mp3'></audio>
+			<audio id='solSound' src="sol.mp3"></audio>
+
+		</div>
+
+
+		<div>
+
+			<div id="toolOptions">
+				
+				<div id="dimensions" class="hidden">
+					<table>	
+						<th colspan="2">Tool Dimensions: </th>
+							<tr>
+								<td>Width</td>
+								<td>Height</td>
+							</tr>
+							<tr>
+								<td><input type='number' min='1' max='27' id='toolWidth' value="1"></td>
+								<td><input type="number" min='1' max='19' id='toolHeight' value="1"></td>
+							</tr>
+					</table>
+					<br>					
+				</div>
+
+				<div id="levelSize" class="hidden">
+					<table class='imgTable'>
+						<tr>
+							<td id='small' onclick='generateTable(8, 4); selectTool(this);'>
+								<span>Small</span>
+							</td>
+						</tr>
+						<tr>
+							<td id='medium' onclick='generateTable(11, 5); selectTool(this);'>
+								<span>Medium</span>
+							</td>
+						</tr>
+						<tr>
+							<td id="large" onclick='generateTable(15, 7); selectTool(this);'>
+								<span>Large</span>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div id='twoToneOptions' class="hidden">
+					<table class='imgTable' id='tone_1'>
+						<tr>
+							<td id= '_do1' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\_do.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'mi1' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\mi.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'fa1' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\fa.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id='fi1' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\fi.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'sol1' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\sol.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'do1' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\do.png'>
+							</td>
+						</tr>
+					</table>
+
+					<table class='imgTable' id='tone_0'>
+						<tr>
+							<td id= '_do0' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\_do.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'mi0' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\mi.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'fa0' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\fa.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id='fi0' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\fi.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'sol0' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\sol.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'do0' onclick='changeSelector("twoTone"); selectTool(this);'>
+								<img src='graphics\do.png'>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div id="noteOptions" class="hidden">
+					<table class="imgTable">
+						<tr>
+							<td id= '_do' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\_do.png'>
+							</td>
+							<td id= 'mi' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\mi.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'fa' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\fa.png'>
+							</td>
+							<td id='fi' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\fi.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id= 'sol' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\sol.png'>
+							</td>
+							<td id= 'do' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\do.png'>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div id="obstacleOptions" class="hidden">
+					<table class='imgTable'>
+						<tr>
+							
+
+							<td id= 'back' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\back.png'>
+							</td>
+							<td id= 'backGate' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\backGate.png'>
+							</td>
+
+
+						</tr>
+						<tr>
+							
+							<td id='vert' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\vert.png'>
+							</td>
+							<td id= 'vertGate' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\vertGate.png'>
+							</td>
+
+						</tr>
+						<tr>
+
+							<td id= 'forward' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\forward.png'>
+							</td>
+							<td id= 'forGate' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\forGate.png'>
+							</td>
+
+						</tr>
+						<tr>
+
+							<td id= 'hor' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\hor.png'>
+							</td>
+							<td id='horGate' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\horGate.png'>
+							</td>
+
+						</tr>
+					</table>
+				</div>
+
+				<div id='startOptions' class='hidden'>
+					<table class='imgTable'>
+						<tr>
+							<td id='left' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\startleft.png'>
+							</td>
+						</tr>
+
+						<tr>
+							<td id='up' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\startup.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id='right' onclick='changeSelector(this.id); selectTool(this)'>
+								<img src='graphics\startright.png'>
+							</td>
+						</tr>
+						<tr>
+							<td id='down' onclick='changeSelector(this.id); selectTool(this)'>
+								<img src='graphics\startdown.png'>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div id='wormholeOptions' class='hidden'>
+					<table class='imgTable'>
+						<tr>
+							<td id='holeStart' onclick='changeSelector(this.id); selectTool(this);'>
+								<span>Start</span>
+							</td>
+						</tr>
+						<tr>
+							<td id='holeEnd' onclick='changeSelector(this.id); selectTool(this);'>
+								<span>End</span>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div id='buttonOptions' class='hidden'>
+					<table class='imgTable'>
+						<tr>
+							<td id='button' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\button_off.png'>
+							</td>
+						
+							<td id='button_0' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\button_0.png'>
+							</td>
+						</tr>
+					
+						<tr>
+							<td id='button_1' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\button_1.png'>
+							</td>
+						
+							<td id='button_2' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\button_2.png'>
+							</td>
+						</tr>
+
+						<tr>
+							<td id='button_3' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\button_3.png'>
+							</td>
+						
+							<td id='button_5' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\button_5.png'>
+							</td>
+						</tr>
+
+						<tr>
+							<td id='button_6' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\button_6.png'>
+							</td>
+						
+							<td id='button_7' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\button_7.png'>
+							</td>
+						</tr>
+
+						<tr>
+							<td id='button_8' onclick='changeSelector(this.id); selectTool(this);'>
+								<img src='graphics\button_8.png'>
+							</td>
+						</tr>
+					</table>
+				</div>
+			<br>
+
+			</div>
+
+			
+
+			<table id='editor' style='display:inline-block' cellspacing="0">
+			</table>
+			
+			<div class='container' style="display: inline">
+				<div id="toolDiv">
+					<table id='tools'>
+						<tr>
+							<td id= 'notes' onclick='accessOptions("dimensions", "noteOptions"); selectTool(this); changeCategory(this.id);'>
+								<span>Notes</span>
+							</td>
+						</tr>
+
+						<tr>
+							<td id="twoTones" onclick='accessOptions("twoToneOptions"); selectTool(this); changeCategory(this.id);'>
+								<span>Two-Tones</span>
+							</td>
+						</tr>
+
+						<tr>
+							<td id='start' onclick='accessOptions("startOptions"); selectTool(this); changeCategory(this.id);'>
+								<span>Start</span>
+							</td>
+						</tr>
+
+						<tr>
+							<td id='obstacles' onclick='accessOptions("obstacleOptions"); selectTool(this); changeCategory(this.id);'>
+								<span>Obstacles</span>
+							</td>
+						</tr>
+
+						<tr>
+							<td id='wormholes' onclick='accessOptions("wormholeOptions"); selectTool(this); changeCategory(this.id);'>
+								<span>Wormholes</span>
+							</td>
+						</tr>
+
+						<tr>
+							<td id='buttons' onclick='accessOptions("buttonOptions"); selectTool(this); changeCategory(this.id);'>
+								<span>Buttons</span>
+							</td>
+						</tr>
+
+						<tr>
+							<td id="empty" onclick='accessOptions("dimensions"); changeSelector(this.id); selectTool(this);'>
+								<span>Erase</span>						
+							</td>
+						</tr>
+
+						<tr>
+							<td id='newLevel' onclick='accessOptions("levelSize"); selectTool(this)'>
+								<span>New Level</span>
+							</td>
+						</tr>
+
+
+
+					</table>
+
+					<br><br>
+					<button id='clear' onclick='initialize()'>Start Over</button>
+					<button id='undo' onclick="undo()">Undo</button>
+
+				</div>
+			</div>
+		</div>
+
+		<hr>
+
+		<div id='warning' style= "color: red;"></div>
+
+		<div>
+
+			<br>
+			
+			Level Number:
+			<input type='text' id='levelNumber' value='0'>
+			
+			Level Author:
+			<input type='text' id='levelAuthor' value='Chris'>
+			<br>
+			<br>
+
+			Solution Code:
+			<input type='text' id='solutionCode' size=100 value='[[]]'>
+			<br>
+			<input type='button' value='Play!' onclick='playSolution()'>
+			<br>
+			<br>
+			
+			Viewport:
+			<input type= 'text' id='viewportOffset' size=25 value='[0, 0]'>
+			<br>
+
+		</div>
+
+
+		<br>
+		<div width='100%'>
+
+			Level Code:
+			<br>
+			<textarea id='textarea' cols='100' rows='10'></textarea>
+			<br>
+			<button in='export' onclick='exportLevel()'>Export Level to Text</button>
+			<button id='import' onclick='importLevel()'>Import Level from Text</button>
+		</div>
+
+	</body>
+	<script type='text/javascript' src='levelData_template.js'></script>
+	<script id='editorScript' type='text/javascript' src='level_editor.js'></script>
+
+<html>
