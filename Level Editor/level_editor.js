@@ -148,6 +148,17 @@ function addNote(element, attribute) {
 		return;
 	}
 
+	//delete note if same note already exists
+	if (levelData.level[y][x].note == attribute) {
+		delete levelData.level[y][x].note;
+		delete levelData.level[y][x].twoTone;
+
+		var note = element.getElementsByClassName('note')
+
+		element.removeChild(note[0]);
+		return;
+	}
+
 	//update level data
 	levelData.level[y][x].id= id
 	levelData.level[y][x].note= attribute;
@@ -189,6 +200,20 @@ function addTwoTone(element) {
 	if (levelData.level[y][x].button) {
 		warning.innerHTML= "Two Tones cannot be placed on buttons!";
 		return;
+	}
+
+
+	//delete twoTone if same twoTone already exists
+	if (levelData.level[y][x].twoTone) {
+		if (levelData.level[y][x].twoTone[0] == tones[0] && levelData.level[y][x].twoTone[1] == tones[1]) {
+			delete levelData.level[y][x].note;
+			delete levelData.level[y][x].twoTone;
+
+			var note = element.getElementsByClassName('note');
+
+			element.removeChild(note[0]);
+			return;
+		}
 	}
 
 	//update level data
@@ -245,6 +270,18 @@ function addObstacle(element, attribute) {
 		warning.innerHTML= "Obstacles cannot be placed on starts!";
 		return;
 	}
+
+	//delete obstacle if same obstacle already exists
+	if (levelData.level[y][x].obstacle == attribute) {
+		delete levelData.level[y][x].obstacle;
+		delete levelData.level[y][x].gate;
+
+		var obstacle = element.getElementsByClassName('obstacle')
+
+		element.removeChild(obstacle[0]);
+		return;
+	}
+
 	//update level data
 	levelData.level[y][x].id = id;
 	levelData.level[y][x].obstacle= attribute;
@@ -281,6 +318,16 @@ function addStart(element, direction) {
 
 	if (levelData.level[y][x].button) {
 		warning.innerHTML= "Starts cannot be placed on buttons!";
+		return;
+	}
+
+	//delete start if same start already exists
+	if (levelData.level[y][x].start == direction) {
+		delete levelData.level[y][x].start;
+
+		var start = element.getElementsByClassName('start')
+
+		element.removeChild(start[0]);
 		return;
 	}
 
@@ -324,6 +371,16 @@ function addWormhole(element, side) {
 		return;
 	}
 
+	//delete wormhole if wormhole end already exists in this cell
+	if (levelData.level[y][x].wormhole) {
+		delete levelData.level[y][x].wormhole;
+		delete levelData['worm'+ side];
+
+		var wormhole = element.getElementsByClassName('wormhole')
+
+		element.removeChild(wormhole[0]);
+		return;
+	}
 
 	var oldHole= document.getElementById('worm'+ side);
 	if (oldHole) {
@@ -375,6 +432,16 @@ function addButton(element) {
 		return;
 	}
 
+	//delete button if buton already exists in this cell
+	if (levelData.level[y][x].button) {
+		delete levelData.level[y][x].button;
+
+		var button = element.getElementsByClassName('button')
+
+		element.removeChild(button[0]);
+		return;
+	}
+
 	//remove leveData for square
 	levelData.level[y][x].id= id;
 	levelData.level[y][x].button= [];
@@ -391,6 +458,7 @@ function addButton(element) {
 
 	var img= document.createElement('img');
 	img.src= 'graphics\\button_off.png';
+	img.style.zIndex = "999";
 	img.height= 50;
 	img.width= 50;
 	newButton.appendChild(img);
@@ -416,12 +484,15 @@ function addWire(element, direction) {
 		
 			var newWire= document.createElement('div');
 			newWire.style.position= 'relative';
-			newWire.style.top= '-23px';
+			newWire.style.top= '0px';
 			newWire.style.width= '0px';
 			newWire.style.height= '0px';
 			newWire.id= 'wire_'+ direction +'_'+ id;
 			newWire.className= 'button';
-			element.appendChild(newWire);
+
+			//add new wire image underneath button
+			var button = element.getElementsByClassName('button');
+			button[0].appendChild(newWire);
 
 			var img= document.createElement('img');
 			img.src= 'graphics\\button_'+ direction +'.png';
@@ -429,7 +500,18 @@ function addWire(element, direction) {
 			img.width= 50;
 			newWire.appendChild(img);
 		}
+		else {
+			
+			//remove wire if it already exists in this cell
+			var button = levelData.level[y][x].button;
 
+			button.splice(button.indexOf(direction), 1);
+
+			var wire = document.getElementById('wire_'+ direction +'_'+ id);
+
+			wire.parentNode.removeChild(wire);
+			return;
+		}
 	}
 	else {
 		warning.innerHTML= 'Wires must be placed on a button!';
