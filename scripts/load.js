@@ -26,12 +26,12 @@ var Sol= {};
 	global.Date= Date;
 
 	//check for localStorage
-	if (!localStorage.progress) {
-		localStorage.progress= '0';
+	if (!localStorage.Sol_progress) {
+		localStorage.Sol_progress= '0';
 	}
 
-	if (!localStorage.firstTime) {
-		localStorage.firstTime= 'true';
+	if (!localStorage.Sol_firstTime) {
+		localStorage.Sol_firstTime= 'true';
 	}
 
 	//canvas settings

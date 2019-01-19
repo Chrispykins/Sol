@@ -27,8 +27,6 @@
 		}
 
 		this.actions.push(new UndoAction(pos, type));
-
-		//console.log(this.actions.length, "Action Registered:", this.actions[this.actions.length - 1]);
 	}
 
 	UndoManager.prototype.undo = function() {
@@ -48,15 +46,23 @@
 
 	UndoManager.prototype.playAction = function() {
 
-		var index = this.actions.length - this.currentDepth;
-		var action = this.actions[index];
+		if (this.currentDepth > 0) {
 
-		var cell = this.level.grid[pos[1]][pos[0]];
+			var index = this.actions.length - this.currentDepth;
+			var action = this.actions[index];
 
-		for (var i = 0; i < cell.length; i++) {
+			var cell = this.level.grid[pos[1]][pos[0]];
 
-			if (action.type == cell[i].entityType) cell[i].onClick();
+			for (var i = 0; i < cell.length; i++) {
+
+				if (action.type == cell[i].entityType) cell[i].onClick();
+			}
+
+			this.currentDepth--;
+
+			return true;
 		}
+		else return false;
 	}
 
 	global.UndoManager = UndoManager;

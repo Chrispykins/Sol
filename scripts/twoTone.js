@@ -153,8 +153,18 @@
 
 		this.activate();
 
+		this.updateLevelData();
+
 		//register action with undo buffer
 		this.level.undoManager.registerAction(this.gridPos.slice(), this.entityType);
+	}
+
+	TwoTone.prototype.updateLevelData = function() {
+
+		var inner = this["solfege_"+this.inner];
+		var outer = this["solfege_"+this.outer];
+
+		this.level.updateLevelData(this, [outer, inner])
 	}
 
 	global.TwoTone= TwoTone;

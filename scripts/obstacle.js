@@ -123,7 +123,6 @@
 
 		//function to change over to next animation in cycle
 		this.animation.onEnd= function() {
-			
 
 			this.animation.changeAnimation(this.direction);
 
@@ -140,6 +139,8 @@
 
 				this.sounds.latch.play();
 				this.sounds.turn.pause();
+
+				if (!this.level.playing) this.updateLevelData();
 			}
 
 		}.bind(this);
@@ -179,6 +180,8 @@
 
 				this.sounds.latch.play();
 				this.sounds.turn.pause();
+
+				if (!this.level.playing) this.updateLevelData();
 			}
 
 		}.bind(this);
@@ -213,29 +216,22 @@
 		var distance= to - from;
 
 		if (distance != 0) {
+
 			this.animation.speed= 4;
 
 			if (distance > 2) {
 				
 				distance %= this.enum.length;
 				distance -= this.enum.length;
+
 			}
 			else if (distance < -2) {
 				
 				distance %= this.enum.length;
 				distance += this.enum.length;
 			}
-			else {
-
-				if (from < to) {
 					
-					this.count= distance;
-				}
-				else if (from > to) {
-					
-					this.count= -distance;
-				}
-			}
+			this.count= distance;
 		}
 
 		this.sounds.turn.pause();
@@ -270,6 +266,17 @@
 	Obstacle.prototype.undo = function() {
 
 		this.count--;
+	}
+
+	Obstacle.prototype.updateLevelData = function() {
+
+/*
+		var index = this.enum.indexOf(this.direction) + this.count;
+		index = (index + this.enum.length) % this.enum.length;
+
+		this.level.updateLevelData(this, this.enum[index]);
+*/
+		this.level.updateLevelData(this, this.direction);
 	}
 
 	global.Obstacle= Obstacle;

@@ -10,6 +10,8 @@
 		//make sure options exists
 		options= options || {};
 
+		this.levelData = options.level;
+
 		this.number= options.number || 0;
 		this.author= options.author || 'Chris';
 
@@ -222,6 +224,7 @@
 							size: [this.cellSize, this.cellSize],
 							gridPos: [x ,y],
 							direction: grid[y][x].obstacle.slice(0, -4),
+							open: grid[y][x].gate,
 							level: this,
 						});
 					}
@@ -319,6 +322,8 @@
 		else {
 			this.perform("revert");
 		}
+
+		this.save();
 
 		for (var i= 0, l= this.starts.length; i <l; i++) {
 
@@ -524,7 +529,7 @@
 		setTimeout(function() {
 			
 			if (this.number == 0) {
-				global.importLevel(global.levels[parseInt(localStorage.progress) + 1]);
+				global.importLevel(global.levels[parseInt(localStorage.Sol_progress) + 1]);
 			}
 			else if (this.number < 0) {
 				global.startGame();
@@ -535,11 +540,11 @@
 				//load next level
 				global.importLevel(global.levels[parseInt(this.number) + 1]);
 
-				localStorage.progress= this.number
+				localStorage.Sol_progress= this.number;
 			}
 			else {
 
-				localStorage.progress= 0;
+				localStorage.Sol_progress= 0;
 				
 				//otherwise display ending screen
 				global.importLevel(global.levels.credits);
@@ -559,8 +564,6 @@
 
 		this.zooming= 1;
 
-		console.log(this.obstacles)
-
 		this.sounds.onLoad.pause();
 		this.sounds.onLoad.currentTime= 0;
 		this.sounds.onWin.pause();
@@ -568,6 +571,8 @@
 	}
 
 	Level.prototype.unload = function() {
+
+		this.save();
 
 		for (var i = 0, l = this.obstacles.length; i < l; i++) {
 			if (this.obstacles[i] instanceof global.Obstacle) this.obstacles[i].sounds.turn.remove();
@@ -631,6 +636,21 @@
 		}
 	}
 
+	//updates specific cell of level data with new information
+	Level.prototype.updateLevelData = function(thing, data) {
+
+		var x    = thing.gridPos[0];
+		var y    = thing.gridPos[1];
+		var type = thing.entityType;
+
+		this.levelData[y][x][type] = data;
+	}
+
+	//saves current level configuration
+	Level.prototype.save = function() {
+
+		localStorage["Sol_level_"+ this.number] = JSON.stringify(this.levelData);
+	}
 	
 	//captures and processes click event on level
 	Level.prototype.onClick= function(click) {

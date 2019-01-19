@@ -110,8 +110,8 @@
 	
 	function startGame() {
 
-		if (!localStorage.progress) {
-			localStorage.progress= 0;
+		if (!localStorage.Sol_progress) {
+			localStorage.Sol_progress= 0;
 		}
 
 		var title= new global.Gui( {size: [1920, 1080], image: images.title} );
@@ -151,9 +151,6 @@
 
 		//play title sound
 		sounds.titleSound.play();
-
-
-
 	}
 
 	global.startGame= startGame;
@@ -185,10 +182,11 @@
 	global.showCredits= showCredits;
 
 	
-	function createLevel(levelData) {
-
+	function createLevel(levelData, saveData) {
 
 		levelData= JSON.parse(levelData);
+
+		if (saveData) levelData.level = JSON.parse(saveData);
 
 		var newLevel= new global.Level(levelData);
 
@@ -210,14 +208,30 @@
 		global.currentLevel= createLevel(levelData);
 
 		global.currentScreen.name+= global.currentLevel.number;
-
-		if (global.currentLevel.number == 1 && localStorage.firstTime == 'true') {
-			displayTutorial();
-			localStorage.firstTime= 'false';
-		}
 	}
 
 	global.importLevel= importLevel;
+
+
+	function loadLevel(number) {
+
+		global.currentScreen = new global.Screen("level_"+number, [toolbar]);
+
+		if (global.currentLevel) global.currentLevel.unload();
+
+		if (global.levels[number])	var levelData = global.levels[number];
+
+		if (localStorage.getItem("Sol_level_"+ number)) var saveData = localStorage["Sol_level_"+ number];
+
+		global.currentLevel = createLevel(levelData, saveData);
+
+		if (global.currentLevel.number == 1 && localStorage.Sol_firstTime == 'true') {
+			displayTutorial();
+			localStorage.Sol_firstTime= 'false';
+		}
+	}
+
+	global.loadLevel = loadLevel;
 	
 
 	//set up global update loop to control physics of game

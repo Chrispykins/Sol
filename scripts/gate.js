@@ -36,7 +36,7 @@
 		this.center= [this.xy[0] + this.size[0]/2, this.xy[1] + this.size[1]/2];
 
 		this.direction= options.direction || 'vert';
-		this.open= false;
+		this.open= options.open || false;
 
 		this.saveState= false;
 
@@ -64,6 +64,8 @@
 
 		this.animation.frameIndex= 10;
 		this.animation.currentFrame= this.animation.spriteSheet.frames[10];
+
+		if (this.open) this.animation.start("open"+ this.open);
 
 		this.sound= new global.AudioGroup(global.sounds.gate_0, global.sounds.gate_1, global.sounds.gate_2, global.sounds.gate_3);
 
@@ -170,6 +172,7 @@
 
 			this.activate();
 
+			this.updateLevelData();
 
 			//register action with undo buffer
 			this.level.undoManager.registerAction(this.gridPos.slice(), this.entityType);
@@ -197,6 +200,13 @@
 	Gate.prototype.undo = function() {
 
 		this.activate();
+
+		this.updateLevelData();
+	}
+
+	Gate.prototype.updateLevelData = function() {
+		
+		this.level.updateLevelData(this, this.open);
 	}
 
 	global.Gate= Gate;

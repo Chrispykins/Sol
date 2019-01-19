@@ -1,7 +1,6 @@
 //Button class
-(function (global){
+(function (global) {
 	
-
 	var canvas= global.canvas;
 	var context= global.context;
 	var viewport= global.viewport;
