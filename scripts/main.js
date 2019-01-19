@@ -219,7 +219,8 @@
 
 		if (global.currentLevel) global.currentLevel.unload();
 
-		if (global.levels[number])	var levelData = global.levels[number];
+		if (global.newLevels[number])   var levelData = global.newLevels[number];
+		else if (global.levels[number])	var levelData = global.levels[number];
 
 		if (localStorage.getItem("Sol_level_"+ number)) var saveData = localStorage["Sol_level_"+ number];
 
