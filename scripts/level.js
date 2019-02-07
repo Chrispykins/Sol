@@ -5,6 +5,8 @@
 	var context= global.context;
 	var viewport= global.viewport;
 
+	addEventListener('beforeunload', function() { global.currentLevel.save() });
+
 	function Level(options) {
 
 		//make sure options exists
@@ -12,7 +14,7 @@
 
 		this.levelData = options.level;
 
-		this.number= options.number || 0;
+		this.number= parseInt(options.number) || 0;
 		this.author= options.author || 'Chris';
 
 		this.xy= [0, 0];
@@ -79,6 +81,12 @@
 
 		//update balls
 		for (var i=0, l= this.balls.length; i < l; i++) {
+
+			//adjust opacity of ball as it enters and leaves wormholes
+			if (this.wormholes.length) {
+
+				this.updateWormholeDistance(this.balls[i]);
+			}
 			
 			this.balls[i].update(dt);
 
@@ -133,6 +141,29 @@
 		}
 	}
 
+	Level.prototype.updateWormholeDistance = function(ball) {
+				
+		var startDistance = Math.distance(ball.xy, this.wormholes[0].xy);
+		var endDistance   = Math.distance(ball.xy, this.wormholes[1].xy);
+		var distance, target;
+		
+		if (startDistance < endDistance) {
+			distance = startDistance;
+			target = 0;
+		}
+		else { 
+			distance = endDistance;
+			target = 1;
+		}
+
+		if (ball.distanceToWormhole > this.cellSize/2 && distance < this.cellSize/2) {
+			this.wormholes[0].activate();
+			this.wormholes[1].activate();
+		}
+
+		ball.distanceToWormhole = distance;
+	}
+
 
 	Level.prototype.draw= function(dt) {
 
@@ -183,6 +214,29 @@
 
 				var newCell= [];
 				var pos= [x * this.cellSize + this.xy[0], y * this.cellSize + this.xy[1]];
+
+				//check for wormholes
+				if (grid[y][x].wormhole) {
+
+
+					var newHole= new global.Wormhole({
+						xy: [pos[0] + this.cellSize/2, pos[1] + this.cellSize/2],
+						size: [this.cellSize - 40, this.cellSize - 40],
+						gridPos: [x, y],
+						level: this
+					});
+
+					if (outlet) {
+						newHole.outlet= outlet
+						outlet.outlet= newHole;
+					}
+					else {
+						var outlet= newHole;
+					}
+
+					newCell.push(newHole);
+					this.wormholes.push(newHole);
+				}
 
 				//check for notes
 				if (grid[y][x].note) {
@@ -258,29 +312,6 @@
 					this.starts.push(newStart);
 				}
 
-				//check for wormholes
-				if (grid[y][x].wormhole) {
-
-
-					var newHole= new global.Wormhole({
-						xy: [pos[0], pos[1]],
-						size: [this.cellSize, this.cellSize],
-						gridPos: [x, y],
-						level: this
-					});
-
-					if (outlet) {
-						newHole.outlet= [outlet.xy[0], outlet.xy[1]];
-						outlet.outlet= [newHole.xy[0], newHole.xy[1]];
-					}
-					else {
-						var outlet= newHole;
-					}
-
-					newCell.push(newHole);
-					this.wormholes.push(newHole);
-				}
-
 				//check for buttons
 				if (grid[y][x].button) {
 					
@@ -308,6 +339,15 @@
 			this.buttons[i].findAdjacent();
 		}
 	}
+
+	Level.prototype.getCellAtLocation = function(x, y) {
+
+		gridX= global.Math.floor( (x - this.xy[0]) / this.cellSize);
+		gridY= global.Math.floor( (y - this.xy[1]) / this.cellSize);
+
+		return this.grid[gridY][gridX];
+	}
+
 
 	//launch the balls and start the beat
 	Level.prototype.launch= function() {
@@ -402,76 +442,86 @@
 					clearInterval(this.musicBox);
 					this.musicBox= null;
 				}
-			}, 1000/this.bps);
+			}, 1000/(this.bps * global.gameSpeed));
 		}
 	}
 
 	Level.prototype.checkSolution= function() {
 
-		if (this.solution.length == this.playerSolution.length) { //# of beats in input by player must be equal to or greater than solution
+		if (!this.playerSolution.length || this.playerSolution.length > this.solution.length) return false;
 
-			for (var beat= 0, end= this.solution.length; beat < end; beat++) {
-
-				var solutionNotes= this.solution[beat];
-				var playerNotes= this.playerSolution[beat];
-
-				//matches is an boolean array, listing whether or not each note 
-				//in the solution and player input has found a match
-				var matches= [];
-
-
-				//if both inputs are empty, return true
-				if (solutionNotes.length=== 0 && playerNotes.length=== 0) {
-					matches= [true];
-				}
-				else {
-					
-					var solutionMatched= false;
-					var inputMatched= false;
-
-					//check all notes in solution against player input
-					for (var i= 0, l= solutionNotes.length; i < l; i++) {
-
-						solutionMatched= false;
-
-						for (var j= 0, k= playerNotes.length; j < k; j++) {
-
-							solutionMatched= solutionMatched || solutionNotes[i] == playerNotes[j];
-						}
-
-						matches.push(solutionMatched);
-					}
-
-					//check all notes in player input against solution
-					for (var i= 0, l= playerNotes.length; i < l; i++) {
-
-						inputMatched= false;
-
-						for (var j= 0, k= solutionNotes.length; j < k; j++) {
-
-							inputMatched= inputMatched || playerNotes[i] == solutionNotes[j];
-						}
-
-						matches.push(inputMatched);
-					}
-
-				}
-
-				//loop through to see if all notes matched
-				for (var i= 0, l= matches.length; i < l; i++) {
-					
-					if (!matches[i]) {
-						//one of the notes in the solution or player input didn't match
-						return false;
-					}
-				}
-		
-			}
-			//notes matched every beat
-			return true;
+		//check if all balls are gone
+		var noBalls = true;
+		for (var ball = 0; ball < this.balls.length; ball++) {
+			if (!this.balls[ball].destroyed) noBalls = false;
 		}
-		//player has not yet even strung together enough beats to complete solution
-		else return false; 
+
+		for (var beat= 0, end= this.solution.length; beat < end; beat++) {
+
+			var solutionNotes= this.solution[beat];
+			var playerNotes= this.playerSolution[beat];
+
+			//allow player solutions that end with empty notes if there are no more balls left
+			if (!playerNotes) {
+				if (noBalls) playerNotes = []; 
+				else return false;
+			}
+
+			//matches is an boolean array, listing whether or not each note 
+			//in the solution and player input has found a match
+			var matches= []
+
+
+			//if both inputs are empty, return true
+			if (solutionNotes.length=== 0 && playerNotes.length=== 0) {
+				matches= [true];
+			}
+			else {
+				
+				var solutionMatched= false;
+				var inputMatched= false;
+
+				//check all notes in solution against player input
+				for (var i= 0, l= solutionNotes.length; i < l; i++) {
+
+					solutionMatched= false;
+
+					for (var j= 0, k= playerNotes.length; j < k; j++) {
+
+						solutionMatched= solutionMatched || solutionNotes[i] == playerNotes[j];
+					}
+
+					matches.push(solutionMatched);
+				}
+
+				//check all notes in player input against solution
+				for (var i= 0, l= playerNotes.length; i < l; i++) {
+
+					inputMatched= false;
+
+					for (var j= 0, k= solutionNotes.length; j < k; j++) {
+
+						inputMatched= inputMatched || playerNotes[i] == solutionNotes[j];
+					}
+
+					matches.push(inputMatched);
+				}
+
+			}
+
+			//loop through to see if all notes matched
+			for (var i= 0, l= matches.length; i < l; i++) {
+				
+				if (!matches[i]) {
+					//one of the notes in the solution or player input didn't match
+					return false;
+				}
+			}
+	
+		}
+
+		//notes matched every beat
+		return true;
 	}
 
 
@@ -493,7 +543,8 @@
 			}
 		}
 
-		this.playerSolution.push(thisBeat);
+		//don't include empty starting beats in solution
+		if (thisBeat.length || this.playerSolution.length) this.playerSolution.push(thisBeat);
 
 		//play the beat
 		for (i= 0, l= thisBeat.length; i < l; i++) {
@@ -529,16 +580,16 @@
 		setTimeout(function() {
 			
 			if (this.number == 0) {
-				global.importLevel(global.levels[parseInt(localStorage.Sol_progress) + 1]);
+				global.loadLevel(parseInt(localStorage.Sol_progress) + 1);
 			}
 			else if (this.number < 0) {
 				global.startGame();
 			}
 
-			else if (global.levels[parseInt(this.number) + 1]) {
+			else if (global.levels[this.number + 1]) {
 				
 				//load next level
-				global.importLevel(global.levels[parseInt(this.number) + 1]);
+				global.loadLevel(this.number + 1);
 
 				localStorage.Sol_progress= this.number;
 			}
@@ -550,9 +601,6 @@
 				global.importLevel(global.levels.credits);
 			}
 		}.bind(this), 900);
-
-
-
 	}
 
 	Level.prototype.onExit= function() {
@@ -568,11 +616,15 @@
 		this.sounds.onLoad.currentTime= 0;
 		this.sounds.onWin.pause();
 		this.sounds.onLoad.currentTime= 0;
+
+		this.unload();
 	}
 
 	Level.prototype.unload = function() {
 
 		this.save();
+
+		global.gameSpeed = 1;
 
 		for (var i = 0, l = this.obstacles.length; i < l; i++) {
 			if (this.obstacles[i] instanceof global.Obstacle) this.obstacles[i].sounds.turn.remove();

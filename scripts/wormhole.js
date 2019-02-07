@@ -20,13 +20,16 @@
         this.xy= options.xy || [0, 0];
         this.size= options.size || [0, 0];
 
+        this.base = global.images.portalBase;
+
         this.sprite= options.sprite || sprite;
         
         this.animation= new global.SpriteAnimation(this.sprite, {
-                X: this.xy[0] + 20,
-                Y: this.xy[1] + 20,
-                width: this.size[0] - 40,
-                height: this.size[1] - 40,
+            //for now we are using the middle wormhole for position. Should probably do this for all objects
+                X: this.xy[0] - this.size[0]/2,
+                Y: this.xy[1] - this.size[1]/2,
+                width: this.size[0],
+                height: this.size[1],
                 loop: true,
                 canvas: canvas,
                 context: context,
@@ -37,7 +40,11 @@
 
         this.level= options.level || global.currentLevel;
 
-        this.outlet= options.outlet || [0, 0];
+        this.outlet= null;
+
+        //in and out animation
+        this.scale = 1;
+        this.scaleDirection = 0;
 
         this.context= options.context || context || global.context;
         this.viewport= options.viewport || viewport || global.viewport;
@@ -45,17 +52,40 @@
 
     Wormhole.prototype.draw= function(dt) {
 
+        if  (this.scale < 0.25 && this.scaleDirection < 0) {
+            this.scaleDirection = 1;
+            this.animation.speed = -2;
+        }
+        else if  (this.scale > 1   && this.scaleDirection > 0) {
+            this.scaleDirection = 0;
+            this.scale =1;
+            this.animation.speed = 1;
+        }
+
+        this.scale += this.scaleDirection * this.level.bps * dt / 2000;
+
+        this.animation.width  = this.size[0] * this.scale;
+        this.animation.height = this.size[1] * this.scale;
+
+        this.animation.X = this.xy[0] - this.animation.width/2;
+        this.animation.Y = this.xy[1] - this.animation.height/2
+
+        this.viewport.drawImage(this.base, this.xy[0] - this.size[0]/2, this.xy[1] - this.size[1]/2, this.size[0], this.size[1]);
+
         this.animation.update(dt);
         this.animation.draw();
     }
 
     Wormhole.prototype.onClick= function() {
 
+        this.activate()
+
         return false;
     }
 
     Wormhole.prototype.activate = function() {
-        //empty function to prevent errors
+        this.animation.speed = 7;
+        this.scaleDirection = -1;
     }
 
     Wormhole.prototype.undo = function() {
@@ -73,12 +103,8 @@
 
     Wormhole.prototype.transfer= function(ball) {
 
-        var offsetX= (this.size[0] - ball.size[0]) / 2;
-        var offsetY= (this.size[1] - ball.size[1]) / 2;
-
-        ball.xy[0]= this.outlet[0] + offsetX;
-        ball.xy[1]= this.outlet[1] + offsetY;
-
+        ball.xy[0]= this.outlet.xy[0];
+        ball.xy[1]= this.outlet.xy[1];
     }
 
 

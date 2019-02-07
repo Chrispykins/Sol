@@ -81,8 +81,8 @@
 	Gate.prototype.bounce= function(ball) {
 
 		//center the ball on the obstacle
-		ball.xy[0]= this.xy[0] + (this.size[0] - ball.size[0]) / 2;
-		ball.xy[1]= this.xy[1] + (this.size[1] - ball.size[1]) / 2;
+		ball.xy[0]= this.xy[0] + this.size[0] / 2;
+		ball.xy[1]= this.xy[1] + this.size[1] / 2;
 
 		if (!this.open) {
 			

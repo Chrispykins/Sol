@@ -298,6 +298,7 @@ var Sol= {};
 			'startdown',
 			'startleft',
 			'startright',
+			'portalBase',
 			'portalSheet',
 			'obstacleSheet',
 			'horGateSheet',

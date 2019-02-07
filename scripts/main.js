@@ -14,6 +14,8 @@
 	var viewport= global.viewport;
 	viewport.size= [1920, toolbar.xy[1]];
 
+	global.gameSpeed = 1;
+
 	function init() {
 
 		//resize the canvas just in case
@@ -131,7 +133,7 @@
 			global.playing= true;
 
 			//load "level 0"
-			global.currentLevel= createLevel(global.levels[0]);
+			global.currentLevel= createLevel(global.newLevels[0]);
 
 			//set last tick right before beginning update loop
 			global.lastTick= global.Date.now();
@@ -252,6 +254,8 @@
 
 		now= global.Date.now();
 		dt= (now - global.lastTick)/1000.0;
+		dt = Math.min(dt, .05);
+		dt*= global.gameSpeed;
 
 		//DEBUG: frame rate counter
 		/*frameTimer+= dt;

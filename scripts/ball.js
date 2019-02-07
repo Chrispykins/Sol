@@ -20,6 +20,9 @@
 		this.size= options.size || [0, 0];
 		this.v= options.v || [0, 0];
 
+		this.distanceToWormhole = 9999; //used to control wormhole animation
+		this.targetWormhole = null;
+
 		this.destroyed= false; //flag for ball removal next tick
 
 		this.level= options.level || global.currentLevel;
@@ -27,8 +30,8 @@
 		this.sprite= options.sprite || sprite;
 
 		this.animation= new global.SpriteAnimation(this.sprite, {
-			X: this.xy[0],
-			Y: this.xy[1],
+			X: this.xy[0] - this.size[0]/2,
+			Y: this.xy[1] - this.size[1]/2,
 			width: this.size[0],
 			height: this.size[1],
 			loop: true,
@@ -37,8 +40,11 @@
 			viewport: viewport
 		});
 
-		this.animation.frameRate= 60;
+		this.animation.frameRate= 90;
 		this.animation.start();
+
+		this.opacity = 1;
+		this.opacityDirection = 0;
 
 		this.canvas= canvas;
 		this.context= context;
@@ -47,17 +53,27 @@
 
 	Ball.prototype.update= function(dt) {
 
-		//this.checkCollisions();
-
 		this.xy[0]+= this.v[0] * dt;
 		this.xy[1]+= this.v[1] * dt;
 
-		this.animation.X= this.xy[0];
-		this.animation.Y= this.xy[1];
+		//fade when passing through wormhole
+		/*
+		if (this.targetWormhole) {
+
+			this.opacity += this.level.bps * dt * this.opacityDirection;
+
+			if (this.opacity > 1) {
+				this.targetWormhole = null;
+				this.opacity = 1;
+			}
+		}
+		*/
 
 	}
 
 	Ball.prototype.onBeat= function() {
+
+		if (this.destroyed) return [];
 
 		var notes= [];
 
@@ -66,12 +82,12 @@
 
 		if (x < 0 || x >= this.level.gridSize[0]) {
 			this.destroyed= true;
-			return;
+			return [];
 		}
 
 		if (y < 0 || y >= this.level.gridSize[1]) {
 			this.destroyed= true
-			return;
+			return [];
 		}
 
 		var currentCell= this.level.grid[y][x];
@@ -79,7 +95,6 @@
 		if (!currentCell) {
 			return [];
 		}
-
 
 		for (var i= 0, l= currentCell.length; i < l; i++) {
 
@@ -93,8 +108,11 @@
 
 			if (currentCell[i] instanceof global.Button) {
 				notes = notes.concat( currentCell[i].activate() );
-
 			}
+		}
+
+		//second pass for wormholes
+		for (var i = 0, l = currentCell.length; i < l; i++) {
 
 			if (currentCell[i] instanceof global.Wormhole) {
 				currentCell[i].transfer(this);
@@ -115,6 +133,11 @@
 	}
 
 	Ball.prototype.draw= function(dt) {
+
+		//if (this.targetWormhole) this.context.globalAlpha = this.opacity;
+
+		this.animation.X= this.xy[0] - this.size[0]/2;
+		this.animation.Y= this.xy[1] - this.size[1]/2;
 
 		this.animation.update(dt);
 		this.animation.draw();

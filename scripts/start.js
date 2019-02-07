@@ -5,6 +5,8 @@
 	var context= global.context;
 	var viewport= global.viewport;
 
+	var ballSize = 65;
+
 	function Start(options) {
 
 		//make sure options exists
@@ -57,8 +59,8 @@
 		var velocity= this.level.bps * this.level.cellSize;
 
 		this.level.balls.push(new global.Ball({
-			xy: [this.xy[0] + (this.size[0]/2) - 25, this.xy[1] + (this.size[1]/2) - 25],
-			size: [50 , 50],
+			xy: [this.xy[0] + this.size[0]/2, this.xy[1] + this.size[1]/2],
+			size: [ballSize , ballSize],
 			v: [velocity * this.vector[0], velocity * this.vector[1]],
 			level: this.level,
 
