@@ -11,8 +11,11 @@
 	var sounds= global.sounds;
 
 	var toolbar= global.toolbar;
+	var sidebarWidth = 150;
 	var viewport= global.viewport;
-	viewport.size= [1920, toolbar.xy[1]];
+
+	viewport.size= [1920 - sidebarWidth * 2, toolbar.xy[1]];
+	viewport.canvasPos = [sidebarWidth, 0];
 
 	global.gameSpeed = 1;
 
@@ -325,6 +328,7 @@
 	});
 
 	global.gameActive = true;
+	global.sidebarWidth = sidebarWidth;
 
 	init();
 

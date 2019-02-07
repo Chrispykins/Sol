@@ -35,7 +35,7 @@
 		var viewY= (y - this.xy[1]) * this.scale;
 
 		var canvasX= (viewX + this.canvasPos[0]) * this.canvas.scale;
-		var canvasY= (viewY + this.canvasPos[0]) * this.canvas.scale;
+		var canvasY= (viewY + this.canvasPos[1]) * this.canvas.scale;
 
 		this.context.drawImage(image, canvasX, canvasY, width * scale, height * scale);
 	}
@@ -48,7 +48,7 @@
 		var viewY= (destY - this.xy[1]) * this.scale;
 
 		var canvasX= (viewX + this.canvasPos[0]) * this.canvas.scale;
-		var canvasY= (viewY + this.canvasPos[0]) * this.canvas.scale;
+		var canvasY= (viewY + this.canvasPos[1]) * this.canvas.scale;
 
 		this.context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, canvasX, canvasY, destWidth * scale, destHeight * scale);
 	}

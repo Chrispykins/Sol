@@ -51,6 +51,7 @@
 			onBackButton(event);
 		}
 
+		//ctrl+z -- undo
 		if (event.which == 90 && event.ctrlKey) {
 			global.currentLevel.undoManager.undo();
 		}

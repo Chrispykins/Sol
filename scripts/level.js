@@ -49,6 +49,8 @@
 
 		this.viewportOffset= options.viewportOffset || [0, 0];
 
+		this.zooming = 1;
+
 		this.sounds= {
 			onLoad: global.sounds.level_in,
 			onWin: global.sounds.level_out,
@@ -124,9 +126,9 @@
 				
 				this.zooming= 1;
 
-				this.viewport.focus(this);
-				this.viewport.xy[0]+= this.viewportOffset[0];
-				this.viewport.xy[1]+= this.viewportOffset[1];
+				viewport.focus(this);
+				viewport.xy[0]+= this.viewportOffset[0] * viewport.scale;
+				viewport.xy[1]+= this.viewportOffset[1] * viewport.scale;
 
 				//launch the level for the credits
 				if (this.number < 0) {
@@ -168,6 +170,13 @@
 	Level.prototype.draw= function(dt) {
 
 		this.perform("draw", dt);
+
+		//debug border
+		var scale = global.scale;
+		var x = (this.xy[0] - viewport.xy[0]) * scale + viewport.canvasPos[0] * canvas.scale;
+		var y = (this.xy[1] - viewport.xy[1]) * scale + viewport.canvasPos[1] * canvas.scale;
+
+		this.context.strokeRect(x, y, this.cellSize * this.gridSize[0] * scale, this.cellSize * this.gridSize[1] * scale);
 
 		//animate the number on level load
 		if (this.numberDisplay && this.number != 0) {
@@ -642,9 +651,9 @@
 
 
 		//focus viewport on level to center level and store final scale
-		this.viewport.focus(this);
-		this.viewport.xy[0]+= this.viewportOffset[0];
-		this.viewport.xy[1]+= this.viewportOffset[1];
+		viewport.focus(this);
+		viewport.xy[0]+= this.viewportOffset[0] * viewport.scale;
+		viewport.xy[1]+= this.viewportOffset[1] * viewport.scale;
 
 		//store final scale
 		this.finalZoom= viewport.scale;
@@ -655,7 +664,7 @@
 		//final level should be a bit more epic
 		if (this.number == 50) {
 
-			this.zooming= 3.2;
+			this.zooming= 3;
 
 		}
 		else {
@@ -709,8 +718,8 @@
 
 		var success= false;
 
-		gameX= (click[0] / this.viewport.scale) + this.viewport.xy[0];
-		gameY= (click[1] / this.viewport.scale) + this.viewport.xy[1];
+		gameX= ((click[0] - viewport.canvasPos[0]) / viewport.scale) + viewport.xy[0];
+		gameY= ((click[1] - viewport.canvasPos[1]) / viewport.scale) + viewport.xy[1];
 
 		gridX= global.Math.floor(gameX / this.cellSize);
 		gridY= global.Math.floor(gameY / this.cellSize);
