@@ -34,6 +34,11 @@ var Sol= {};
 		localStorage.Sol_firstTime= 'true';
 	}
 
+	if (!localStorage.Sol_unlocked) {
+		localStorage.Sol_unlocked = '[]';
+	}
+	else global.unlockedNotes = JSON.parse(localStorage.Sol_unlocked);
+
 	//canvas settings
 	global.canvas.imageSmoothingEnabled= false;
 	
@@ -62,6 +67,10 @@ var Sol= {};
 
 		var x = Math.min(1, Math.max(0, progress));
 	    return Math.lerp(start, end, x * x * (3 - 2 * x));
+	}
+
+	Math.clamp = function(min, max, x) {
+		return Math.min(max, Math.max(min, x));
 	}
 
 	
@@ -191,6 +200,45 @@ var Sol= {};
 
 		recurse(0);
 	}
+
+	//creates a lists of assets that must be loaded before the level.
+	//should only be used on old levels that don't have this data baked in
+	function createAssetList(levelData) {
+
+		var assets = [];
+
+		for (var y = 0, height = levelData.level.length; y < height; y++) {
+
+			var row = levelData.level[y];
+
+			for (var x = 0, width = row.length; x < width; x++) {
+
+				var cell = row[x];
+
+				if (cell.note && !assets.includes(cell.note)) assets.push(cell.note);
+
+				if (cell.twoTone) {
+
+					if (!assets.includes(cell.twoTone[0])) assets.push(cell.twoTone[0]);
+					if (!assets.includes(cell.twoTone[1])) assets.push(cell.twoTone[1]);
+				}
+
+				if (cell.obstacle) {
+
+					if (cell.obstacle.slice(-4) === "Gate" && !assets.includes("gate")) assets.push("gate");
+					else if (!assets.includes("obstacle")) assets.push("obstacle");
+				}
+
+				if (cell.wormhole && !assets.includes("wormhole")) assets.push("wormhole");
+
+				if (cell.button && !assets.includes("button")) assets.push("button");
+			}
+		}
+
+		return assets;
+	}
+
+	global.createAssetList = createAssetList;
 
 	//loadingManager makes sure all scripts load after the graphics and sound of the game loads
 	//the assets argument is an object that contains three arrays: 'images', 'sounds', and 'scripts'
@@ -356,7 +404,6 @@ var Sol= {};
 			'SpriteAnimation',
 			'gui',
 			'screen',
-			'toolbar',
 			'levels',
 			'credits',
 			
@@ -368,6 +415,9 @@ var Sol= {};
 			'start',
 			'wormhole',
 			'button',
+			
+			'toolbar',
+			'sidebars',
 			'undo',
 			'level',
 			'input',

@@ -3,9 +3,10 @@
 	
 	var canvas= global.canvas;
 
-	function onClick(event) {
+	global.mouse = [0, 0];
 
-		var click= [0, 0];
+	function onMouseMove(event) {
+
 		var x, y;
 
 		//test if event was sent from a touch screen
@@ -18,15 +19,30 @@
 			y= event.pageY || event.clientY;
 		}
 
-		var click= [x, y];
 		var offset= canvas.getBoundingClientRect();
 
+		x = x - offset.left;
+		y = y - offset.top;
 
-		click[0]= click[0] - offset.left;
-		click[1]= click[1] - offset.top;
+		x = x / canvas.scale;
+		y = y / canvas.scale;
 
-		click[0]= click[0] / canvas.scale;
-		click[1]= click[1] / canvas.scale;
+		global.mouse = [x, y];
+
+		for (var i = global.currentScreen.layers.length - 1; i >= 0; i--) {
+
+			if (global.currentScreen.layers[i].onMouseMove) {
+				if (global.currentScreen.layers[i].onMouseMove(global.mouse)) return;
+			}
+		}
+
+		return global.mouse;
+
+	}
+
+	function onClick(event) {
+
+		var click = onMouseMove(event);
 
 		for (var i= global.currentScreen.layers.length - 1; i >= 0; i--) {
 
@@ -42,12 +58,12 @@
 		//alert(event.which);
 
 		//space bar
-		if (event.which== 32) {
+		if (event.which == 32) {
 			global.currentLevel.launch();
 		}
 
-		//backspace or delete
-		if (event.which == 8 || event.which == 46) {
+		//backspace or delete or esc
+		if (event.which == 8 || event.which == 46 || event.which == 27) {
 			onBackButton(event);
 		}
 
@@ -71,6 +87,7 @@
 
 	canvas.addEventListener('mousedown', onClick);
 	canvas.addEventListener('touchstart', onClick);
+	window.addEventListener('mousemove', onMouseMove);
 	window.addEventListener('keydown', onKey);
 	window.addEventListener('backbutton', onBackButton);
 

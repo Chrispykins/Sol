@@ -11,11 +11,11 @@
 	var sounds= global.sounds;
 
 	var toolbar= global.toolbar;
-	var sidebarWidth = 150;
+	var noteBar= global.noteBar;
 	var viewport= global.viewport;
 
-	viewport.size= [1920 - sidebarWidth * 2, toolbar.xy[1]];
-	viewport.canvasPos = [sidebarWidth, 0];
+	viewport.size= [1920 - noteBar.size[0], toolbar.xy[1]];
+	viewport.canvasPos = [noteBar.size[0] / 2, 0];
 
 	global.gameSpeed = 1;
 
@@ -206,7 +206,7 @@
 
 	function importLevel(levelData) {
 
-		global.currentScreen= new global.Screen('level_', [toolbar]);
+		global.currentScreen= new global.Screen('level_', [toolbar, noteBar]);
 
 		if (global.currentLevel) global.currentLevel.unload();
 
@@ -220,7 +220,7 @@
 
 	function loadLevel(number) {
 
-		global.currentScreen = new global.Screen("level_"+number, [toolbar]);
+		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar]);
 
 		if (global.currentLevel) global.currentLevel.unload();
 
@@ -271,13 +271,12 @@
 		//END DEBUG
 
 		if (global.gameActive) {
-			if (global.playing) {
-				global.currentLevel.update(dt);
-			}
 
-			if (global.credits) {
-				global.credits.update(dt);
-			}
+			if (global.playing) global.currentLevel.update(dt);
+
+			if (global.noteBar) global.noteBar.update(dt);
+
+			if (global.credits) global.credits.update(dt);
 		}
 
 		global.lastTick= now;
@@ -328,7 +327,6 @@
 	});
 
 	global.gameActive = true;
-	global.sidebarWidth = sidebarWidth;
 
 	init();
 

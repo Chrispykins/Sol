@@ -14,6 +14,8 @@
 
 		this.levelData = options.level;
 
+		this.assets = options.assets || global.createAssetList(options);
+
 		this.number= parseInt(options.number) || 0;
 		this.author= options.author || 'Chris';
 
@@ -172,11 +174,13 @@
 		this.perform("draw", dt);
 
 		//debug border
+		/*
 		var scale = global.scale;
 		var x = (this.xy[0] - viewport.xy[0]) * scale + viewport.canvasPos[0] * canvas.scale;
 		var y = (this.xy[1] - viewport.xy[1]) * scale + viewport.canvasPos[1] * canvas.scale;
 
 		this.context.strokeRect(x, y, this.cellSize * this.gridSize[0] * scale, this.cellSize * this.gridSize[1] * scale);
+		*/
 
 		//animate the number on level load
 		if (this.numberDisplay && this.number != 0) {
@@ -642,13 +646,20 @@
 
 	Level.prototype.onLoad= function() {
 
+		//loop through assets, check if we've unlocked any new notes
+		if (this.number != 0) {
+
+			for (var i = 0, l = this.assets.length; i < l; i++) {
+
+				global.noteBar.checkUnlock(this.assets[i]);
+			}
+		}
+
 		//////////////////////////////////////////////////////////////
 		// Initialization of level complete.
 		// The following code creates the animations that
 		// play when a level is loaded
 		//////////////////////////////////////////////////////////////
-
-
 
 		//focus viewport on level to center level and store final scale
 		viewport.focus(this);

@@ -543,6 +543,41 @@ function playSolution() {
 	}, 167);
 }
 
+function createAssetList() {
+
+	var assets = [];
+
+	for (var y = 0, height = levelData.level.length; y < height; y++) {
+
+		var row = levelData.level[y];
+
+		for (var x = 0, width = row.length; x < width; x++) {
+
+			var cell = row[x];
+
+			if (cell.note && !assets.includes(cell.note)) assets.push(cell.note);
+
+			if (cell.twoTone) {
+
+				if (!assets.includes(cell.twoTone[0])) assets.push(cell.twoTone[0]);
+				if (!assets.includes(cell.twoTone[1])) assets.push(cell.twoTone[1]);
+			}
+
+			if (cell.obstacle) {
+
+				if (cell.obstacle.slice(-4) === "Gate" && !assets.includes("gate")) assets.push("gate");
+				else if (!assets.includes("obstacle")) assets.push("obstacle");
+			}
+
+			if (cell.wormhole && !assets.includes("wormhole")) assets.push("wormhole");
+
+			if (cell.button && !assets.includes("button")) assets.push("button");
+		}
+	}
+
+	return assets;
+}
+
 
 function exportLevel() {
 	
@@ -585,6 +620,8 @@ function exportLevel() {
 			levelData.wormholeEnd= null;
 		}
 	}
+
+	levelData.assets = createAssetList();
 
 	if (!levelData.wormholeStart != !levelData.wormholeEnd) {
 		warning.innerHTML= 'Wormhole incomplete';

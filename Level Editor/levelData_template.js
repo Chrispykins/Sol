@@ -2,6 +2,8 @@ var levelData = {
 	number: null,
 	author: null,
 
+	assets: [],
+
 	size: [0, 0],
 
 	wormholeStart: null,

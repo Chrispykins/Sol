@@ -130,6 +130,7 @@
 
 	//create viewport instance
 	global.viewport= new Viewport();
+	global.guiViewport = new Viewport();
 
 
 })(Sol);

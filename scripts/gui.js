@@ -47,11 +47,12 @@
 		//empty function to fill for specific gui objects
 	}
 
-	global.Gui= Gui;
+
 
 
 
 	//one type of boundary for gui objects        // ---others could be Circles, Triangles, or irregular polygons--- //
+	///variadic arguments: Rectangle([x, y, width, height]) or (xy, size) or (x, y, width, height)
 	function Rectangle() {
 
 		if (arguments.length== 1) {
@@ -87,11 +88,6 @@
 
 		return false;
 	}
-
-	global.Rectangle= Rectangle;
-
-
-
 
 	function Fade(direction, length) { //length in milliseconds
 	    
@@ -133,9 +129,10 @@
 	    //Note: You should always overwrite this method to destroy the fade if you 
 	    //      are not going to use it again.
 	}
-	
-	global.Fade= Fade;
 
-	
+	//export classes to global
+	global.Gui= Gui;
+	global.Fade= Fade;
+	global.Rectangle= Rectangle;
 	
 })(Sol);

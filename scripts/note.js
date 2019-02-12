@@ -35,6 +35,8 @@
 		this.sound= options.sound || global.sounds[this.solfege];
 		this.level= options.level || global.currentLevel;
 
+		this.viewport= options.viewport || viewport;
+
 		this.base= options.base || global.images[this.solfege+'Base'];
 
 		this.sprite= options.sprite || sprites[this.solfege];
@@ -46,13 +48,11 @@
 			height: this.size[1],
 			canvas: canvas,
 			context: context,
-			viewport: viewport
+			viewport: this.viewport
 		});
 
 		this.animation.frameRate= 120;
 		this.animation.name= this.solfege;
-
-		this.viewport= viewport;
 	}
 
 	Note.prototype.draw= function(dt) {
