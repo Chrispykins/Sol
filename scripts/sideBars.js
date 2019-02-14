@@ -71,10 +71,10 @@
 		//readjust attach points
 		for (var i = 0, l = this.notes.length; i < l; i++) {
 
-			var x = this.notes[i].size[0];
+			var x = this.notes[i].size[0]  / 2;
 			var y = (i + 1) * this.size[1] / (l + 1);
 
-			this.attachPoints[i] = [x - this.notes[i].size[0] / 2, y - this.notes[i].size[1] / 2];
+			this.attachPoints[i] = [x - this.notes[i].size[0] / 4, y - this.notes[i].size[1] / 2];
 		}
 
 		this.update(0);
@@ -83,6 +83,8 @@
 	}
 
 	NoteBar.prototype.draw = function(dt) { 
+
+		this.update(dt/1000);
 
 		//debug border
 		/*
@@ -162,9 +164,178 @@
 		}
 	}
 
+	// right-hand sidebar for options
+	function OptionsBar(options) {
+
+		options = options || {};
+
+		this.xy = options.xy || [0, 0];
+		this.size = options.size || [0, 0];
+
+		this.bounds = new global.Rectangle(this.xy.slice(), this.size);
+
+		this.positions = [global.gameDimensions[0] - 200, global.gameDimensions[0]];
+		this.visible = false;
+
+		this.slideDirection = 0;
+
+		this.slideProgress = 1;
+		
+		this.uiElements = {	
+
+			undoButton: {
+				gui: new global.Gui({image: global.images.replay, size: [100, 100]}),
+				attach: [75, 150],
+				opacity: 1
+			},
+
+			quarterNote: {
+				gui: new global.Gui({image: global.images.replay, size: [100, 100]}),
+				attach: [75, 450],
+				opacity: 0.3
+			},
+
+			dottedNote: {
+				gui: new global.Gui({image: global.images.replay, size: [100, 100]}),
+				attach: [75, 550],
+				opacity: 0.3
+			},
+
+			eigthNote: {
+				gui: new global.Gui({image: global.images.replay, size: [100, 100]}),
+				attach: [75, 650],
+				opacity: 1
+			}
+		}
+
+		var ui = this.uiElements;
+
+		//define onclick events for all buttons
+		ui.undoButton.onClick = function() {
+			global.currentLevel.undoManager.undo();
+		}
+
+		ui.quarterNote.onClick = function() {
+
+			global.gameSpeed = 0.5;
+
+			this.opacity = 1;
+			ui.dottedNote.opacity = 0.3;
+			ui.eigthNote.opacity = 0.3;
+		}
+
+		ui.dottedNote.onClick = function() {
+
+			global.gameSpeed = 0.75;
+
+			this.opacity = 1;
+			ui.quarterNote.opacity = 0.3;
+			ui.eigthNote.opacity = 0.3;
+		}
+
+		ui.eigthNote.onClick = function() {
+
+			global.gameSpeed = 1;
+
+			this.opacity = 1;
+			ui.dottedNote.opacity = 0.3;
+			ui.quarterNote.opacity = 0.3;
+		}
+	}
+
+	OptionsBar.prototype.draw = function(dt) { 
+
+		this.update(dt/1000);
+
+		//debug border
+		/*		
+		var scale = canvas.scale;
+		var x = (this.xy[0] - viewport.xy[0]) * scale + viewport.canvasPos[0] * scale;
+		var y = (this.xy[1] - viewport.xy[1]) * scale + viewport.canvasPos[1] * scale;
+
+		context.strokeRect(x, y, this.size[0] * scale, this.size[1] * scale);
+		
+		x = (this.bounds.xy[0] - viewport.xy[0]) * scale;
+		y = (this.bounds.xy[1] - viewport.xy[1]) * scale;
+
+		context.strokeRect(x, y, this.bounds.size[0] * scale, this.bounds.size[1] * scale);
+		*/
+
+		var ui = this.uiElements;
+
+		ui.undoButton.gui.draw(dt);
+
+		context.globalAlpha = ui.quarterNote.opacity;
+		ui.quarterNote.gui.draw(dt);
+
+		context.globalAlpha = ui.dottedNote.opacity;
+		ui.dottedNote.gui.draw(dt);
+
+		context.globalAlpha = ui.eigthNote.opacity;
+		ui.eigthNote.gui.draw(dt);
+
+		context.globalAlpha = 1;
+	}
+
+	OptionsBar.prototype.update = function(dt) {
+
+		var slideSpeed = 2;
+
+		this.slideProgress += this.slideDirection * slideSpeed * dt;
+
+		if (this.slideDirection && (this.slideProgress >= 1 || this.slideProgress <= 0)) {
+			this.slideDirection = 0;
+			this.slideProgress = Math.clamp(0, 1, this.slideProgress);
+		}
+
+		this.xy[0] = Math.smoothStep(this.positions[0], this.positions[1], this.slideProgress);
+
+		var ui = this.uiElements;
+
+		ui.undoButton.gui.xy[0]  = this.xy[0] + ui.undoButton.attach[0];
+		ui.undoButton.gui.xy[1]  = this.xy[1] + ui.undoButton.attach[1];
+
+		ui.quarterNote.gui.xy[0] = this.xy[0] + ui.quarterNote.attach[0];
+		ui.quarterNote.gui.xy[1] = this.xy[1] + ui.quarterNote.attach[1];
+
+		ui.dottedNote.gui.xy[0]  = this.xy[0] + ui.dottedNote.attach[0];
+		ui.dottedNote.gui.xy[1]  = this.xy[1] + ui.dottedNote.attach[1];
+
+		ui.eigthNote.gui.xy[0]   = this.xy[0] + ui.eigthNote.attach[0];
+		ui.eigthNote.gui.xy[1]   = this.xy[1] + ui.eigthNote.attach[1];
+
+	}
+
+	OptionsBar.prototype.onClick = function(point) {
+
+		for (var ui in this.uiElements) {
+
+			if (this.uiElements[ui].gui.contains(point)) {
+				this.uiElements[ui].onClick();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	OptionsBar.prototype.onMouseMove = function(point) {
+
+		if (!this.visible && point[0] > this.bounds.xy[0]) {
+			this.slideDirection = -1;
+			this.visible = true;
+		}
+
+		if (this.visible && point[0] < this.bounds.xy[0]) {
+			this.slideDirection = 1;
+			this.visible = false;
+		}
+	}
 
 
-	global.noteBar = new NoteBar({xy: [0, 0], size: [300, 900]})
+
+	global.noteBar = new NoteBar({xy: [0, 0], size: [300, 900]});
+	global.optionsBar = new OptionsBar({xy: [global.gameDimensions[0] - 300, 0], size: [300, 900]});
 
 
 })(Sol);

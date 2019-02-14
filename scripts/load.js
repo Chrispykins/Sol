@@ -365,6 +365,7 @@ var Sol= {};
 			'button_7',
 			'button_8',
 			'title',
+			"replay",
 			'splashScreen',
 			'replaySheet',
 			'cancelSheet',

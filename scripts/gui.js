@@ -47,7 +47,9 @@
 		//empty function to fill for specific gui objects
 	}
 
-
+	Gui.prototype.contains = function(point) {
+		return this.bounds.contains(point);
+	}
 
 
 

@@ -12,6 +12,7 @@
 
 	var toolbar= global.toolbar;
 	var noteBar= global.noteBar;
+	var optionsBar = global.optionsBar;
 	var viewport= global.viewport;
 
 	viewport.size= [1920 - noteBar.size[0], toolbar.xy[1]];
@@ -206,7 +207,7 @@
 
 	function importLevel(levelData) {
 
-		global.currentScreen= new global.Screen('level_', [toolbar, noteBar]);
+		global.currentScreen= new global.Screen('level_', [toolbar, noteBar, optionsBar]);
 
 		if (global.currentLevel) global.currentLevel.unload();
 
@@ -220,7 +221,7 @@
 
 	function loadLevel(number) {
 
-		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar]);
+		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar, optionsBar]);
 
 		if (global.currentLevel) global.currentLevel.unload();
 
@@ -273,8 +274,6 @@
 		if (global.gameActive) {
 
 			if (global.playing) global.currentLevel.update(dt);
-
-			if (global.noteBar) global.noteBar.update(dt);
 
 			if (global.credits) global.credits.update(dt);
 		}
