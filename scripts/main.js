@@ -13,6 +13,7 @@
 	var toolbar= global.toolbar;
 	var noteBar= global.noteBar;
 	var optionsBar = global.optionsBar;
+	var levelSelect = global.levelSelect;
 	var viewport= global.viewport;
 
 	viewport.size= [1920 - noteBar.size[0], toolbar.xy[1]];
@@ -207,7 +208,7 @@
 
 	function importLevel(levelData) {
 
-		global.currentScreen= new global.Screen('level_', [toolbar, noteBar, optionsBar]);
+		global.currentScreen= new global.Screen('level_', [toolbar, noteBar, optionsBar, levelSelect]);
 
 		if (global.currentLevel) global.currentLevel.unload();
 
@@ -221,7 +222,7 @@
 
 	function loadLevel(number) {
 
-		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar, optionsBar]);
+		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar, optionsBar, levelSelect]);
 
 		if (global.currentLevel) global.currentLevel.unload();
 

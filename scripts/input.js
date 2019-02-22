@@ -4,6 +4,7 @@
 	var canvas= global.canvas;
 
 	global.mouse = [0, 0];
+	global.mouseDown = false;
 
 	function onMouseMove(event) {
 
@@ -29,6 +30,9 @@
 
 		global.mouse = [x, y];
 
+		if (!global.mouseDown && isLeftClick(event)) global.mouseDown = true;
+		else if (global.mouseDown && !isLeftClick(event)) global.mouseDown = false;
+
 		for (var i = global.currentScreen.layers.length - 1; i >= 0; i--) {
 
 			if (global.currentScreen.layers[i].onMouseMove) {
@@ -53,6 +57,20 @@
 
 	}
 
+	function onRelease(event) {
+
+		var click = onMouseMove(event);
+
+		for (var i = global.currentScreen.layers.length - 1; i >= 0; i--) {
+
+			if (!global.currentScreen.layers[i].onRelease) continue;
+
+			if (global.currentScreen.layers[i].onRelease(click)) {
+				return;
+			}
+		}
+	}
+
 	function onKey(event) {
 
 		//alert(event.which);
@@ -73,6 +91,13 @@
 		}
 	}
 
+	function isLeftClick(event) {
+
+		var button = event.which || event.button;
+
+		return button == 1;
+	}
+
 	function onBackButton(event) {
 		console.log('back')
 		
@@ -87,6 +112,8 @@
 
 	canvas.addEventListener('mousedown', onClick);
 	canvas.addEventListener('touchstart', onClick);
+	canvas.addEventListener('mouseup', onRelease);
+	canvas.addEventListener('touchend', onRelease);
 	window.addEventListener('mousemove', onMouseMove);
 	window.addEventListener('keydown', onKey);
 	window.addEventListener('backbutton', onBackButton);

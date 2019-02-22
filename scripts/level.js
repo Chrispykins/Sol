@@ -5,6 +5,8 @@
 	var context= global.context;
 	var viewport= global.viewport;
 
+	var levelNumberColor = '#335168';
+
 	addEventListener('beforeunload', function() { global.currentLevel.save() });
 
 	function Level(options) {
@@ -195,7 +197,7 @@
 
 			this.context.font= fontSize + 'px Times';
 			this.context.textAlign= 'center';
-			this.context.fillStyle= '#335168';
+			this.context.fillStyle= levelNumberColor;
 			this.context.fillText(number, 960 * this.canvas.scale, y * this.canvas.scale);
 
 			if (progress > 1) {
@@ -769,6 +771,7 @@
 			
 
 	global.Level= Level;
+	global.levelNumberColor = levelNumberColor;
 
 
 })(Sol);

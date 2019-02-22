@@ -419,6 +419,7 @@ var Sol= {};
 			
 			'toolbar',
 			'sidebars',
+			'levelSelect',
 			'undo',
 			'level',
 			'input',
