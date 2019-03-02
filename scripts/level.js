@@ -5,7 +5,7 @@
 	var context= global.context;
 	var viewport= global.viewport;
 
-	var levelNumberColor = '#335168';
+	var levelNumberColor = global.levelNumberColor;
 
 	addEventListener('beforeunload', function() { global.currentLevel.save() });
 
@@ -595,7 +595,7 @@
 		setTimeout(function() {
 			
 			if (this.number == 0) {
-				global.loadLevel(parseInt(localStorage.Sol_progress) + 1);
+				global.loadLevel(parseInt(localStorage.Sol_progress));
 			}
 			else if (this.number < 0) {
 				global.startGame();
@@ -606,11 +606,12 @@
 				//load next level
 				global.loadLevel(this.number + 1);
 
-				localStorage.Sol_progress= this.number;
+				localStorage.Sol_progress= this.number + 1;
+				global.levelSelect.updateUnlocked(this.number + 1);
 			}
 			else {
 
-				localStorage.Sol_progress= 0;
+				//localStorage.Sol_progress= 0;
 				
 				//otherwise display ending screen
 				global.importLevel(global.levels.credits);
@@ -656,6 +657,9 @@
 				global.noteBar.checkUnlock(this.assets[i]);
 			}
 		}
+
+		//set level select bar to this level
+		global.levelSelect.animateToSelection(this.number);
 
 		//////////////////////////////////////////////////////////////
 		// Initialization of level complete.
@@ -771,7 +775,5 @@
 			
 
 	global.Level= Level;
-	global.levelNumberColor = levelNumberColor;
-
 
 })(Sol);

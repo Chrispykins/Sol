@@ -174,7 +174,7 @@
 			click = this.center;
 		}
 
-		if ( global.Math.distance(click, this.center) < this.size[0]/3 ) {
+		if ( this.contains(click) ) {
 
 			var notes = this.activate();
 
@@ -190,6 +190,16 @@
 			this.level.undoManager.registerAction(this.gridPos.slice(), this.entityType);
 			
 		} else return false;
+
+		return true;
+	}
+
+	Button.prototype.contains = function(point) {
+
+		if (point[0] < this.center[0] - this.size[0]/4) return false;
+		if (point[0] > this.center[0] + this.size[0]/4) return false;
+		if (point[1] < this.center[1] - this.size[1]/4) return false;
+		if (point[1] > this.center[1] + this.size[1]/4) return false;
 
 		return true;
 	}

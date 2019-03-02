@@ -153,14 +153,17 @@
 
 	NoteBar.prototype.onMouseMove = function(point) {
 
-		if (!this.visible && point[0] < this.bounds.xy[0] + this.bounds.size[0]) {
+		if (point[0] > this.bounds.xy[0] + this.bounds.size[0] || point[1] > this.bounds.xy[1] + this.bounds.size[1]) {
+			
+			if (this.visible) {
+				this.slideDirection = -1;
+				this.visible = false;
+			}
+		}
+		else if (!this.visible) {
+
 			this.slideDirection = 1;
 			this.visible = true;
-		}
-
-		if (this.visible && point[0] > this.bounds.xy[0] + this.bounds.size[0]) {
-			this.slideDirection = -1;
-			this.visible = false;
 		}
 	}
 
@@ -321,14 +324,18 @@
 
 	OptionsBar.prototype.onMouseMove = function(point) {
 
-		if (!this.visible && point[0] > this.bounds.xy[0]) {
+
+		if (point[0] < this.bounds.xy[0] || point[1] > this.bounds.xy[1] + this.bounds.size[1]) {
+			
+			if (this.visible) {
+				this.slideDirection = 1;
+				this.visible = false;
+			}
+		}
+		else if (!this.visible) {
+
 			this.slideDirection = -1;
 			this.visible = true;
-		}
-
-		if (this.visible && point[0] < this.bounds.xy[0]) {
-			this.slideDirection = 1;
-			this.visible = false;
 		}
 	}
 

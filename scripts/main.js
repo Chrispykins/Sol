@@ -247,9 +247,11 @@
 	var dt;
 
 	//set up frame counting variables
-	/*var frameCount= 0;
+	/*
+	var frameCount= 0;
 	var frameTimer= 0;
-	var fps= 0;*/
+	var fps= 0;
+	*/
 
 	global.update= function () {
 
@@ -263,13 +265,15 @@
 		dt*= global.gameSpeed;
 
 		//DEBUG: frame rate counter
-		/*frameTimer+= dt;
+		/*
+		frameTimer+= dt;
 		frameCount++;
 		if (frameTimer > 0.5) {
 			frameTimer+= -0.5;
 			fps= frameCount * 2;
 			frameCount= 0;
-		}*/
+		}
+		*/
 		//END DEBUG
 
 		if (global.gameActive) {
@@ -301,10 +305,12 @@
 			global.currentScreen.draw(dt);
 
 			//DEBUG: frame rate display
-			/*context.font= (30 * canvas.scale).toString() +'px Arial';
+			/*
+			context.font= (30 * canvas.scale).toString() +'px Arial';
 			context.fillStyle= 'black';
 			context.textAlign= 'left';
-			context.fillText(fps.toString(), 50 * canvas.scale, 50 * canvas.scale);*/
+			context.fillText(fps.toString(), 50 * canvas.scale, 50 * canvas.scale);
+			*/
 			//END DEBUG
 
 		}

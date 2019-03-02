@@ -16,6 +16,8 @@
 
 	global.sprites.obstacle= sprite;
 
+	var obstacleWidth = 30;
+
 
 	function Obstacle(options) {
 
@@ -243,7 +245,7 @@
 			click= this.center;
 		}
 
-		if ( global.Math.distance(click, this.center) < this.size[0]/3 ) {
+		if ( this.contains(click) ) {
 
 			this.activate();
 
@@ -255,6 +257,29 @@
 		} else return false;
 
 
+	}
+
+	Obstacle.prototype.contains = function(point) {
+
+		switch (this.direction) {
+
+			case 'hor':
+				return global.distanceToHorizontalLine(this.center[1], point) < obstacleWidth;
+				break;
+
+			case 'vert':
+				return global.distanceToVerticalLine(this.center[0], point) < obstacleWidth;
+				break;
+
+			case 'back':
+				return global.distanceToNegativeDiagonal(this.center, point) < obstacleWidth;
+				break;
+
+			case 'forward':
+				return global.distanceToPositiveDiagonal(this.center, point) < obstacleWidth;
+				break;
+
+		}
 	}
 
 	Obstacle.prototype.activate = function() {

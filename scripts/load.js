@@ -14,6 +14,8 @@ var Sol= {};
 
 //var Cocoon;
 
+const SQRT_2 = Math.sqrt(2);
+
 (function (global) { //The Sol variable gets passed here as the global scope
 'use strict';
 
@@ -25,9 +27,12 @@ var Sol= {};
 	global.Math= Math;
 	global.Date= Date;
 
+	global.backgroundColor = "#f6f6e7";
+	global.levelNumberColor = '#335168';
+
 	//check for localStorage
 	if (!localStorage.Sol_progress) {
-		localStorage.Sol_progress= '0';
+		localStorage.Sol_progress= '1';
 	}
 
 	if (!localStorage.Sol_firstTime) {
@@ -55,6 +60,18 @@ var Sol= {};
 		dy *= dy;
 
 		return Math.sqrt(dx + dy);
+	}
+
+	//fast distance functions for common lines
+	global.distanceToVerticalLine = function(x, point) { return Math.abs(point[0] - x); }
+	global.distanceToHorizontalLine = function(y, point) { return Math.abs(point[1] - y); }
+
+	global.distanceToNegativeDiagonal = function(origin, point) { 
+		return Math.abs(point[1] - point[0] + origin[0] - origin[1]) / SQRT_2;
+	}
+
+	global.distanceToPositiveDiagonal = function(origin, point) { 
+		return Math.abs(point[1] + point[0] - origin[1] - origin[0]) / SQRT_2;
 	}
 
 	Math.lerp = function(start, end, progress) {

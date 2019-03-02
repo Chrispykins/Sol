@@ -22,6 +22,8 @@
 		sprites[direction].custom.closeNeg= [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 	}
 
+	var gateWidth = 30;
+
 	function Gate(options) {
 
 		//make sure options exists
@@ -168,7 +170,7 @@
 			click= this.center;
 		}
 		
-		if ( global.Math.distance(click, this.center) < this.size[0]/3 ) {
+		if ( this.contains(click) ) {
 
 			this.activate();
 
@@ -182,6 +184,29 @@
 		} else return false;
 
 		
+	}
+
+	Gate.prototype.contains = function(point) {
+
+		switch (this.direction) {
+
+			case 'hor':
+				return global.distanceToHorizontalLine(this.center[1], point) < gateWidth;
+				break;
+
+			case 'vert':
+				return global.distanceToVerticalLine(this.center[0], point) < gateWidth;
+				break;
+
+			case 'back':
+				return global.distanceToNegativeDiagonal(this.center, point) < gateWidth;
+				break;
+
+			case 'for':
+				return global.distanceToPositiveDiagonal(this.center, point) < gateWidth;
+				break;
+
+		}
 	}
 
 	Gate.prototype.activate = function() {
