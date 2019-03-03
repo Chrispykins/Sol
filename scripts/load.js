@@ -19,6 +19,8 @@ const SQRT_2 = Math.sqrt(2);
 (function (global) { //The Sol variable gets passed here as the global scope
 'use strict';
 
+	var startup = true;
+
 	// initialize global variables
 	global.canvas= document.getElementById('canvas');
 	global.canvas.screencanvas= true;
@@ -106,7 +108,44 @@ const SQRT_2 = Math.sqrt(2);
 
 	var imagesLoaded= 0;
 
-	function loadImage(filename) {
+	function loadImages(filenames, tracker) {
+
+		return new Promise( function(resolve, reject) {
+
+			for (var i = 0, l = filenames.length; i < l; i++) {
+
+				var newImg = document.createElement('img');
+				let filename = filenames[i];
+
+				newImg.src = 'graphics/'+ filename + '.png';
+
+				newImg.addEventListener('load', function loaded() {
+
+					var newCanvas = document.createElement('canvas');
+					newCanvas.width = this.width;
+					newCanvas.height = this.height;
+					newCanvas.getContext('2d').drawImage(this, 0, 0);
+
+					preload.appendChild(newCanvas);
+
+					//store a reference to the canvas
+					global.images[filename] = newCanvas;
+
+					tracker.imagesLoaded++;
+					updateLoadingBar(tracker);
+
+					//resolve the Promise once all the images are loaded
+					if (tracker.imagesLoaded >= tracker.numImages) resolve('lol');
+
+					this.removeEventListener('load', loaded);
+
+				})
+			}
+
+		});
+	}
+
+	function loadImage(filename, tracker) {
 
 		//load image into DOM Element
 		var newImg= document.createElement('img');
@@ -128,7 +167,8 @@ const SQRT_2 = Math.sqrt(2);
 			global.images[filename]= newCanvas;	
 
 			imagesLoaded++;
-			updateLoadingBar();
+			tracker.imagesLoaded++;
+			updateLoadingBar(tracker);
 			this.removeEventListener('load', loaded);
 		});
 
@@ -146,17 +186,73 @@ const SQRT_2 = Math.sqrt(2);
 
 	var soundsLoaded= 0;
 
-	function loadSound(filename, fileType) {
+	function loadSounds(filenames, tracker) {
+
+		return new Promise( function(resolve, reject) {
+				
+			var fileType= '.ogg';
+
+			//check browser compatibility for audio files
+			var a= document.createElement('audio');
+		
+			//check if it can play ogg-vorbis
+			if ( !(a.canPlayType && a.canPlayType('audio/ogg; codecs=vorbis').replace('/no/', '')) ) {
+
+				fileType= '.wav';
+			}
+
+			//define stand-alone function to retry load if there is an error
+			function loadSound(filename) {
+
+				var newSound = new Audio('audio/' + filename + fileType);
+
+				newSound.preload = 'auto';
+
+				newSound.addEventListener('canplaythrough', function loaded() {
+
+					tracker.soundsLoaded++;
+					updateLoadingBar(tracker);
+
+					//resolve the Promise once all sounds are loaded
+					if (tracker.soundsLoaded >= tracker.numSounds) resolve("lol");
+
+					this.removeEventListener('canplaythrough', loaded);
+				});
+
+				newSound.addEventListener('error', function error() {
+
+					loadSound(filename);
+					this.removeEventListener('error', error);
+					this.removeEventListener('canplaythrough', loaded);
+				})
+
+				preload.appendChild(newSound);
+
+				global.sounds[filename] = newSound;
+			}
+
+			for (var i = 0, l = filenames.length; i < l; i++) {
+
+				loadSound(filenames[i]);				
+			}
+
+		});
+
+	}
+
+/*
+	function loadSound(filename, fileType, tracker) {
 
 		var newSound= new Audio('audio/' + filename + fileType);
 
-		/*var newSound= document.createElement('audio');
-		newSound.src= filename + fileType;*/
+		//var newSound= document.createElement('audio');
+		//newSound.src= filename + fileType;
 		newSound.preload= "auto";
 
 		newSound.addEventListener('canplaythrough', function loaded() {
 			soundsLoaded++;
-			updateLoadingBar();
+			tracker.soundsLoaded++;
+			updateLoadingBar(tracker);
 
 			//hack to load sound in Cocoon
 			newSound.volume= 0;
@@ -177,6 +273,7 @@ const SQRT_2 = Math.sqrt(2);
 		global.sounds[filename]= newSound;
 		
 	}
+	*/
 
 	//////////////////////////////
 	// This function takes an list of scripts and loads them all consecutively via a recursive function
@@ -184,7 +281,52 @@ const SQRT_2 = Math.sqrt(2);
 
 	var scriptsLoaded= 0;
 
-	function loadScripts(scripts) {
+	function loadScripts(scripts, tracker) {
+
+		for (var i = 0, l = scripts.length; i < l; i++) {
+
+			let script = scripts[i];
+			let newScript;
+
+			new Promise( function(resolve, reject) {
+
+				newScript = document.createElement('script');
+				newScript.type = 'text/javascript';
+				newScript.src = 'scripts/' + script + '.js';
+
+				newScript.addEventListener('load', function loaded() {
+
+					tracker.scriptsLoaded++;
+					updateLoadingBar(tracker);
+
+					resolve();
+
+					this.removeEventListener('load', loaded);
+				});
+
+				document.body.appendChild(newScript);
+
+			})
+			.then( function() {
+
+				for (var index = tracker.scriptsRun; index < tracker.numScripts; index++) {
+
+					//if next script in queue has loaded, run it
+					if (window['run_'+ scripts[index]]) {
+						window['run_'+ scripts[index]](global);
+					}
+					else break;
+				}
+
+				tracker.scriptsRun = index;
+				updateLoadingBar(tracker);
+			});
+
+		}
+	}
+
+/*
+	function loadScripts(scripts, tracker) {
 
 		var numScripts= scripts.length;
 
@@ -199,9 +341,10 @@ const SQRT_2 = Math.sqrt(2);
 				newScript.addEventListener('load', function loaded() {
 
 					scriptsLoaded++;
+					tracker.scriptsLoaded++;
 
 					if (scriptsLoaded < numScripts) {
-						updateLoadingBar();
+						updateLoadingBar(tracker);
 						recurse(count+1);
 					}
 
@@ -217,6 +360,7 @@ const SQRT_2 = Math.sqrt(2);
 
 		recurse(0);
 	}
+*/
 
 	//creates a lists of assets that must be loaded before the level.
 	//should only be used on old levels that don't have this data baked in
@@ -257,54 +401,47 @@ const SQRT_2 = Math.sqrt(2);
 
 	global.createAssetList = createAssetList;
 
-	//loadingManager makes sure all scripts load after the graphics and sound of the game loads
-	//the assets argument is an object that contains three arrays: 'images', 'sounds', and 'scripts'
-	//these arrays are lists of the filenames of the assets that will be loaded into the browser.
-	function loadingManager(assets) {
+	//loadAssets takes a list of assets. It makes sure the images and sounds load first
+	//then it loads the scripts and executes them.
+	async function loadAssets(assets) {
 
 		assets.images= assets.images || [];
 		assets.sounds= assets.sounds || [];
 		assets.scripts= assets.scripts || [];
 		
-		var numImages= assets.images.length;
-		var numSounds= assets.sounds.length;
-		var numScripts= assets.scripts.length;
+		var tracker = {
+			numImages: assets.images.length,
+			numSounds: assets.sounds.length,
+			numScripts: assets.scripts.length,
 
-		totalAssets= numImages + numSounds + numScripts;
-
-		var fileType= '.ogg';
-
-		//check browser compatibility for audio files
-		var a= document.createElement('audio');
-	
-		//check if it can play ogg-vorbis
-		if ( !(a.canPlayType && a.canPlayType('audio/ogg; codecs=vorbis').replace('/no/', '')) ) {
-
-			fileType= '.wav';
-		}
-		
-		for (i= 0; i < numSounds; i++) {
-			loadSound(assets.sounds[i], fileType);
+			imagesLoaded: 0, soundsLoaded: 0, scriptsLoaded: 0, scriptsRun: 0
 		}
 
-		for (var i= 0; i < numImages; i++) {
-			loadImage(assets.images[i]);
-		}
+		tracker.totalAssets= tracker.numImages + tracker.numSounds + tracker.numScripts * 2;
+
+		await Promise.all( [loadImages(assets.images, tracker), loadSounds(assets.sounds, tracker)] );
+
+		loadScripts(assets.scripts, tracker);
+
+		startup = false;
 
 		
-
+		/*
 		function retry() {
 
-			if (imagesLoaded == numImages && soundsLoaded == numSounds) {
+			if (tracker.imagesLoaded == tracker.numImages && tracker.soundsLoaded == tracker.numSounds) {
 				
-				loadScripts(assets.scripts);
+				loadScripts(assets.scripts, tracker);
+				startup = false;
 
+				/*
 				//undo hack to load sound in Cocoon
 				for (var sound in global.sounds) {
 					global.sounds[sound].pause();
 					global.sounds[sound].currentTime=0;
 					global.sounds[sound].volume= 1;
 				}
+				
 			}
 			else {
 				setTimeout(retry, 100);
@@ -312,11 +449,17 @@ const SQRT_2 = Math.sqrt(2);
 		}
 
 		retry();
+		*/
 	}
 
-	function updateLoadingBar() {
+	global.loadAssets = loadAssets;
 
-		var progress= (imagesLoaded + soundsLoaded + scriptsLoaded)/totalAssets;
+	function updateLoadingBar(tracker) {
+
+		//only update loading bar on the first load
+		if (!startup) return;
+
+		var progress= (tracker.imagesLoaded + tracker.soundsLoaded + tracker.scriptsLoaded + tracker.scriptsRun) / tracker.totalAssets;
 
 		var bar= document.getElementById('sol');
 		var base= document.getElementById('solBase');
@@ -343,7 +486,18 @@ const SQRT_2 = Math.sqrt(2);
 
 
 	//execute loading functions
-	loadingManager({
+	var packages = document.createElement("script");
+	packages.src = "scripts/assetPackages.js";
+
+	packages.addEventListener('load', function loaded() { 
+		loadAssets(global.assetPackages.init); 
+		this.removeEventListener('load', loaded);
+	});
+
+	document.body.appendChild(packages);
+
+	/*
+	loadAssets({
 		
 		images: [
 
@@ -444,7 +598,8 @@ const SQRT_2 = Math.sqrt(2);
 
 		]
 	});
+	*/
 
-	global.sounds.turn.loop= true;
+	//global.sounds.turn.loop= true;
 
 })(Sol);

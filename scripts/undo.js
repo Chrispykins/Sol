@@ -1,5 +1,5 @@
 //undo module
-(function loadModule_undo(global) {
+function run_undo(global) {
 
 	function UndoAction(pos, type) {
 
@@ -67,4 +67,4 @@
 
 	global.UndoManager = UndoManager;
 
-})(Sol);
+}

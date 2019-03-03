@@ -1,5 +1,5 @@
 //obstacle class
-(function(global) {
+function run_obstacle(global) {
 
 	var canvas= global.canvas;
 	var context= global.context;
@@ -307,4 +307,4 @@
 	global.Obstacle= Obstacle;
 
 
-})(Sol);
+}

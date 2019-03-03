@@ -1,4 +1,4 @@
-(function(global) {
+function run_wormhole(global) {
 
     var canvas= global.canvas;
     var context= global.context;
@@ -110,4 +110,4 @@
 
     global.Wormhole = Wormhole;
 
-})(Sol);
+}

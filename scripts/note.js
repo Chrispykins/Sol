@@ -1,5 +1,5 @@
 //note class
-(function(global) {
+function run_note(global) {
 
 	var canvas= global.canvas;
 	var context= global.context;
@@ -113,4 +113,4 @@
 
 	global.Note= Note;
 
-})(Sol);
+}

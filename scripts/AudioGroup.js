@@ -1,5 +1,5 @@
 //AudioGroup class
-(function(global) {
+function run_AudioGroup(global) {
 	
 	function AudioGroup() {
 
@@ -149,7 +149,7 @@
 
 	global.AudioGroup= AudioGroup;
 
-})(Sol);
+}
 
 
 //hook the cloneNode function and add some custom procedures to it so we can access the audio later

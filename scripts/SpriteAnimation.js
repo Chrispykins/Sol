@@ -1,4 +1,4 @@
-(function(global) { //the global parameter acts as the global scope, passed into this function at the end of the file
+function run_SpriteAnimation(global) { //the global parameter acts as the global scope, passed into this function at the end of the file
 
 	//Sprite Sheet class
 	function SpriteSheet(image) {
@@ -235,4 +235,4 @@
 	global.SpriteAnimation= SpriteAnimation;
 
 
-})(Sol); //pass global scope here. Passing 'window' will make the global variables behave normally
+}

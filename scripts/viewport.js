@@ -1,7 +1,7 @@
 //////////////////////////////////////
 // Viewport class
 //////////////////////////////////////
-(function(global) {
+function run_viewport(global) {
 
 	function Viewport(options) {
 
@@ -133,4 +133,4 @@
 	global.guiViewport = new Viewport();
 
 
-})(Sol);
+}

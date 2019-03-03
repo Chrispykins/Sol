@@ -1,4 +1,4 @@
-(function(global) {
+function run_resize(global) {
 
 	//gameDimensions variable should be changed to the original dimensions of the game in pixels before scaling
 	var gameDimensions= [1920, 1080];
@@ -52,9 +52,4 @@
 
 	addEventListener('resize', function() {global.canvas.resize()} );
 
-})(Sol);
-
-		
-
-
-	
+}

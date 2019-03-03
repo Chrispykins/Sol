@@ -1,4 +1,4 @@
-(function(global) {
+function run_sidebars(global) {
 
 	var context = global.context;
 	var viewport = global.guiViewport;
@@ -345,4 +345,4 @@
 	global.optionsBar = new OptionsBar({xy: [global.gameDimensions[0] - 300, 0], size: [300, 900]});
 
 
-})(Sol);
+}

@@ -1,5 +1,5 @@
 //gate class
-(function(global) {
+function run_gate(global) {
 	
 	var canvas= global.canvas;
 	var context= global.context;
@@ -236,4 +236,4 @@
 
 	global.Gate= Gate;
 
-})(Sol);
+}

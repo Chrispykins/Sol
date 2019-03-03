@@ -1,5 +1,5 @@
 //start class
-(function(global) {
+function run_start(global) {
 
 	var canvas= global.canvas;
 	var context= global.context;
@@ -98,4 +98,4 @@
 	global.Start= Start;
 
 
-})(Sol);
+}

@@ -1,5 +1,5 @@
 //ball class
-(function(global) {
+function run_ball(global) {
 
 	var canvas= global.canvas;
 	var context= global.context;
@@ -146,4 +146,4 @@
 	global.Ball= Ball;
 
 
-})(Sol);
+}

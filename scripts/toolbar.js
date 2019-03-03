@@ -1,7 +1,7 @@
 //////////////////////////////////////
 // toolbar class
 //////////////////////////////////////
-(function(global) {
+function run_toolbar(global) {
 
 	canvas= global.canvas;
 	context= global.context;
@@ -141,4 +141,4 @@
 	//create toolbar instance
 	global.toolbar= new Toolbar({xy: [0, 880], size: [1920, 200]});
 
-})(Sol);
+}

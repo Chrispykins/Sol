@@ -1,5 +1,5 @@
 //Button class
-(function (global) {
+function run_button(global) {
 	
 	var canvas= global.canvas;
 	var context= global.context;
@@ -206,4 +206,4 @@
 
 	global.Button= Button;
 
-})(Sol);
+}

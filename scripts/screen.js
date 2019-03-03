@@ -1,5 +1,5 @@
 //Screen class to control graphics rendering
-(function (global) {
+function run_screen(global) {
 	
 	var canvas= global.canvas;
 	var context= global.context;
@@ -28,4 +28,4 @@
 	global.Screen= Screen;
 
 
-})(Sol);
+}

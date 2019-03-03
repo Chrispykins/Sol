@@ -1,5 +1,5 @@
 //level class
-(function (global) {
+function run_level(global) {
 	
 	var canvas= global.canvas;
 	var context= global.context;
@@ -776,4 +776,4 @@
 
 	global.Level= Level;
 
-})(Sol);
+}

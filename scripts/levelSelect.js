@@ -1,4 +1,4 @@
-(function(global) {
+function run_levelSelect(global) {
 	
 	var context = global.context;
 	var canvas  = global.canvas;
@@ -311,4 +311,4 @@
 	global.levelSelect = new LevelSelect({xy: [(gameDimensions[0] - width)/2, gameDimensions[1] - height], size: [width, height]})
 
 
-})(Sol); 
+}

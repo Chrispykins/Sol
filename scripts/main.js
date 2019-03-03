@@ -2,7 +2,7 @@
 // game starts here
 ////////////////////////////////////////////
 
-(function (global) { //whatever is passed to the global parameter will be treated as the global scope of the game, no search will be required beyond this 'global' scope
+function run_main(global) { //whatever is passed to the global parameter will be treated as the global scope of the game, no search will be required beyond this 'global' scope
 
 	var canvas= global.canvas;
 	var context= global.context;
@@ -336,5 +336,4 @@
 
 	init();
 
-})(Sol); //pass the global variable here. Passing 'window' will make global variables function normally
-
+}

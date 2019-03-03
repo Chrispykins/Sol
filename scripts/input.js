@@ -1,5 +1,5 @@
 //input handlers
-(function (global) {
+function run_input(global) {
 	
 	var canvas= global.canvas;
 
@@ -118,4 +118,4 @@
 	window.addEventListener('keydown', onKey);
 	window.addEventListener('backbutton', onBackButton);
 
-})(Sol);
+}
