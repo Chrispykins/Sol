@@ -5,6 +5,7 @@ function run_ball(global) {
 	var context= global.context;
 	var viewport= global.viewport;
 
+
 	var sprite= new global.SpriteSheet(global.images.ballSheet);
 	sprite.createEvenFrames(100, 100);
 

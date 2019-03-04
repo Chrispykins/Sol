@@ -10,9 +10,6 @@
 
 			sounds: [
 				
-
-				'button_0',
-				'button_1',
 				'latch_0',
 				'latch_1',
 				'turn',
@@ -24,23 +21,11 @@
 
 			images: [		
 				
-				'portalBase',
-				'portalSheet',
 				'obstacleSheet',
 				'horGateSheet',
 				'vertGateSheet',
 				'backGateSheet',
 				'forGateSheet',
-				'button_off',
-				'button_on',
-				'button_0',
-				'button_1',
-				'button_2',
-				'button_3',
-				'button_5',
-				'button_6',
-				'button_7',
-				'button_8',
 				"replay",
 				'splashScreen',
 				'replaySheet',
@@ -64,8 +49,6 @@
 				'twoTone',
 				'obstacle',
 				'gate',
-				'wormhole',
-				'button',
 				
 				'toolbar',
 				'sidebars',
@@ -81,7 +64,22 @@
 
 			sounds:  ['titleSound',	'level_in',	'level_in_slow', 'level_out'],
 			images:  ['title', 'startup', 'startdown', 'startleft', 'startright', 'ballSheet'],
-			scripts: ['ball', 'note', 'start', 'level'],
+			scripts: ['ball', 'note', 'start', 'level']
+		},
+
+		wormhole: {
+
+			sounds:  [],
+			images:  ['portalBase', 'portalSheet'],
+			scripts: ['wormhole']
+
+		},
+
+		button: {
+
+			sounds:  ['button_0', 'button_1'],
+			images:  ['button_off', 'button_on', 'button_0', 'button_1', 'button_2', 'button_3', 'button_5', 'button_6', 'button_7', 'button_8'],
+			scripts: ['button']
 		},
 
 		_do: {

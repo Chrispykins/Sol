@@ -602,13 +602,14 @@ function run_level(global) {
 			}
 
 			else if (global.levels[this.number + 1]) {
-				
-				//load next level
-				global.loadLevel(this.number + 1);
 
 				localStorage.Sol_progress= this.number + 1;
 				global.levelSelect.updateUnlocked(this.number + 1);
+
+				//load next level
+				global.loadLevel(this.number + 1);
 			}
+
 			else {
 
 				//localStorage.Sol_progress= 0;

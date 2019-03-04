@@ -29,9 +29,16 @@ const SQRT_2 = Math.sqrt(2);
 	global.Math= Math;
 	global.Date= Date;
 
+	//forward declaration of gameplay classes
+	global.Wormhole = function() {};
+	global.Obstacle = function() {};
+	global.Gate = function() {};
+	global.Note = function() {};
+	global.Button = function() {};
+
 	global.backgroundColor = "#f6f6e7";
 	global.levelNumberColor = '#335168';
-	
+
 	global.noteOrder = ["_do", "mi", "fa", "fi", "sol", "do"];
 
 	//check for localStorage
@@ -113,7 +120,9 @@ const SQRT_2 = Math.sqrt(2);
 
 	function loadImages(filenames, tracker) {
 
-		return new Promise( function(resolve, reject) {
+		if (!filenames.length) return Promise.resolve();
+
+		else return new Promise( function(resolve, reject) {
 
 			for (var i = 0, l = filenames.length; i < l; i++) {
 
@@ -138,7 +147,7 @@ const SQRT_2 = Math.sqrt(2);
 					updateLoadingBar(tracker);
 
 					//resolve the Promise once all the images are loaded
-					if (tracker.imagesLoaded >= tracker.numImages) resolve('lol');
+					if (tracker.imagesLoaded >= tracker.numImages) resolve();
 
 					this.removeEventListener('load', loaded);
 
@@ -191,7 +200,9 @@ const SQRT_2 = Math.sqrt(2);
 
 	function loadSounds(filenames, tracker) {
 
-		return new Promise( function(resolve, reject) {
+		if (!filenames.length) return Promise.resolve();
+
+		else return new Promise( function(resolve, reject) {
 				
 			var fileType= '.ogg';
 
@@ -217,7 +228,7 @@ const SQRT_2 = Math.sqrt(2);
 					updateLoadingBar(tracker);
 
 					//resolve the Promise once all sounds are loaded
-					if (tracker.soundsLoaded >= tracker.numSounds) resolve("lol");
+					if (tracker.soundsLoaded >= tracker.numSounds) resolve();
 
 					this.removeEventListener('canplaythrough', loaded);
 				});
@@ -286,12 +297,14 @@ const SQRT_2 = Math.sqrt(2);
 
 	function loadScripts(scripts, tracker) {
 
-		for (var i = 0, l = scripts.length; i < l; i++) {
+		if (!scripts.length) return Promise.resolve();
 
-			let script = scripts[i];
-			let newScript;
+		else return new Promise(function(resolve) {
 
-			new Promise( function(resolve, reject) {
+			for (var i = 0, l = scripts.length; i < l; i++) {
+
+				let script = scripts[i];
+				let newScript;
 
 				newScript = document.createElement('script');
 				newScript.type = 'text/javascript';
@@ -302,30 +315,32 @@ const SQRT_2 = Math.sqrt(2);
 					tracker.scriptsLoaded++;
 					updateLoadingBar(tracker);
 
-					resolve();
+					for (var index = tracker.scriptsRun; index < tracker.numScripts; index++) {
+
+						//if next script in queue has loaded, run it
+						if (window['run_'+ scripts[index]]) {
+							window['run_'+ scripts[index]](global);
+						}
+						else break;
+					}
+
+					tracker.scriptsRun = index;
+					updateLoadingBar(tracker);
 
 					this.removeEventListener('load', loaded);
+
+					if (tracker.scriptsRun == tracker.numScripts) {
+						console.log('resolving script:', script )
+						resolve();
+					}
 				});
 
 				document.body.appendChild(newScript);
 
-			})
-			.then( function() {
+			}
 
-				for (var index = tracker.scriptsRun; index < tracker.numScripts; index++) {
+		});
 
-					//if next script in queue has loaded, run it
-					if (window['run_'+ scripts[index]]) {
-						window['run_'+ scripts[index]](global);
-					}
-					else break;
-				}
-
-				tracker.scriptsRun = index;
-				updateLoadingBar(tracker);
-			});
-
-		}
 	}
 
 /*
@@ -426,14 +441,11 @@ const SQRT_2 = Math.sqrt(2);
 
 		await Promise.all( [loadImages(assets.images, tracker), loadSounds(assets.sounds, tracker)] );
 
-		loadScripts(assets.scripts, tracker);
+		await loadScripts(assets.scripts, tracker);
 
 		if (assets.onLoad) assets.onLoad();
 
 		assets.loaded = true;
-
-		startup = false;
-
 		
 		/*
 		function retry() {
@@ -466,7 +478,7 @@ const SQRT_2 = Math.sqrt(2);
 	function updateLoadingBar(tracker) {
 
 		//only update loading bar on the first load
-		if (!startup) return;
+		if (!document.getElementById('loading')) return;
 
 		var progress= (tracker.imagesLoaded + tracker.soundsLoaded + tracker.scriptsLoaded + tracker.scriptsRun) / tracker.totalAssets;
 
@@ -481,7 +493,7 @@ const SQRT_2 = Math.sqrt(2);
 		global.canvas.height= height;
 
 		global.context.clearRect(0, 0, width, height);
-		global.context.fillStyle= '#f6f6e7';
+		global.context.fillStyle= global.backgroundColor;
 		global.context.fillRect(0, 0, width, height);
 
 		global.context.drawImage(loadingText, width/2 - loadingText.width/2, height/2 - loadingText.height);

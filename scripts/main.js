@@ -42,7 +42,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 	function splashScreen() {
 
-		var splash= new global.Gui( {size: [1920, 1080], image: images.splashScreen} );
+		var splash= new global.Gui( {size: gameDimensions, image: images.splashScreen} );
 
 		splash.fade= new global.Fade('in', 1000);
 
@@ -79,6 +79,8 @@ function run_main(global) { //whatever is passed to the global parameter will be
 				startGame();
 				splash= null;
 			}
+
+			return true;
 		}
 
 		global.currentScreen = new global.Screen('splash', [splash]);
@@ -122,6 +124,8 @@ function run_main(global) { //whatever is passed to the global parameter will be
 				return false;
 
 			}, 2000);
+
+			return false;
 		}
 
 		//push first tutorial gui onto the current screen
@@ -135,30 +139,28 @@ function run_main(global) { //whatever is passed to the global parameter will be
 			localStorage.Sol_progress= 0;
 		}
 
-		var title= new global.Gui( {size: [1920, 1080], image: images.title} );
+		var title= new global.Gui( {size: gameDimensions, image: images.title} );
 
 		//define fade in for title screen
 		title.fade= new global.Fade('in', 1500);
 
-		title.fade.onEnd= function () {
-
-			title.onClick();
-
-		}
-
 		//skip fade if player clicks on screen
 		title.onClick= function() {
 
-			global.playing= true;
-
 			//load "level 0"
-			global.currentLevel= createLevel(global.newLevels[0]);
+			createLevel(global.newLevels[0])
+			.then(function(level) {
 
-			//set last tick right before beginning update loop
-			global.lastTick= global.Date.now();
+				global.currentLevel = level;
 
-			//begin update loop
-			global.update();
+				global.playing= true;
+
+				//set last tick right before beginning update loop
+				global.lastTick= global.Date.now();
+
+				//begin update loop
+				global.update();
+			});
 
 			if (title.fade) {
 				title.fade= null;
@@ -166,7 +168,11 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 			//destroy this click listener
 			title.onClick= function() {};
+
+			return true;
 		}
+
+		title.fade.onEnd= title.onClick;
 
 		global.currentScreen= new global.Screen('title', [title]);	
 
@@ -177,7 +183,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		var promises = [];
 		for (var i in global.unlockedNotes) {
 			var asset = global.assetPackages[global.unlockedNotes[i]];
-			promises.push(global.loadAssets(asset));
+			promises[i] = global.loadAssets(asset);
 		}
 
 		await Promise.all(promises);
@@ -217,7 +223,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 	global.showCredits= showCredits;
 
 	
-	function createLevel(levelData, saveData) {
+	async function createLevel(levelData, saveData) {
 
 		levelData= JSON.parse(levelData);
 
@@ -225,12 +231,15 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 		if (!levelData.assets) levelData.assets = global.createAssetList(levelData);
 
+		var promises = [];
 		for (var i in levelData.assets) {
 			var asset = global.assetPackages[levelData.assets[i]];
-			if (asset && !asset.loaded) global.loadAssets(asset);
+			if (asset && !asset.loaded) promises[i] = global.loadAssets(asset);
 		}
 
-		var newLevel= new global.Level(levelData);
+		await Promise.all(promises);
+
+		var newLevel = new global.Level(levelData);
 
 		global.currentScreen.layers.unshift(newLevel);
 
@@ -241,13 +250,13 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 
 
-	function importLevel(levelData) {
+	async function importLevel(levelData) {
 
 		global.currentScreen= new global.Screen('level_', [toolbar, noteBar, optionsBar, levelSelect]);
 
 		if (global.currentLevel) global.currentLevel.unload();
 
-		global.currentLevel= createLevel(levelData);
+		global.currentLevel= await createLevel(levelData);
 
 		global.currentScreen.name+= global.currentLevel.number;
 	}
@@ -255,7 +264,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 	global.importLevel= importLevel;
 
 
-	function loadLevel(number) {
+	async function loadLevel(number) {
 
 		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar, optionsBar, levelSelect]);
 
@@ -266,7 +275,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 		if (localStorage.getItem("Sol_level_"+ number)) var saveData = localStorage["Sol_level_"+ number];
 
-		global.currentLevel = createLevel(levelData, saveData);
+		global.currentLevel = await createLevel(levelData, saveData);
 
 		if (global.currentLevel.number == 1 && localStorage.Sol_firstTime == 'true') {
 			displayTutorial();
