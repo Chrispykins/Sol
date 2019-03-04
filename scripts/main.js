@@ -6,18 +6,21 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 	var canvas= global.canvas;
 	var context= global.context;
+	var gameDimensions = global.gameDimensions;
 
 	var images= global.images;
 	var sounds= global.sounds;
-
+/*
 	var toolbar= global.toolbar;
 	var noteBar= global.noteBar;
 	var optionsBar = global.optionsBar;
 	var levelSelect = global.levelSelect;
+*/
+	var toolbar, noteBar, optionsBar, levelSelect;
 	var viewport= global.viewport;
 
-	viewport.size= [1920 - noteBar.size[0], toolbar.xy[1]];
-	viewport.canvasPos = [noteBar.size[0] / 2, 0];
+	viewport.size= [gameDimensions[0] - global.sideBarWidth, gameDimensions[1] - global.toolbarHeight];
+	viewport.canvasPos = [global.sideBarWidth / 2, 0];
 
 	global.gameSpeed = 1;
 
@@ -44,6 +47,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		splash.fade= new global.Fade('in', 1000);
 
 		//begin fading the splash screen out after 3 seconds
+		/*
 		setTimeout(function() {
 			
 			if (splash) {
@@ -56,18 +60,28 @@ function run_main(global) { //whatever is passed to the global parameter will be
 				}
 
 			}
-
-			
-
 		}, 3000);
+		*/
 
-		//skip splash screen altogether if player clicks
-		splash.onClick= function() {
-			startGame();
-			splash= null;
+		//fade splash screen when player clicks
+		splash.onClick = function() {
+
+			splash.fade= new global.Fade('out', 1000);
+
+			splash.onClick = function() {};
+
+			var loadComplete = global.loadAssets(global.assetPackages.title);
+
+			splash.fade.onEnd = async function() {
+
+				await loadComplete;
+
+				startGame();
+				splash= null;
+			}
 		}
 
-		global.currentScreen= new global.Screen('splash', [splash]);
+		global.currentScreen = new global.Screen('splash', [splash]);
 
 		//begin drawing loop
 		global.draw();
@@ -77,7 +91,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 		//define tutorial image
 		var tutorial= new global.Gui({
-			size: [1920, 1080],
+			size: gameDimensions,
 			image: global.images.tutorial_1
 		});
 
@@ -90,7 +104,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 			setTimeout(function() {
 				
 				var tutorial= new global.Gui({
-					size: [1920, 1080],
+					size: gameDimensions,
 					image: global.images.tutorial_2
 				});
 
@@ -115,7 +129,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 	}
 
 	
-	function startGame() {
+	async function startGame() {
 
 		if (!localStorage.Sol_progress) {
 			localStorage.Sol_progress= 0;
@@ -158,6 +172,20 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 		//play title sound
 		sounds.titleSound.play();
+
+		//create gui elements
+		var promises = [];
+		for (var i in global.unlockedNotes) {
+			var asset = global.assetPackages[global.unlockedNotes[i]];
+			promises.push(global.loadAssets(asset));
+		}
+
+		await Promise.all(promises);
+
+		toolbar    = global.toolbar     = new global.Toolbar({xy: [0, 880], size: [1920, global.toolbarHeight]});
+		noteBar    = global.noteBar     = new global.NoteBar({xy: [0, 0], size: [global.sideBarWidth, global.sideBarHeight]});
+		optionsBar = global.optionsBar  = new global.OptionsBar({xy: [gameDimensions[0] - global.sideBarWidth, 0], size: [global.sideBarWidth, global.sideBarHeight]});
+		levelSelect= global.levelSelect = new global.LevelSelect({xy: [(gameDimensions[0] - global.levelSelectWidth)/2, gameDimensions[1] - global.levelSelectHeight], size: [global.levelSelectWidth, global.levelSelectHeight]})
 	}
 
 	global.startGame= startGame;
@@ -194,6 +222,13 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		levelData= JSON.parse(levelData);
 
 		if (saveData) levelData.level = JSON.parse(saveData);
+
+		if (!levelData.assets) levelData.assets = global.createAssetList(levelData);
+
+		for (var i in levelData.assets) {
+			var asset = global.assetPackages[levelData.assets[i]];
+			if (asset && !asset.loaded) global.loadAssets(asset);
+		}
 
 		var newLevel= new global.Level(levelData);
 

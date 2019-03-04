@@ -31,6 +31,8 @@ const SQRT_2 = Math.sqrt(2);
 
 	global.backgroundColor = "#f6f6e7";
 	global.levelNumberColor = '#335168';
+	
+	global.noteOrder = ["_do", "mi", "fa", "fi", "sol", "do"];
 
 	//check for localStorage
 	if (!localStorage.Sol_progress) {
@@ -43,6 +45,7 @@ const SQRT_2 = Math.sqrt(2);
 
 	if (!localStorage.Sol_unlocked) {
 		localStorage.Sol_unlocked = '[]';
+		global.unlockedNotes = [];
 	}
 	else global.unlockedNotes = JSON.parse(localStorage.Sol_unlocked);
 
@@ -405,6 +408,8 @@ const SQRT_2 = Math.sqrt(2);
 	//then it loads the scripts and executes them.
 	async function loadAssets(assets) {
 
+		if (assets.loaded) return;
+
 		assets.images= assets.images || [];
 		assets.sounds= assets.sounds || [];
 		assets.scripts= assets.scripts || [];
@@ -422,6 +427,10 @@ const SQRT_2 = Math.sqrt(2);
 		await Promise.all( [loadImages(assets.images, tracker), loadSounds(assets.sounds, tracker)] );
 
 		loadScripts(assets.scripts, tracker);
+
+		if (assets.onLoad) assets.onLoad();
+
+		assets.loaded = true;
 
 		startup = false;
 

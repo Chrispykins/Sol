@@ -5,6 +5,7 @@ function run_note(global) {
 	var context= global.context;
 	var viewport= global.viewport;
 
+/*
 	var sprites= {
 		 _do: new global.SpriteSheet(global.images._do),
 		 mi: new global.SpriteSheet(global.images.mi),
@@ -14,11 +15,14 @@ function run_note(global) {
 	}
 
 	sprites.do= new global.SpriteSheet(global.images.do);
-
-	for (var solfege in sprites) {
-		sprites[solfege].createEvenFrames(320, 320);
-		global.sprites[solfege]= sprites[solfege];
+*/
+	for (var solfege in global.sprites) {
+		if (global.noteOrder.includes(solfege)) {
+			global.sprites[solfege] = new global.SpriteSheet(global.images[solfege]);
+			global.sprites[solfege].createEvenFrames(320, 320);
+		}
 	}
+
 
 	function Note(options) {
 
@@ -39,7 +43,7 @@ function run_note(global) {
 
 		this.base= options.base || global.images[this.solfege+'Base'];
 
-		this.sprite= options.sprite || sprites[this.solfege];
+		this.sprite= options.sprite || global.sprites[this.solfege];
 
 		this.animation= new global.SpriteAnimation(this.sprite, {
 			X: this.xy[0],

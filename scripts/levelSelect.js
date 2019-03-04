@@ -308,7 +308,10 @@ function run_levelSelect(global) {
 		this.animatingToSelection = true;
 	}
 
-	global.levelSelect = new LevelSelect({xy: [(gameDimensions[0] - width)/2, gameDimensions[1] - height], size: [width, height]})
+	global.LevelSelect = LevelSelect;
 
+	global.levelSelectWidth = width;
+	global.levelSelectHeight = height;
 
+	//global.levelSelect = new LevelSelect({xy: [(gameDimensions[0] - width)/2, gameDimensions[1] - height], size: [width, height]})
 }

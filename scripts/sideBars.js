@@ -3,7 +3,10 @@ function run_sidebars(global) {
 	var context = global.context;
 	var viewport = global.guiViewport;
 	
-	var noteOrder = ["_do", "mi", "fa", "fi", "sol", "do"];
+	var noteOrder = global.noteOrder;
+
+	var sideBarWidth = 300;
+	var sideBarHeight = 900;
 	
 	//////////////////////////////////////////////////////
 	// left-hand sidebar for Notes
@@ -339,10 +342,14 @@ function run_sidebars(global) {
 		}
 	}
 
+	global.NoteBar = NoteBar;
+	global.OptionsBar = OptionsBar;
 
+	global.sideBarWidth = sideBarWidth;
+	global.sideBarHeight = sideBarHeight;
 
-	global.noteBar = new NoteBar({xy: [0, 0], size: [300, 900]});
-	global.optionsBar = new OptionsBar({xy: [global.gameDimensions[0] - 300, 0], size: [300, 900]});
+	//global.noteBar = new NoteBar({xy: [0, 0], size: [sideBarWidth, 900]});
+	//global.optionsBar = new OptionsBar({xy: [global.gameDimensions[0] - sideBarWidth, 0], size: [sideBarWidth, 900]});
 
 
 }
