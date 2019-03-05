@@ -10,17 +10,18 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 	var images= global.images;
 	var sounds= global.sounds;
-/*
-	var toolbar= global.toolbar;
-	var noteBar= global.noteBar;
-	var optionsBar = global.optionsBar;
-	var levelSelect = global.levelSelect;
-*/
+
 	var toolbar, noteBar, optionsBar, levelSelect;
 	var viewport= global.viewport;
 
-	viewport.size= [gameDimensions[0] - global.sideBarWidth, gameDimensions[1] - global.toolbarHeight];
-	viewport.canvasPos = [global.sideBarWidth / 2, 0];
+	var sideBarWidth = global.sidebarWidth = 300;
+	var sideBarHeight = global.sidebarHeight = 900;
+	var toolbarHeight = global.toolbarHeight = 200;
+	var levelSelectWidth = global.levelSelectWidth = 1200;
+	var levelSelectHeight = global.levelSelectHeight = 200;
+
+	viewport.size= [gameDimensions[0] - sideBarWidth, gameDimensions[1] - toolbarHeight];
+	viewport.canvasPos = [sideBarWidth / 2, 0];
 
 	global.gameSpeed = 1;
 
@@ -89,7 +90,9 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		global.draw();
 	}
 
-	function displayTutorial() {
+	async function displayTutorial() {
+
+		if (!global.assetPackages.tutorial.loaded) await global.loadAssets(global.assetPackages.tutorial);
 
 		//define tutorial image
 		var tutorial= new global.Gui({
@@ -131,6 +134,8 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		//push first tutorial gui onto the current screen
 		global.currentScreen.layers.push(tutorial);
 	}
+
+	global.displayTutorial = displayTutorial;
 
 	
 	async function startGame() {
@@ -179,25 +184,36 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		//play title sound
 		sounds.titleSound.play();
 
-		//create gui elements
-		var promises = [];
-		for (var i in global.unlockedNotes) {
-			var asset = global.assetPackages[global.unlockedNotes[i]];
-			promises[i] = global.loadAssets(asset);
-		}
-
-		await Promise.all(promises);
-
-		toolbar    = global.toolbar     = new global.Toolbar({xy: [0, 880], size: [1920, global.toolbarHeight]});
-		noteBar    = global.noteBar     = new global.NoteBar({xy: [0, 0], size: [global.sideBarWidth, global.sideBarHeight]});
-		optionsBar = global.optionsBar  = new global.OptionsBar({xy: [gameDimensions[0] - global.sideBarWidth, 0], size: [global.sideBarWidth, global.sideBarHeight]});
-		levelSelect= global.levelSelect = new global.LevelSelect({xy: [(gameDimensions[0] - global.levelSelectWidth)/2, gameDimensions[1] - global.levelSelectHeight], size: [global.levelSelectWidth, global.levelSelectHeight]})
 	}
 
 	global.startGame= startGame;
 
+	async function createSidebars() {
+
+		//create gui elements
+		var promises = [];
+		for (var i in global.unlockedNotes) {
+			var asset = global.assetPackages[global.unlockedNotes[i]];
+			promises.push(global.loadAssets(asset));
+		}
+
+		promises.push(global.loadAssets(global.assetPackages.sidebars));
+
+		await Promise.all(promises);
+
+		toolbar    = global.toolbar     = new global.Toolbar({xy: [0, 880], size: [1920, toolbarHeight]});
+		noteBar    = global.noteBar     = new global.NoteBar({xy: [0, 0], size: [sideBarWidth, sideBarHeight]});
+		optionsBar = global.optionsBar  = new global.OptionsBar({xy: [gameDimensions[0] - sideBarWidth, 0], size: [sideBarWidth, sideBarHeight]});
+		levelSelect= global.levelSelect = new global.LevelSelect({xy: [(gameDimensions[0] - levelSelectWidth)/2, gameDimensions[1] - levelSelectHeight], size: [levelSelectWidth, levelSelectHeight]})
+	}
+
+
+	global.createSidebars = createSidebars;
+
 	
-	function showCredits() {
+	async function showCredits() {
+
+		if (!global.assetPackages.credits.loaded) await global.loadAssets(global.assetPackages.credits);
 
 		global.credits= new global.Credits({
 			lines: [
@@ -266,9 +282,9 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 	async function loadLevel(number) {
 
-		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar, optionsBar, levelSelect]);
+		if (global.currentLevel) await global.currentLevel.unload();
 
-		if (global.currentLevel) global.currentLevel.unload();
+		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar, optionsBar, levelSelect]);
 
 		if (global.newLevels[number])   var levelData = global.newLevels[number];
 		else if (global.levels[number])	var levelData = global.levels[number];
@@ -277,9 +293,8 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 		global.currentLevel = await createLevel(levelData, saveData);
 
-		if (global.currentLevel.number == 1 && localStorage.Sol_firstTime == 'true') {
-			displayTutorial();
-			localStorage.Sol_firstTime= 'false';
+		if (global.currentLevel.number == 1 && localStorage.Sol_firstTime) {
+			global.loadAssets(global.assetPackages.tutorial);
 		}
 	}
 

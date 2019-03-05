@@ -140,7 +140,12 @@ function run_level(global) {
 				}
 				else {
 					//otherwise just give the solution to the player
-					this.playSolution();	
+					this.playSolution();
+
+					if (this.number == 1 && localStorage.Sol_firstTime) {
+						global.displayTutorial();
+						localStorage.Sol_firstTime= false;
+					}
 				}
 
 			}
@@ -591,8 +596,11 @@ function run_level(global) {
 		this.sounds.onWin.play();
 
 		this.unload();
+	
 		
-		setTimeout(function() {
+		setTimeout(async function() {
+
+			if (!global.assetPackages.sidebars.loaded) global.loadAssets(global.assetPackage.sidebars);
 			
 			if (this.number == 0) {
 				global.loadLevel(parseInt(localStorage.Sol_progress));
@@ -615,7 +623,7 @@ function run_level(global) {
 				//localStorage.Sol_progress= 0;
 				
 				//otherwise display ending screen
-				global.importLevel(global.levels.credits);
+				global.loadLevel('credits');
 			}
 		}.bind(this), 900);
 	}
@@ -646,6 +654,10 @@ function run_level(global) {
 		for (var i = 0, l = this.obstacles.length; i < l; i++) {
 			if (this.obstacles[i] instanceof global.Obstacle) this.obstacles[i].sounds.turn.remove();
 		}
+
+		//Level.unload shouldn't be an async function, but we need to wait for sidebar assets to be loaded
+		//before we load the first level, so return the promise from createSidebars()
+		if (this.number == 0) return global.createSidebars();
 	}
 
 	Level.prototype.onLoad= function() {
@@ -660,7 +672,7 @@ function run_level(global) {
 		}
 
 		//set level select bar to this level
-		global.levelSelect.animateToSelection(this.number);
+		if (global.levelSelect) global.levelSelect.animateToSelection(this.number);
 
 		//////////////////////////////////////////////////////////////
 		// Initialization of level complete.

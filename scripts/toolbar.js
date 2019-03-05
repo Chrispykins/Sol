@@ -6,8 +6,6 @@ function run_toolbar(global) {
 	canvas= global.canvas;
 	context= global.context;
 
-	var height = 200
-
 	function Toolbar(options) {
 
 		//make sure options exists
@@ -140,7 +138,6 @@ function run_toolbar(global) {
 		}
 	}
 
-	global.toolbarHeight = height;
 	global.Toolbar = Toolbar;
 
 	//create toolbar instance

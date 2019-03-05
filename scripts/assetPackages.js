@@ -8,32 +8,9 @@
 
 		init: {
 
-			sounds: [
-				
-				'latch_0',
-				'latch_1',
-				'turn',
-				'gate_0',
-				'gate_1',
-				'gate_2',
-				'gate_3'
-			],
+			sounds: [],
 
-			images: [		
-				
-				'obstacleSheet',
-				'horGateSheet',
-				'vertGateSheet',
-				'backGateSheet',
-				'forGateSheet',
-				"replay",
-				'splashScreen',
-				'replaySheet',
-				'cancelSheet',
-				'tutorial_1',
-				'tutorial_2',
-				'endScreen'
-			],
+			images: ['splashScreen'],
 
 			scripts: [
 
@@ -44,16 +21,7 @@
 				'gui',
 				'screen',
 				'levels',
-				'credits',
 				
-				'twoTone',
-				'obstacle',
-				'gate',
-				
-				'toolbar',
-				'sidebars',
-				'levelSelect',
-				'undo',
 				'input',
 				'main'
 
@@ -64,7 +32,43 @@
 
 			sounds:  ['titleSound',	'level_in',	'level_in_slow', 'level_out'],
 			images:  ['title', 'startup', 'startdown', 'startleft', 'startright', 'ballSheet'],
-			scripts: ['ball', 'note', 'start', 'level']
+			scripts: ['ball', 'note', 'twoTone','start', 'level','undo',]
+		},
+
+		credits: {
+
+			sounds:  [],
+			images:  ['endScreen'],
+			scripts: ['credits']
+		},
+
+		tutorial: {
+
+			sounds:  [],
+			images:  ['tutorial_1', 'tutorial_2'],
+			scripts: []
+
+		},
+
+		sidebars: {
+
+			sounds:  [],
+			images:  ['replay','replaySheet','cancelSheet'],
+			scripts: ['toolbar', 'sidebars', 'levelSelect']
+		},
+
+		gate: {
+
+			sounds:  ['gate_0', 'gate_1', 'gate_2', 'gate_3'],
+			images:  ['horGateSheet', 'vertGateSheet', 'backGateSheet', 'forGateSheet'],
+			scripts: ['gate',]
+		},
+
+		obstacle: {
+
+			sounds:  ['latch_0', 'latch_1', 'turn',],
+			images:  ['obstacleSheet'],
+			scripts: ['obstacle']
 		},
 
 		wormhole: {

@@ -4,8 +4,6 @@ function run_levelSelect(global) {
 	var canvas  = global.canvas;
 	var gameDimensions = global.gameDimensions;
 
-	var width   = 1200;
-	var height  = 200;
 
 	//delay before a simple click turns into a drag, in milliseconds
 	var clickDelay = 150;
@@ -309,9 +307,6 @@ function run_levelSelect(global) {
 	}
 
 	global.LevelSelect = LevelSelect;
-
-	global.levelSelectWidth = width;
-	global.levelSelectHeight = height;
 
 	//global.levelSelect = new LevelSelect({xy: [(gameDimensions[0] - width)/2, gameDimensions[1] - height], size: [width, height]})
 }

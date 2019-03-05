@@ -329,10 +329,7 @@ const SQRT_2 = Math.sqrt(2);
 
 					this.removeEventListener('load', loaded);
 
-					if (tracker.scriptsRun == tracker.numScripts) {
-						console.log('resolving script:', script )
-						resolve();
-					}
+					if (tracker.scriptsRun == tracker.numScripts) resolve();
 				});
 
 				document.body.appendChild(newScript);
@@ -440,6 +437,8 @@ const SQRT_2 = Math.sqrt(2);
 		tracker.totalAssets= tracker.numImages + tracker.numSounds + tracker.numScripts * 2;
 
 		await Promise.all( [loadImages(assets.images, tracker), loadSounds(assets.sounds, tracker)] );
+
+		console.log('loading asset:', Object.keys(global.assetPackages).find(key => global.assetPackages[key] === assets))
 
 		await loadScripts(assets.scripts, tracker);
 
