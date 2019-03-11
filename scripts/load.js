@@ -438,7 +438,7 @@ const SQRT_2 = Math.sqrt(2);
 
 		await Promise.all( [loadImages(assets.images, tracker), loadSounds(assets.sounds, tracker)] );
 
-		console.log('loading asset:', Object.keys(global.assetPackages).find(key => global.assetPackages[key] === assets))
+		//console.log('loading asset:', Object.keys(global.assetPackages).find(key => global.assetPackages[key] === assets))
 
 		await loadScripts(assets.scripts, tracker);
 

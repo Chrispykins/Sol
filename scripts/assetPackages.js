@@ -53,7 +53,7 @@
 		sidebars: {
 
 			sounds:  [],
-			images:  ['replay','replaySheet','cancelSheet'],
+			images:  ['undoSheet', 'quarterNote', 'eighthNote', 'dottedNote', 'replaySheet','cancelSheet'],
 			scripts: ['toolbar', 'sidebars', 'levelSelect']
 		},
 

@@ -33,10 +33,13 @@ function run_gui(global) {
 
 		if (this.animation) {
 
+			this.animation.X = this.xy[0];
+			this.animation.Y = this.xy[1];
+
 			this.animation.update(dt);
 			this.animation.draw();
 		}
-		else {
+		else if (this.image) {
 			this.context.drawImage(this.image, this.xy[0] * scale, this.xy[1] * scale, this.size[0] * scale, this.size[1] * scale);
 		}
 

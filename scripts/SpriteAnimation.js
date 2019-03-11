@@ -20,9 +20,7 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 
 	SpriteSheet.prototype.createEvenFrames= function(width, height, border) {
 
-		if (!border) {
-			border= 0;
-		}
+		border = border || 0;
 
 		this.custom.default= [];
 
@@ -71,7 +69,7 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 		this.spriteSheet= spriteSheet;
 		this.frameIndex= 0; //default frame is the first frame on the sprite sheet
 		this.currentFrame= this.spriteSheet.frames[0];
-		this.frameRate= 30;//default frameRate is 30 frames per second
+		this.frameRate= options.frameRate || 30;//default frameRate is 30 frames per second
 		this.speed= 1;  //multiplier to change animation rate, negative numbers for reverse animations
 		this.progress= 0; //progress limited to range 0 to 1
 		this.animation= 'default'; //runs through the array of frames from start to finish

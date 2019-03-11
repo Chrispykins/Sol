@@ -5,6 +5,12 @@ function run_sidebars(global) {
 	
 	var noteOrder = global.noteOrder;
 
+	var undoSheet = new global.SpriteSheet(global.images.undoSheet);
+
+	undoSheet.createEvenFrames(200, 200);
+
+	global.sprites.undoSheet = undoSheet;
+
 
 	//////////////////////////////////////////////////////
 	// left-hand sidebar for Notes
@@ -184,39 +190,56 @@ function run_sidebars(global) {
 		this.slideDirection = 0;
 
 		this.slideProgress = 1;
+
 		
 		this.uiElements = {	
 
 			undoButton: {
-				gui: new global.Gui({image: global.images.replay, size: [100, 100]}),
+				gui: new global.Gui({size: [100, 100]}),
 				attach: [75, 150],
 				opacity: 1
 			},
 
 			quarterNote: {
-				gui: new global.Gui({image: global.images.replay, size: [100, 100]}),
-				attach: [75, 450],
+				gui: new global.Gui({image: global.images.quarterNote, size: [100, 100]}),
+				attach: [75, 425],
 				opacity: 0.3
 			},
 
 			dottedNote: {
-				gui: new global.Gui({image: global.images.replay, size: [100, 100]}),
-				attach: [75, 550],
+				gui: new global.Gui({image: global.images.dottedNote, size: [100, 100]}),
+				attach: [70, 550],
 				opacity: 0.3
 			},
 
 			eigthNote: {
-				gui: new global.Gui({image: global.images.replay, size: [100, 100]}),
-				attach: [75, 650],
+				gui: new global.Gui({image: global.images.eighthNote, size: [100, 100]}),
+				attach: [70, 675],
 				opacity: 1
 			}
+
+
 		}
 
 		var ui = this.uiElements;
 
+		//define animation for clicking on undo
+		ui.undoButton.gui.animation = new global.SpriteAnimation(undoSheet, {
+			width: 100,
+			height: 100,
+			frameRate: 60,
+			canvas: canvas,
+			context: context,
+			viewport: this.viewport
+		});
+
+
 		//define onclick events for all buttons
 		ui.undoButton.onClick = function() {
+
 			global.currentLevel.undoManager.undo();
+			
+			this.gui.animation.start('default');
 		}
 
 		ui.quarterNote.onClick = function() {
