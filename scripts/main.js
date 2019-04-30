@@ -9,7 +9,6 @@ function run_main(global) { //whatever is passed to the global parameter will be
 	var gameDimensions = global.gameDimensions;
 
 	var images= global.images;
-	var sounds= global.sounds;
 
 	var toolbar, noteBar, optionsBar, levelSelect;
 	var viewport= global.viewport;
@@ -87,7 +86,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		global.currentScreen = new global.Screen('splash', [splash]);
 
 		//begin drawing loop
-		global.draw();
+		requestAnimationFrame(global.draw);
 	}
 
 	async function displayTutorial() {
@@ -110,7 +109,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 				
 				var tutorial= new global.Gui({
 					size: gameDimensions,
-					image: global.images.tutorial_2
+					image: images.tutorial_2
 				});
 
 				tutorial.onClick= function(click) {
@@ -182,7 +181,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		global.currentScreen= new global.Screen('title', [title]);	
 
 		//play title sound
-		sounds.titleSound.play();
+		global.audioManager.play('titleSound');
 
 	}
 
@@ -303,56 +302,50 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 	//set up global update loop to control physics of game
 	var now= global.Date.now();
-	var dt;
+	var updateDelta, renderDelta;
 
 	//set up frame counting variables
-	/*
+	
 	var frameCount= 0;
 	var frameTimer= 0;
 	var fps= 0;
-	*/
+	
 
-	global.update= function () {
+	global.update= function(rendering) {
 
 		if (document.hidden) {
 			return;
 		}
 
 		now= global.Date.now();
-		dt= (now - global.lastTick)/1000.0;
-		dt = Math.min(dt, .05);
-		dt*= global.gameSpeed;
+		updateDelta= (now - global.lastTick)/1000.0;
+		updateDelta = Math.min(updateDelta, 0.1);
+		updateDelta*= global.gameSpeed;
 
 		//DEBUG: frame rate counter
-		/*
-		frameTimer+= dt;
-		frameCount++;
-		if (frameTimer > 0.5) {
-			frameTimer+= -0.5;
-			fps= frameCount * 2;
-			frameCount= 0;
-		}
-		*/
+		
 		//END DEBUG
 
 		if (global.gameActive) {
 
-			if (global.playing) global.currentLevel.update(dt);
+			if (global.playing) global.currentLevel.update(updateDelta);
 
-			if (global.credits) global.credits.update(dt);
+			if (global.credits) global.credits.update(updateDelta);
 		}
 
 		global.lastTick= now;
 
-		setTimeout(global.update, 0);
+		if (!rendering) setTimeout(global.update, 0);
 	}
 
 
 	//set up global drawing loop to render graphics to screen
 	global.draw= function () {
+		requestAnimationFrame(global.draw);
 
 		now= global.Date.now();
-		dt= now - global.lastDraw;
+		renderDelta= now - global.lastDraw;
+		renderDelta = Math.min(renderDelta, 100);
 
 		if (global.gameActive) {
 
@@ -360,23 +353,30 @@ function run_main(global) { //whatever is passed to the global parameter will be
 			global.scale= global.canvas.scale * global.viewport.scale;
 			context.clearRect(0, 0, global.gameDimensions[0], global.gameDimensions[1]);
 
+			//global.update(true);
+
 			//draw game objects, passing dt variable to update their animations
-			global.currentScreen.draw(dt);
+			global.currentScreen.draw(renderDelta);
 
 			//DEBUG: frame rate display
-			/*
-			context.font= (30 * canvas.scale).toString() +'px Arial';
+			
+			frameTimer+= renderDelta/1000.0;
+			frameCount++;
+			if (frameTimer > 0.5) {
+				frameTimer+= -0.5;
+				fps= frameCount * 2;
+				frameCount= 0;
+			}
+			
+			context.font= Math.floor(30 * canvas.scale) +'px Arial';
 			context.fillStyle= 'black';
-			context.textAlign= 'left';
 			context.fillText(fps.toString(), 50 * canvas.scale, 50 * canvas.scale);
-			*/
+			
 			//END DEBUG
 
 		}
 
 		global.lastDraw= now;
-
-		requestAnimationFrame(global.draw);
 	}
 
 	//add event listener to unpause game when page is visible

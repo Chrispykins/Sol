@@ -5,6 +5,19 @@ function run_button(global) {
 	var context= global.context;
 	var viewport= global.viewport;
 
+	var images= {
+		on: global.images.button_on,
+		off: global.images.button_off,
+		0: global.images.button_0,
+		1: global.images.button_1,
+		2: global.images.button_2,
+		3: global.images.button_3,
+		5: global.images.button_5,
+		6: global.images.button_6,
+		7: global.images.button_7,
+		8: global.images.button_8,
+	}
+
 	function Button(options) {
 
 		//make sure options exists
@@ -24,36 +37,20 @@ function run_button(global) {
 
 		this.directions= options.directions || [];
 
-		this.images= {
-			on: global.images.button_on,
-			off: global.images.button_off,
-			0: global.images.button_0,
-			1: global.images.button_1,
-			2: global.images.button_2,
-			3: global.images.button_3,
-			5: global.images.button_5,
-			6: global.images.button_6,
-			7: global.images.button_7,
-			8: global.images.button_8,
-		}
+		this.currentImage= images.off;
 
-		this.currentImage= this.images.off;
-
-		this.sound= new global.AudioGroup(global.sounds.button_0, global.sounds.button_1);
+		this.sound= new global.AudioGroup('button_0', 'button_1');
 
 		this.sound.volume= 0.3;
-
-		this.viewport= viewport;
-
 	}
 
 	Button.prototype.draw= function() {
 
 		for (var i= 0, l= this.directions.length; i < l; i++) {
-			this.viewport.drawImage(this.images[ this.directions[i] ], this.xy[0], this.xy[1], this.size[0], this.size[1]);
+			viewport.drawImage(images[ this.directions[i] ], this.xy[0], this.xy[1], this.size[0], this.size[1]);
 		}
 
-		this.viewport.drawImage(this.currentImage, this.xy[0], this.xy[1], this.size[0], this.size[1]);
+		viewport.drawImage(this.currentImage, this.xy[0], this.xy[1], this.size[0], this.size[1]);
 
 		
 	}
@@ -135,10 +132,10 @@ function run_button(global) {
 		this.sound.play();
 
 		//change image to pressed button
-		this.currentImage= this.images.on;
+		this.currentImage= images.on;
 
 		//change image back to normal
-		setTimeout(function() { this.currentImage= this.images.off }.bind(this), 1000/this.level.bps);
+		setTimeout(function() { this.currentImage= images.off }.bind(this), 1000/this.level.bps);
 
 		return notes;
 	}
@@ -181,9 +178,8 @@ function run_button(global) {
 			for (let i= 0, l= notes.length; i < l; i++) {
 					
 				//adjust volume for multiple notes
-				var temp= global.sounds[notes[i]].cloneNode();
-				temp.volume= Math.min( 1, 0.25 + 1/l) * temp.volume;
-				temp.play();
+				var volume= Math.min( 1, 0.25 + 1/l);
+				global.audioManager.play(notes[i], volume);
 			}
 
 			//register action with undo buffer

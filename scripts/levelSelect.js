@@ -74,8 +74,9 @@ function run_levelSelect(global) {
 		if (this.animatingToSelection) {
 
 			var dx = this.oldSelection - this.newSelection;
+			var maxSpeed = 12;
 
-			this.scrollPosition+= dx * dt * scrollSpeed;
+			this.scrollPosition+= Math.clamp(dx * dt * scrollSpeed, dt * maxSpeed, -dt * maxSpeed);
 
 			if (dx >= 0 && (this.scrollPosition + this.newSelection) >= 0) this.animatingToSelection = false;
 			if (dx < 0 && (this.scrollPosition + this.newSelection) < 0) this.animatingToSelection = false;
@@ -131,11 +132,7 @@ function run_levelSelect(global) {
 
 			//reset when it goes out of view
 			if (this.slideProgress >= 1) {
-				this.selection = global.currentLevel.number;
-				this.scrollPosition = -global.currentLevel.number;
-				this.scrollVelocity = 0;
-				this.animatingToSelection = false;
-				this.beingDragged = false;
+				this.reset();
 			}
 
 			this.slideDirection = 0;
@@ -144,6 +141,15 @@ function run_levelSelect(global) {
 		}
 
 		this.xy[1] = Math.smoothStep(this.positions[0], this.positions[1], this.slideProgress);
+	}
+
+	LevelSelect.prototype.reset = function() {
+
+		this.selection = global.currentLevel.number;
+		this.scrollPosition = -global.currentLevel.number;
+		this.scrollVelocity = 0;
+		this.animatingToSelection = false;
+		this.beingDragged = false;
 	}
 
 	LevelSelect.prototype.draw = function(dt) {
@@ -156,6 +162,7 @@ function run_levelSelect(global) {
 
 		context.fillStyle = global.levelNumberColor;
 		context.textBaseline = 'middle';
+		context.textAlign = 'center';
 
 		var dx = this.scrollPosition + this.selection;
 		var mid = this.xy[0] + this.size[0]/2;
@@ -191,11 +198,12 @@ function run_levelSelect(global) {
 
 	}
 
-	LevelSelect.prototype.updateUnlocked = function(unlocked) {
+	LevelSelect.prototype.updateUnlocked = function(progress) {
 
-		if (unlocked > this.unlocked) {
-			this.unlocked = unlocked;
-			this.animateToSelection(unlocked);
+		if (progress > this.unlocked) {
+			this.unlocked = progress;
+			localStorage.Sol_progress = progress;
+			this.animateToSelection(progress);
 		}
 	}
 

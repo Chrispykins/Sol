@@ -24,7 +24,7 @@ function run_sidebars(global) {
 
 		this.bounds = new global.Rectangle(this.xy.slice(), this.size);
 
-		this.positions = [-200, 0]
+		this.positions = [-200, 0];
 		this.visible = false;
 
 		this.slideDirection = 0;
@@ -230,7 +230,7 @@ function run_sidebars(global) {
 			frameRate: 60,
 			canvas: canvas,
 			context: context,
-			viewport: this.viewport
+			viewport: viewport
 		});
 
 
@@ -247,8 +247,8 @@ function run_sidebars(global) {
 			global.gameSpeed = 0.5;
 
 			this.opacity = 1;
-			ui.dottedNote.opacity = 0.3;
-			ui.eigthNote.opacity = 0.3;
+			ui.dottedNote.opacity = 0.5;
+			ui.eigthNote.opacity = 0.5;
 		}
 
 		ui.dottedNote.onClick = function() {
@@ -256,8 +256,8 @@ function run_sidebars(global) {
 			global.gameSpeed = 0.75;
 
 			this.opacity = 1;
-			ui.quarterNote.opacity = 0.3;
-			ui.eigthNote.opacity = 0.3;
+			ui.quarterNote.opacity = 0.5;
+			ui.eigthNote.opacity = 0.5;
 		}
 
 		ui.eigthNote.onClick = function() {
@@ -265,8 +265,8 @@ function run_sidebars(global) {
 			global.gameSpeed = 1;
 
 			this.opacity = 1;
-			ui.dottedNote.opacity = 0.3;
-			ui.quarterNote.opacity = 0.3;
+			ui.dottedNote.opacity = 0.5;
+			ui.quarterNote.opacity = 0.5;
 		}
 	}
 
@@ -275,7 +275,7 @@ function run_sidebars(global) {
 		this.update(dt/1000);
 
 		//debug border
-		/*		
+		/*
 		var scale = canvas.scale;
 		var x = (this.xy[0] - viewport.xy[0]) * scale + viewport.canvasPos[0] * scale;
 		var y = (this.xy[1] - viewport.xy[1]) * scale + viewport.canvasPos[1] * scale;

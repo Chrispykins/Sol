@@ -36,12 +36,11 @@ function run_note(global) {
 		this.gridPos= options.gridPos || [0, 0];
 
 		this.solfege= options.solfege || '_do';
-		this.sound= options.sound || global.sounds[this.solfege];
 		this.level= options.level || global.currentLevel;
 
-		this.viewport= options.viewport || viewport;
-
 		this.base= options.base || global.images[this.solfege+'Base'];
+
+		this.viewport = options.viewport || viewport;
 
 		this.sprite= options.sprite || global.sprites[this.solfege];
 
@@ -73,7 +72,7 @@ function run_note(global) {
 		this.animation.onEnd= function() {
 
 			this.animation.speed= -1;
-			this.animation.startTime= global.Date.now();
+			this.animation.playing = true;
 
 			//return to normal after the reverse animation
 			this.animation.onEnd= function() {
@@ -112,7 +111,7 @@ function run_note(global) {
 		this.activate();
 
 		//the audio from clicking has been separated from the audio from the ball
-		this.sound.cloneNode().play();
+		global.audioManager.play(this.solfege);
 	}
 
 	global.Note= Note;

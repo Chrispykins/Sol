@@ -45,9 +45,6 @@ function run_wormhole(global) {
         //in and out animation
         this.scale = 1;
         this.scaleDirection = 0;
-
-        this.context= options.context || context || global.context;
-        this.viewport= options.viewport || viewport || global.viewport;
     }
 
     Wormhole.prototype.draw= function(dt) {
@@ -70,7 +67,7 @@ function run_wormhole(global) {
         this.animation.X = this.xy[0] - this.animation.width/2;
         this.animation.Y = this.xy[1] - this.animation.height/2
 
-        this.viewport.drawImage(this.base, this.xy[0] - this.size[0]/2, this.xy[1] - this.size[1]/2, this.size[0], this.size[1]);
+        viewport.drawImage(this.base, this.xy[0] - this.size[0]/2, this.xy[1] - this.size[1]/2, this.size[0], this.size[1]);
 
         this.animation.update(dt);
         this.animation.draw();

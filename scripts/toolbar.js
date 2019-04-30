@@ -27,7 +27,7 @@ function run_toolbar(global) {
 		this.replayButton= new global.Gui({
 			xy: [this.xy[0] + 75, this.xy[1] + 25],
 			size: [150, 150],
-			sound: global.sounds._do,
+			//sound: global.sounds._do,
 			image: global.images.replay
 		});
 
@@ -82,7 +82,7 @@ function run_toolbar(global) {
 		this.cancelButton= new global.Gui({
 			xy: [this.xy[0] + this.size[0] - 200, this.xy[1] + this.size[1] - 175],
 			size: [150, 150],
-			sound: global.sounds._do,
+			//sound: global.sounds._do,
 			image: global.images.cancel
 		});
 
@@ -117,8 +117,6 @@ function run_toolbar(global) {
 			}
 
 		}.bind(this);
-		
-		this.context= options.context || global.context;
 	}
 
 	Toolbar.prototype.draw= function(dt) {

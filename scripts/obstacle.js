@@ -18,7 +18,6 @@ function run_obstacle(global) {
 
 	var obstacleWidth = 30;
 
-
 	function Obstacle(options) {
 
 		//make sure options exists
@@ -39,7 +38,6 @@ function run_obstacle(global) {
 		this.direction= options.direction || 'forward';
 		this.saveState= this.direction;
 
-		this.sound= options.sound;
 		this.level= options.level || global.currentLevel;
 
 		this.sprite= options.sprite || sprite;
@@ -57,20 +55,25 @@ function run_obstacle(global) {
 		this.animation.changeAnimation(this.direction);
 
 		this.sounds= {
-			turn: global.sounds.turn.cloneNode(),
-			latch: new global.AudioGroup(global.sounds.latch_0, global.sounds.latch_1)
+			latch: new global.AudioGroup('latch_0', 'latch_1'),
+			turn: null
 		}
 
-		global.sounds.latch_0.volume= 0.5;
-		global.sounds.latch_1.volume= 0.5;
-
-		this.viewport= viewport;
+		this.sounds.latch.volume = 0.5;
 	}
 
 	Obstacle.prototype.draw= function(dt) {
 
+		var scale = canvas.scale * viewport.scale;
+
 		this.animation.update(dt);
 		this.animation.draw();
+
+		/*
+		context.beginPath();
+		context.arc((this.center[0] - viewport.xy[0]) * scale + viewport.canvasPos[0] * canvas.scale, (this.center[1] - viewport.xy[1]) * scale + viewport.canvasPos[1] * canvas.scale, this.size[0]/5.5 * scale, 0, 2 * Math.PI);
+		context.stroke();
+		*/
 
 		if (this.count > 0 && !this.rotating) {
 			this.rotate();
@@ -110,7 +113,7 @@ function run_obstacle(global) {
 
 		//fade in turning sound if not already turning
 		if (!this.rotating) {
-			this.sounds.turn.volume= 0;
+			this.sounds.turn = global.audioManager.play('turn', 0);
 			this.sounds.turn.fadeIn(100);
 		}
 
@@ -140,7 +143,11 @@ function run_obstacle(global) {
 				this.animation.speed= 1;
 
 				this.sounds.latch.play();
-				this.sounds.turn.pause();
+
+				if (this.sounds.turn) {
+					this.sounds.turn.pause();
+					this.sounds.turn = null;
+				}
 
 				if (!this.level.playing) this.updateLevelData();
 			}
@@ -148,14 +155,14 @@ function run_obstacle(global) {
 		}.bind(this);
 
 
-		this.animation.start();		
+		this.animation.unpause();
 	}
 
 	Obstacle.prototype.rotateBack= function() {
 
 		//fade in turning sound if not already turning
 		if (!this.rotating) {
-			this.sounds.turn.volume= 0;
+			this.sounds.turn = global.audioManager.play('turn', 0);
 			this.sounds.turn.fadeIn(100);
 		}
 
@@ -181,7 +188,11 @@ function run_obstacle(global) {
 				this.animation.speed= 1;
 
 				this.sounds.latch.play();
-				this.sounds.turn.pause();
+
+				if (this.sounds.turn) {
+					this.sounds.turn.pause();
+					this.sounds.turn = null;
+				}
 
 				if (!this.level.playing) this.updateLevelData();
 			}
@@ -236,7 +247,11 @@ function run_obstacle(global) {
 			this.count= distance;
 		}
 
-		this.sounds.turn.pause();
+		if (this.sounds.turn) {
+			this.sounds.turn.pause();
+			this.sounds.turn = null;
+		}
+
 	}
 
 	Obstacle.prototype.onClick= function(click) {
@@ -260,6 +275,8 @@ function run_obstacle(global) {
 	}
 
 	Obstacle.prototype.contains = function(point) {
+
+		if (Math.distance(point, this.center) < this.size[0] / 5.5) return true;
 
 		switch (this.direction) {
 

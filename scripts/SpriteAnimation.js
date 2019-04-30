@@ -75,8 +75,7 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 		this.animation= 'default'; //runs through the array of frames from start to finish
 		this.loop= options.loop || false; //boolean to control whether or not the animation will loop
 
-		this.startTime= 0;
-		this.endTime= 0;
+		this.playing = false;
 
 		this.canvas= options.canvas || global.canvas;
 		this.context= options.context || global.context;
@@ -88,15 +87,19 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 		this.height= options.height || this.currentFrame.height;
 		this.alpha= 1;
 
+		this.frameEvents = [];
+
 	}
 
 	SpriteAnimation.prototype.update= function(dt) {
 
-		if (this.startTime!= 0) {
+		if (this.playing) {
 
 			var path= this.spriteSheet.custom[this.animation];
 			var frameLength= 1000/this.frameRate
 			var totalLength= frameLength * path.length;
+
+			var previousIndex = this.frameIndex;
 
 			//update the progress tracker
 			this.progress+= (dt * this.speed)/totalLength;
@@ -110,14 +113,16 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 			//grab frame information based on frameIndex
 			this.currentFrame= this.spriteSheet.frames[path[this.frameIndex]];
 
+			//check for frame events to call on this frame
+			if (previousIndex != this.frameIndex) {
+				for (var event of this.frameEvents) {
+					if (event.frame == this.frameIndex) event.callback.call(event.target);
+				}
+			}
 
 			if (this.progress >= 1) { //reached the end of animation
-				
-				this.startTime= 0;
-				this.endTime= global.Date.now();
 
 				if (this.loop) {
-					this.startTime= global.Date.now();
 					this.progress+= -1;
 				}
 				else {
@@ -128,11 +133,7 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 			}
 			else if (this.progress <= 0) { //reached the beginning of animation
 				
-				this.startTime= 0;
-				this.endTime= global.Date.now();
-
 				if (this.loop) {
-					this.startTime= global.Date.now();
 					this.progress+= 1;
 				}
 				else {
@@ -146,29 +147,36 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 
 	SpriteAnimation.prototype.start= function(name) {
 		
-		if (name) this.changeAnimation(name);
+		this.changeAnimation(name);
 
 		this.frameIndex= 0;
-
-		if (this.spriteSheet.custom[this.animation]) {
-			this.progress= 0;
-			this.startTime= global.Date.now();
-		}
-		else {
-			this.animation= 'default';
-			this.progress= 0;
-			this.startTime= global.Date.now();
-			console.log('Custom animation "' + this.animation + '" for '+ this.spriteSheet.image.id + ' does not exist');
-		}
-
+		this.playing = true;
 	}
 
 	SpriteAnimation.prototype.stop= function() {
-		this.startTime= 0;
+		this.playing = false;
 	}
 
 	SpriteAnimation.prototype.unpause= function () {
-		this.startTime= global.Date.now();
+		this.playing = true;
+	}
+
+
+	SpriteAnimation.prototype.addFrameEvent = function(frame, callback, target) {
+
+		target = target || this;
+
+		this.frameEvents.push( { frame: frame, callback: callback, target: target} );
+	}
+
+	SpriteAnimation.prototype.removeFrameEvent = function(frame, callback) {
+
+		if (!this.frameEvents.length) return;
+
+		for (var i = this.frameEvents.length - 1; i >= 0; i--) {
+			var event = this.frameEvents[i];
+			if (frame == event.frame && callback == event.callback) { this.frameEvents.splice(i, 1); }
+		}
 	}
 
 	SpriteAnimation.prototype.draw= function() {
@@ -198,9 +206,7 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 
 	SpriteAnimation.prototype.changeAnimation= function (name) {
 
-		if (!name) {
-			name= 'default';
-		}
+		name = name || "default";
 
 		if (this.spriteSheet.custom[name]) {
 			
@@ -211,6 +217,8 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 		else {
 			console.error("No custom animation of name", name);
 		}
+
+		return name;
 
 	}
 

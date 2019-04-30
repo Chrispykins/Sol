@@ -27,7 +27,6 @@ function run_twoTone(global) {
 		
 	 	//defining first tone sound and animation
 		this.solfege_0= options.solfege[0] || '_do';
-		this.sound_0= options.sound_0 || new global.AudioGroup(global.sounds[this.solfege_0]);
 		this.base_0= options.base_0 || global.images[this.solfege_0+'Base'];
 
 		this.sprite_0= options.sprite_0 || global.sprites[this.solfege_0];
@@ -49,7 +48,6 @@ function run_twoTone(global) {
 		
 		//defining second tone sound and animation
 		this.solfege_1= options.solfege[1] || '_do';
-		this.sound_1= options.sound_1 || new global.AudioGroup(global.sounds[this.solfege_1]);
 		this.base_1= options.base_1 || global.images[this.solfege_1+'Base'];
 
 		this.sprite_1= options.sprite_1 || global.sprites[this.solfege_1]
@@ -71,13 +69,11 @@ function run_twoTone(global) {
 		}.bind(this);
 
 		this.animation_1.start();
-
-		this.viewport= viewport;
 	}
 
 	TwoTone.prototype.draw= function(dt) {
 
-		this.viewport.drawImage(this["base_"+this.outer], this.xy[0], this.xy[1], this.size[0], this.size[1]);
+		viewport.drawImage(this["base_"+this.outer], this.xy[0], this.xy[1], this.size[0], this.size[1]);
 
 		//update and draw current tone
 		this["animation_"+this.outer].update(dt);
@@ -149,7 +145,8 @@ function run_twoTone(global) {
 	TwoTone.prototype.onClick= function() {
 
 		//the audio for clicking has been separated from the audio from the ball
-		this["sound_"+this.outer].play();
+		var solfege = this['solfege_'+this.outer];
+		global.audioManager.play(solfege);
 
 		this.activate();
 

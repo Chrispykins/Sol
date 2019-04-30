@@ -56,22 +56,13 @@ function run_level(global) {
 		this.zooming = 1;
 
 		this.sounds= {
-			onLoad: global.sounds.level_in,
-			onWin: global.sounds.level_out,
-			_do: global.sounds._do,
-			mi: global.sounds.mi,
-			fa: global.sounds.fa,
-			fi: global.sounds.fi,
-			sol: global.sounds.sol,
-			do: global.sounds.do
+			onLoad: 'level_in',
+			onWin: 'level_out',
 		}
 
 		if (this.number== 50) {
-			this.sounds.onLoad= global.sounds.level_in_slow;
+			this.sounds.onLoad= 'level_in_slow';
 		}
-
-		//this.sounds.onLoad.volume=  global.sounds.level_in.volume * 0.5;
-		//this.sounds.onWin.volume= global.sounds.level_out.volume * 0.5;
 
 		//////////////////////////////////////////////////////////////
 		// Initialization of level complete.
@@ -123,10 +114,10 @@ function run_level(global) {
 		//check if the level is zooming in or out
 		if (this.zooming != 1) {
 			
-			this.viewport.zoom( global.Math.pow(this.zooming, dt) );
+			viewport.zoom( global.Math.pow(this.zooming, dt) );
 
 			//stop zooming if level is at full size
-			if (this.viewport.scale > this.finalZoom) {
+			if (viewport.scale > this.finalZoom) {
 				
 				this.zooming= 1;
 
@@ -201,7 +192,7 @@ function run_level(global) {
 			var fontSize= new String(parseInt(250 * this.canvas.scale));
 
 			this.context.font= fontSize + 'px Times';
-			this.context.textAlign= 'center';
+			this.context.textAlign = 'center';
 			this.context.fillStyle= levelNumberColor;
 			this.context.fillText(number, 960 * this.canvas.scale, y * this.canvas.scale);
 
@@ -450,9 +441,8 @@ function run_level(global) {
 						for (var i= 0, l= solution[index].length; i < l; i++) {
 							
 							//adjust volume for multiple notes
-							var temp= global.sounds[solution[index][i]].cloneNode();
-							temp.volume= Math.min( 1, 0.25 + 1/l) * temp.volume;
-							temp.play();
+							var volume= Math.min( 1, 0.25 + 1/l);
+							global.audioManager.play(solution[index][i], volume);
 						}
 					}
 
@@ -571,9 +561,8 @@ function run_level(global) {
 			
 			if (thisBeat[i]) {
 				//adjust volume for multiple notes
-				var temp= this.sounds[thisBeat[i]].cloneNode();
-				temp.volume= Math.min( 1, 0.25 + 1/l) * temp.volume;
-				temp.play();
+				var volume= Math.min( 1, 0.25 + 1/l);
+				global.audioManager.play(thisBeat[i], volume);
 				
 			}
 		}
@@ -593,7 +582,7 @@ function run_level(global) {
 		this.zooming= 1/200;
 
 		//play woosh out sound
-		this.sounds.onWin.play();
+		global.audioManager.play(this.sounds.onWin);
 
 		this.unload();
 	
@@ -603,7 +592,8 @@ function run_level(global) {
 			if (!global.assetPackages.sidebars.loaded) global.loadAssets(global.assetPackage.sidebars);
 			
 			if (this.number == 0) {
-				global.loadLevel(parseInt(localStorage.Sol_progress));
+				await global.loadLevel(parseInt(localStorage.Sol_progress));
+				global.levelSelect.reset();
 			}
 			else if (this.number < 0) {
 				global.startGame();
@@ -611,8 +601,9 @@ function run_level(global) {
 
 			else if (global.levels[this.number + 1]) {
 
-				localStorage.Sol_progress= this.number + 1;
-				global.levelSelect.updateUnlocked(this.number + 1);
+				if (this.number + 1 > localStorage.Sol_progress) {
+					global.levelSelect.updateUnlocked(this.number + 1);
+				}
 
 				//load next level
 				global.loadLevel(this.number + 1);
@@ -637,11 +628,6 @@ function run_level(global) {
 
 		this.zooming= 1;
 
-		this.sounds.onLoad.pause();
-		this.sounds.onLoad.currentTime= 0;
-		this.sounds.onWin.pause();
-		this.sounds.onLoad.currentTime= 0;
-
 		this.unload();
 	}
 
@@ -649,11 +635,19 @@ function run_level(global) {
 
 		this.save();
 
+		//stop playing solution melody
+		if (this.musicBox) {
+			clearInterval(this.musicBox);
+			this.musicBox = null;
+		}
+
 		global.gameSpeed = 1;
 
+/*
 		for (var i = 0, l = this.obstacles.length; i < l; i++) {
 			if (this.obstacles[i] instanceof global.Obstacle) this.obstacles[i].sounds.turn.remove();
 		}
+*/
 
 		//Level.unload shouldn't be an async function, but we need to wait for sidebar assets to be loaded
 		//before we load the first level, so return the promise from createSidebars()
@@ -689,7 +683,7 @@ function run_level(global) {
 		this.finalZoom= viewport.scale;
 
 		//start level small and zoom in
-		this.viewport.zoom(0.01);
+		viewport.zoom(0.01);
 
 		//final level should be a bit more epic
 		if (this.number == 50) {
@@ -702,7 +696,7 @@ function run_level(global) {
 		}
 
 		//wind sound
-		this.sounds.onLoad.play();
+		global.audioManager.play(this.sounds.onLoad);
 
 		if (this.number < 0) {
 			global.showCredits();

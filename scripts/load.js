@@ -23,7 +23,6 @@ const SQRT_2 = Math.sqrt(2);
 
 	// initialize global variables
 	global.canvas= document.getElementById('canvas');
-	global.canvas.screencanvas= true;
 	global.context= global.canvas.getContext('2d');
 	global.requestAnimationFrame= window.requestAnimationFrame;
 	global.Math= Math;
@@ -124,10 +123,10 @@ const SQRT_2 = Math.sqrt(2);
 
 		else return new Promise( function(resolve, reject) {
 
-			for (var i = 0, l = filenames.length; i < l; i++) {
-
+			//ansynchornize all the things!
+			async function loadImage(filename) {
+				
 				var newImg = document.createElement('img');
-				let filename = filenames[i];
 
 				newImg.src = 'graphics/'+ filename + '.png';
 
@@ -154,9 +153,14 @@ const SQRT_2 = Math.sqrt(2);
 				})
 			}
 
+			for (var i = 0, l = filenames.length; i < l; i++) {
+
+				loadImage(filenames[i]);
+			}
+
 		});
 	}
-
+/*
 	function loadImage(filename, tracker) {
 
 		//load image into DOM Element
@@ -187,6 +191,7 @@ const SQRT_2 = Math.sqrt(2);
 		
 
 	}
+*/
 
 	global.sprites= {};
 
@@ -216,7 +221,7 @@ const SQRT_2 = Math.sqrt(2);
 			}
 
 			//define stand-alone function to retry load if there is an error
-			function loadSound(filename) {
+			async function loadSound(filename) {
 
 				var newSound = new Audio('audio/' + filename + fileType);
 
@@ -226,6 +231,10 @@ const SQRT_2 = Math.sqrt(2);
 
 					tracker.soundsLoaded++;
 					updateLoadingBar(tracker);
+
+					//always create duplicates of sound for overlaying
+					//global.audioManager.copy(filename);
+					//global.audioManager.copy(filename);
 
 					//resolve the Promise once all sounds are loaded
 					if (tracker.soundsLoaded >= tracker.numSounds) resolve();
@@ -242,7 +251,11 @@ const SQRT_2 = Math.sqrt(2);
 
 				preload.appendChild(newSound);
 
-				global.sounds[filename] = newSound;
+				//add sound to audioManager;
+				global.audioManager.sounds[filename] = [newSound];
+
+				global.audioManager.copy(filename);
+				global.audioManager.copy(filename);
 			}
 
 			for (var i = 0, l = filenames.length; i < l; i++) {

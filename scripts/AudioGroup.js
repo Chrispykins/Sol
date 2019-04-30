@@ -1,5 +1,7 @@
 //AudioGroup class
 function run_AudioGroup(global) {
+
+	var manager = global.audioManager;
 	
 	function AudioGroup() {
 
@@ -19,7 +21,7 @@ function run_AudioGroup(global) {
 		this.temp= [];
 	}
 
-	AudioGroup.prototype.play= function () {
+	AudioGroup.prototype.play= function() {
 
 		if (this.playStyle== 'random') {
 			this.playRandom();
@@ -28,7 +30,11 @@ function run_AudioGroup(global) {
 			this.playSequence();
 		}
 		else {
+
 			var clip= this.clips[this.index];
+			var sound = manager.play(clip, this.volume, this);
+			this.temp.push(sound);
+			/*
 			var newNode= sounds[clip].cloneNode();
 			newNode.volume= this.volume * sounds[clip].volume;
 
@@ -41,11 +47,19 @@ function run_AudioGroup(global) {
 			newNode.play()
 
 			this.temp.push(newNode);
+			*/
 		}
 	}
 
 	AudioGroup.prototype.playRandom= function () {
 
+		var random= Math.floor(Math.random() * (this.clips.length - 1)) + 1;
+		var clip = this.clips[random];
+		var sound = manager.play(clip, this.volume, this);
+		this.temp.push(sound);
+
+		this.index = random;
+/*
 		var that= this;
 		
 		var random= Math.floor(Math.random() * this.clips.length);
@@ -63,10 +77,15 @@ function run_AudioGroup(global) {
 
 		this.index= random;
 		this.temp.push(newNode);
+		*/
 	}
 
 	AudioGroup.prototype.playSequence= function() {
 
+		var clip = this.clips[this.index];
+		manager.play(clip, this.volume, this);
+
+/*
 		var clip = this.clips[this.index];
 		var newNode= clip.cloneNode();
 		newNode.volume= this.volume * clip.volume;
@@ -80,17 +99,32 @@ function run_AudioGroup(global) {
 		newNode.play()
 
 		this.temp.push(newNode);
+*/
+
 		this.index++;
 		this.index= this.index%this.clips.length;
+	
+	}
+
+	AudioGroup.prototype.onEnd = function(sound) {
+
+		var index = this.temp.indexOf(sound);
+
+		if (index >= 0) {
+			this.temp[index] = this.temp[this.temp.length - 1];
+			this.temp.length--;
+		}
 	}
 
 	AudioGroup.prototype.stop= function() {
 		
 		for (var i= 0; i < this.temp.length; i++) {
 			this.temp[i].pause();
+			if (this.temp[i].endEvent) this.temp[i].endEvent();
 		}
 
 		this.temp= [];
+
 	}
 
 	AudioGroup.prototype.fadeTo = function(volume, length) {
@@ -153,6 +187,7 @@ function run_AudioGroup(global) {
 
 
 //hook the cloneNode function and add some custom procedures to it so we can access the audio later
+/*
 (function(originalClone) {
 
 	HTMLAudioElement.prototype.cloneNode = function() {
@@ -162,6 +197,7 @@ function run_AudioGroup(global) {
 		newNode.volume = this.volume;
 
 		newNode.addEventListener('ended', function end() {
+			this.removeEventListener('ended', end);
 			this.remove();
 		});
 
@@ -171,3 +207,4 @@ function run_AudioGroup(global) {
 	}
 
 })(HTMLAudioElement.prototype.cloneNode);
+*/

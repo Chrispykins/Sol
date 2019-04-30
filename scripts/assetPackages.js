@@ -16,6 +16,7 @@
 
 				'resize',
 				'viewport',
+				'AudioManager',
 				'AudioGroup',
 				'SpriteAnimation',
 				'gui',

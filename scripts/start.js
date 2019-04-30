@@ -1,8 +1,6 @@
 //start class
 function run_start(global) {
 
-	var canvas= global.canvas;
-	var context= global.context;
 	var viewport= global.viewport;
 
 	var ballSize = 65;
@@ -45,13 +43,11 @@ function run_start(global) {
 
 		this.image= options.image || global.images['start'+this.direction];
 
-		this.viewport= viewport;
-
 	}
 
 	Start.prototype.draw= function(dt) {
 
-		this.viewport.drawImage(this.image, this.xy[0], this.xy[1], this.size[0], this.size[1]);
+		viewport.drawImage(this.image, this.xy[0], this.xy[1], this.size[0], this.size[1]);
 	}
 
 	Start.prototype.launch= function() {

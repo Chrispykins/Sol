@@ -42,34 +42,38 @@ function run_gate(global) {
 
 		this.saveState= false;
 
-		this.sound= options.sound;
 		this.level= options.level || global.currentLevel;
 
-		
 		//animation code
 		this.sprite= options.sprite || sprites[this.direction];
 
+/*
 		this.sprite.custom.openPos= [10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 		this.sprite.custom.closePos= [19, 18, 17, 16, 15, 14, 13, 12, 11, 10];
 		this.sprite.custom.openNeg= [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
 		this.sprite.custom.closeNeg= [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+*/
 
 		this.animation= new global.SpriteAnimation(this.sprite, {
 			X: this.xy[0],
 			Y: this.xy[1],
 			width: this.size[0],
 			height: this.size[1],
+			//frameRate: 45,
 			canvas: canvas,
 			context: context,
 			viewport: viewport
 		});
 
-		this.animation.frameIndex= 10;
-		this.animation.currentFrame= this.animation.spriteSheet.frames[10];
+		//set openness on load
+		if (this.open) {
+			this.animation.setFrame(19);
+		}
+		else {
+			this.animation.setFrame(10)
+		}
 
-		if (this.open) this.animation.start("open"+ this.open);
-
-		this.sound= new global.AudioGroup(global.sounds.gate_0, global.sounds.gate_1, global.sounds.gate_2, global.sounds.gate_3);
+		this.sound= new global.AudioGroup('gate_0', 'gate_1', 'gate_2', 'gate_3');
 
 	}
 
@@ -91,10 +95,10 @@ function run_gate(global) {
 			if (this.direction == 'hor') {
 
 				if (ball.v[1] > 0) {
-					this.openGate('Pos')
+					this.openGate(1)
 				}
 				else if (ball.v[1] < 0) {
-					this.openGate('Neg');
+					this.openGate(-1);
 				}
 
 				ball.v[1] = -ball.v[1];
@@ -103,10 +107,10 @@ function run_gate(global) {
 			else if (this.direction == 'vert') {
 
 				if (ball.v[0] > 0) {
-					this.openGate('Pos');
+					this.openGate(1);
 				}
 				else if (ball.v[0] < 0) {
-					this.openGate('Neg');
+					this.openGate(-1);
 				}
 
 				ball.v[0]= -ball.v[0];
@@ -114,10 +118,10 @@ function run_gate(global) {
 			else if (this.direction == 'back') {
 
 				if (ball.v[0] > 0 || ball.v[1] < 0) {
-					this.openGate('Pos');
+					this.openGate(1);
 				}
 				else if (ball.v[0] < 0 || ball.v[1] > 0) {
-					this.openGate('Neg');
+					this.openGate(-1);
 				}
 
 				ball.v= [ball.v[1], ball.v[0]];
@@ -125,10 +129,10 @@ function run_gate(global) {
 			else if (this.direction == 'for') {
 
 				if (ball.v[0] > 0 || ball.v[1] > 0) {
-					this.openGate('Pos');
+					this.openGate(1);
 				}
 				else if (ball.v[0] < 0 || ball.v[1] < 0) {
-					this.openGate('Neg');
+					this.openGate(-1);
 				}
 
 				ball.v= [-ball.v[1], -ball.v[0]];
@@ -138,17 +142,30 @@ function run_gate(global) {
 
 	Gate.prototype.openGate= function(direction) {
 
-		this.animation.start('open' + direction);
-		this.open= direction;
+		direction = direction || 1;
 
+		//prevent event listener from piling up
+		this.animation.removeFrameEvent(10, this.onGateClosed);
+
+		this.animation.speed = direction;
+		this.animation.unpause()
+
+		this.open= direction;
 		this.sound.play();
 	}
 
+	Gate.prototype.onGateClosed = function() { this.animation.stop();}
+
 	Gate.prototype.closeGate= function() {
 
-		this.animation.start('close' + this.open);
-		this.open= false;
+		//gate is closed on frame 10 of animation
+		this.animation.addFrameEvent(10, this.onGateClosed, this);
 
+		this.animation.speed = this.open * -2;
+		this.animation.unpause();
+		
+
+		this.open= false;
 		this.sound.play();
 	}
 
@@ -211,9 +228,10 @@ function run_gate(global) {
 
 	Gate.prototype.activate = function() {
 
+
 		if (!this.open) {
 			
-			this.openGate("Pos");
+			this.openGate();
 		}
 
 		else {

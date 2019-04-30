@@ -1,11 +1,6 @@
 //ball class
 function run_ball(global) {
 
-	var canvas= global.canvas;
-	var context= global.context;
-	var viewport= global.viewport;
-
-
 	var sprite= new global.SpriteSheet(global.images.ballSheet);
 	sprite.createEvenFrames(100, 100);
 
@@ -36,9 +31,9 @@ function run_ball(global) {
 			width: this.size[0],
 			height: this.size[1],
 			loop: true,
-			canvas: canvas,
-			context: context,
-			viewport: viewport
+			canvas: global.canvas,
+			context: global.context,
+			viewport: global.viewport
 		});
 
 		this.animation.frameRate= 90;
@@ -46,10 +41,6 @@ function run_ball(global) {
 
 		this.opacity = 1;
 		this.opacityDirection = 0;
-
-		this.canvas= canvas;
-		this.context= context;
-		this.viewport= viewport;
 	}
 
 	Ball.prototype.update= function(dt) {
@@ -135,7 +126,7 @@ function run_ball(global) {
 
 	Ball.prototype.draw= function(dt) {
 
-		//if (this.targetWormhole) this.context.globalAlpha = this.opacity;
+		//if (this.targetWormhole) context.globalAlpha = this.opacity;
 
 		this.animation.X= this.xy[0] - this.size[0]/2;
 		this.animation.Y= this.xy[1] - this.size[1]/2;
