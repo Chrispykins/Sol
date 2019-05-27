@@ -272,6 +272,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		if (global.currentLevel) global.currentLevel.unload();
 
 		global.currentLevel= await createLevel(levelData);
+		global.currentLevel.isCanon = false;
 
 		global.currentScreen.name+= global.currentLevel.number;
 	}
@@ -291,6 +292,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		if (localStorage.getItem("Sol_level_"+ number)) var saveData = localStorage["Sol_level_"+ number];
 
 		global.currentLevel = await createLevel(levelData, saveData);
+		global.currentLevel.isCanon = true;
 
 		if (global.currentLevel.number == 1 && localStorage.Sol_firstTime) {
 			global.loadAssets(global.assetPackages.tutorial);
@@ -346,6 +348,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		now= global.Date.now();
 		renderDelta= now - global.lastDraw;
 		renderDelta = Math.min(renderDelta, 100);
+		if (global.gameSpeed > 1) renderDelta *= global.gameSpeed;
 
 		if (global.gameActive) {
 

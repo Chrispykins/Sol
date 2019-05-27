@@ -734,7 +734,7 @@ function run_level(global) {
 	//saves current level configuration
 	Level.prototype.save = function() {
 
-		localStorage["Sol_level_"+ this.number] = JSON.stringify(this.levelData);
+		if (this.isCanon) localStorage["Sol_level_"+ this.number] = JSON.stringify(this.levelData);
 	}
 	
 	//captures and processes click event on level

@@ -261,10 +261,10 @@ function addObstacle(element, attribute) {
 	var y= Math.floor(id / levelSize[0]);
 	var x= id - (y * levelSize[0]);
 
-	if (levelData.level[y][x].button) {
+	/*if (levelData.level[y][x].button) {
 		warning.innerHTML= "Obstacles cannot be placed on buttons!";
 		return;
-	}
+	}*/
 
 	if (levelData.level[y][x].start) {
 		warning.innerHTML= "Obstacles cannot be placed on starts!";
@@ -422,10 +422,10 @@ function addButton(element) {
 	var y= Math.floor(id / levelSize[0]);
 	var x= id - (y * levelSize[0]);
 
-	if (levelData.level[y][x].obstacle) {
+	/*if (levelData.level[y][x].obstacle) {
 		warning.innerHTML= "Obstacles cannot be placed on obstacles!";
 		return;
-	}
+	}*/
 
 	if (levelData.level[y][x].start) {
 		warning.innerHTML= "Obstacles cannot be placed on starts!";
