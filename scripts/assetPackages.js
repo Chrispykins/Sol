@@ -60,7 +60,7 @@
 
 		gate: {
 
-			sounds:  ['gate_0', 'gate_1', 'gate_2', 'gate_3'],
+			sounds:  ['gate_0', 'gate_1', 'gate_2', 'gate_3', 'gate_4'],
 			images:  ['horGateSheet', 'vertGateSheet', 'backGateSheet', 'forGateSheet'],
 			scripts: ['gate',]
 		},

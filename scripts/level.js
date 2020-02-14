@@ -43,6 +43,8 @@ function run_level(global) {
 		this.wormholes= [];
 		this.buttons= [];
 
+		this.delayedButtonActions = [];
+
 		this.createGrid(options.level);
 
 		this.undoManager = new global.UndoManager({level: this});
@@ -567,6 +569,10 @@ function run_level(global) {
 			}
 		}
 
+		//play actions that have been queued by buttons
+		this.playDeferredActions();
+
+		//has the player won?
 		if (this.checkSolution()) {
 
 			this.playing= false;
@@ -574,6 +580,19 @@ function run_level(global) {
 
 			this.onWin();
 		}
+	}
+
+	Level.prototype.playDeferredActions = function() {
+
+		for (var i = 0, l = this.delayedButtonActions.length; i < l; i++) {
+
+			this.delayedButtonActions[i].activate();
+		}
+
+		for (var i = 0, l = this.buttons.length; i < l; i++) this.buttons[i].isPressed = false;
+
+		//clear queue
+		this.delayedButtonActions.length = 0;
 	}
 
 	Level.prototype.onWin= function() {
@@ -741,6 +760,8 @@ function run_level(global) {
 	Level.prototype.onClick= function(click) {
 
 		var success= false;
+
+		if (this.playing) return success;
 
 		gameX= ((click[0] - viewport.canvasPos[0]) / viewport.scale) + viewport.xy[0];
 		gameY= ((click[1] - viewport.canvasPos[1]) / viewport.scale) + viewport.xy[1];

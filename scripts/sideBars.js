@@ -190,8 +190,7 @@ function run_sidebars(global) {
 		this.slideDirection = 0;
 
 		this.slideProgress = 1;
-
-		
+	
 		this.uiElements = {	
 
 			undoButton: {
@@ -217,8 +216,6 @@ function run_sidebars(global) {
 				attach: [70, 675],
 				opacity: 1
 			}
-
-
 		}
 
 		var ui = this.uiElements;

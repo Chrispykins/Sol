@@ -221,8 +221,9 @@ function run_main(global) { //whatever is passed to the global parameter will be
 				{scale: 1, text: 'Created By:'},
 				{scale: 1.5, text: 'Chris Gallegos'},
 				{scale: 1, text: ''},
-				{scale: 1, text: 'Special Thanks To:'},
-				{scale: 1.5, text: 'Ludei, Inc.'},
+				{scale: 1, text: ''},
+				//{scale: 1, text: 'Special Thanks To:'},
+				//{scale: 1.5, text: 'Ludei, Inc.'},
 				{scale: 1, text: ''},
 				{scale: 1, text: 'Follow Me on Twitter:'},
 				{scale: 1.5, text: '@Chrispykins'},
@@ -256,6 +257,9 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 		var newLevel = new global.Level(levelData);
 
+		//reset speed menu
+		if (optionsBar) optionsBar.uiElements.eigthNote.onClick();
+
 		global.currentScreen.layers.unshift(newLevel);
 
 		return newLevel;
@@ -287,7 +291,10 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar, optionsBar, levelSelect]);
 
 		if (global.newLevels[number])   var levelData = global.newLevels[number];
-		else if (global.levels[number])	var levelData = global.levels[number];
+		else if (global.levels[number])	{
+			console.error("Loading old level: #" + number);
+			var levelData = global.levels[number];
+		}
 
 		if (localStorage.getItem("Sol_level_"+ number)) var saveData = localStorage["Sol_level_"+ number];
 

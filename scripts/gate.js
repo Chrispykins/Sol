@@ -73,7 +73,7 @@ function run_gate(global) {
 			this.animation.setFrame(10)
 		}
 
-		this.sound= new global.AudioGroup('gate_0', 'gate_1', 'gate_2', 'gate_3');
+		this.sound= new global.AudioGroup('gate_0', 'gate_1', 'gate_2', 'gate_3', 'gate_4');
 
 	}
 
@@ -154,15 +154,23 @@ function run_gate(global) {
 		this.sound.play();
 	}
 
-	Gate.prototype.onGateClosed = function() { this.animation.stop();}
+	Gate.prototype.onGateClosed = function() { 
+		this.animation.setFrame(10);
+		this.animation.stop();
+	}
 
 	Gate.prototype.closeGate= function() {
 
-		//gate is closed on frame 10 of animation
-		this.animation.addFrameEvent(10, this.onGateClosed, this);
+		if (this.animation.frameIndex != 10) {
 
-		this.animation.speed = this.open * -2;
-		this.animation.unpause();
+			//gate is closed on frame 10 of animation
+			this.animation.addFrameEvent(10, this.onGateClosed, this);
+
+			this.animation.speed = this.open * -2;
+			this.animation.unpause();
+		}
+		//gate animation was already in closed state
+		else this.animation.stop();
 		
 
 		this.open= false;

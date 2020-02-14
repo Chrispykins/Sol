@@ -56,7 +56,7 @@ const SQRT_2 = Math.sqrt(2);
 	else global.unlockedNotes = JSON.parse(localStorage.Sol_unlocked);
 
 	//canvas settings
-	global.canvas.imageSmoothingEnabled= false;
+	global.canvas.imageSmoothingEnabled= true;
 	
 	//shift context by half a pixel for pixel perfect drawing
 	global.context.translate(0.5, 0.5)

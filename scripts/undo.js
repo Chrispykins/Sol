@@ -31,6 +31,8 @@ function run_undo(global) {
 
 	UndoManager.prototype.undo = function() {
 
+		if (this.level.playing) return;
+
 		var action = this.actions.pop();
 
 		if (action) {

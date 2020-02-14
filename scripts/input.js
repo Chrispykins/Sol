@@ -11,7 +11,7 @@ function run_input(global) {
 		var x, y;
 
 		//test if event was sent from a touch screen
-		if (event.touches) {
+		if (event.touches && event.touches.length) {
 			x= event.touches[0].pageX || event.touches[0].clientX;
 			y= event.touches[0].pageY || event.touches[0].clientY;
 		}
@@ -48,6 +48,8 @@ function run_input(global) {
 
 		var click = onMouseMove(event);
 
+		//console.log('mouse down')
+
 		for (var i= global.currentScreen.layers.length - 1; i >= 0; i--) {
 
 			if (global.currentScreen.layers[i].onClick(click)) {
@@ -60,6 +62,8 @@ function run_input(global) {
 	function onRelease(event) {
 
 		var click = onMouseMove(event);
+
+		//console.log('mouse up')
 
 		for (var i = global.currentScreen.layers.length - 1; i >= 0; i--) {
 
@@ -110,12 +114,23 @@ function run_input(global) {
 		}
 	}
 
-	canvas.addEventListener('mousedown', onClick);
+	function enableMouseEvents() {
+		canvas.addEventListener('mousedown', onClick);
+		canvas.addEventListener('mouseup', onRelease);
+
+		console.log('disabling touch');
+
+		canvas.removeEventListener('touchstart', onClick);
+		canvas.removeEventListener('touchend', onRelease);
+		removeEventListener('mousemove', enableMouseEvents);
+	}
+
+	//we're going to assume the user has no mouse, but if they do, force them to use it
 	canvas.addEventListener('touchstart', onClick);
-	canvas.addEventListener('mouseup', onRelease);
 	canvas.addEventListener('touchend', onRelease);
-	window.addEventListener('mousemove', onMouseMove);
-	window.addEventListener('keydown', onKey);
-	window.addEventListener('backbutton', onBackButton);
+	addEventListener('mousemove', onMouseMove);
+	addEventListener('mousemove', enableMouseEvents);
+	addEventListener('keydown', onKey);
+	addEventListener('backbutton', onBackButton);
 
 }

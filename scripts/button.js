@@ -38,6 +38,7 @@ function run_button(global) {
 		this.directions= options.directions || [];
 
 		this.currentImage= images.off;
+		this.isPressed = false;
 
 		this.sound= new global.AudioGroup('button_0', 'button_1');
 
@@ -104,6 +105,8 @@ function run_button(global) {
 	}
 
 	Button.prototype.activate= function() {
+
+		if (this.isPressed) return [];
 	
 		var notes= [];
 		
@@ -121,8 +124,8 @@ function run_button(global) {
 					else if (currentCell[j] instanceof global.Button) {
 						notes = notes.concat( currentCell[j].activate() );
 					}
-					else {
-						currentCell[j].activate();
+					else { //currentCell[i] is an obstacle
+						this.level.delayedButtonActions.push(currentCell[j]);
 					}
 				}
 			}
@@ -133,6 +136,7 @@ function run_button(global) {
 
 		//change image to pressed button
 		this.currentImage= images.on;
+		this.isPressed = true;
 
 		//change image back to normal
 		setTimeout(function() { this.currentImage= images.off }.bind(this), 1000/this.level.bps);
@@ -181,6 +185,9 @@ function run_button(global) {
 				var volume= Math.min( 1, 0.25 + 1/l);
 				global.audioManager.play(notes[i], volume);
 			}
+
+			//play delayed actions
+			this.level.playDeferredActions();
 
 			//register action with undo buffer
 			this.level.undoManager.registerAction(this.gridPos.slice(), this.entityType);

@@ -115,8 +115,16 @@ function run_SpriteAnimation(global) { //the global parameter acts as the global
 
 			//check for frame events to call on this frame
 			if (previousIndex != this.frameIndex) {
-				for (var event of this.frameEvents) {
-					if (event.frame == this.frameIndex) event.callback.call(event.target);
+
+				for (var i = 0; i < this.frameEvents.length; i++) {
+
+					var event = this.frameEvents[i];
+
+					if ((this.frameIndex <= event.frame && previousIndex > event.frame) ||
+						(this.frameIndex >= event.frame && previousIndex < event.frame)) {
+
+						event.callback.call(event.target);
+					}
 				}
 			}
 

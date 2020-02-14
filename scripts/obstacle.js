@@ -17,6 +17,18 @@ function run_obstacle(global) {
 	global.sprites.obstacle= sprite;
 
 	var obstacleWidth = 30;
+	var directions = {
+		0: 'forward', 
+		1: 'hor',
+		2: 'back',
+		3: 'vert',
+		forward: 0,
+		hor: 1,
+		back: 2,
+		vert: 3,
+		length: 4
+	};
+
 
 	function Obstacle(options) {
 
@@ -31,7 +43,7 @@ function run_obstacle(global) {
 
 		this.center= [this.xy[0] + this.size[0]/2, this.xy[1] + this.size[1]/2];
 
-		this.enum= ['forward', 'hor', 'back', 'vert'];
+		
 		this.rotating= false;
 		this.count= 0;
 
@@ -89,21 +101,23 @@ function run_obstacle(global) {
 		ball.xy[0]= this.xy[0] + this.size[0] / 2;
 		ball.xy[1]= this.xy[1] + this.size[1] / 2;
 
-		switch (this.direction) {
+		var actualDirection = (directions[this.direction] + Math.max(0, this.count - 1)) % directions.length;
 
-			case 'hor':
+		switch (actualDirection) {
+
+			case directions.hor:
 				ball.v= [ball.v[0], -ball.v[1]];
 				break;
 
-			case 'vert':
+			case directions.vert:
 				ball.v= [-ball.v[0], ball.v[1]];
 				break;
 
-			case 'forward':
+			case directions.forward:
 				ball.v= [-ball.v[1], -ball.v[0]];
 				break;
 
-			case 'back':
+			case directions.back:
 				ball.v= [ball.v[1], ball.v[0]];
 				break;
 		}
@@ -120,11 +134,11 @@ function run_obstacle(global) {
 		//set flag to keep animation from starting over
 		this.rotating= true;
 
-		var index= this.enum.indexOf(this.direction);
+		var index= directions[this.direction];
 
-		index= (index + 1)%this.enum.length;
+		index= (index + 1) % directions.length;
 
-		this.direction= this.enum[index];
+		this.direction= directions[index];
 
 		//function to change over to next animation in cycle
 		this.animation.onEnd= function() {
@@ -139,7 +153,7 @@ function run_obstacle(global) {
 			}
 			else {
 				this.rotating= false;
-				this.count= 0;
+				//this.count= 0;
 				this.animation.speed= 1;
 
 				this.sounds.latch.play();
@@ -172,7 +186,7 @@ function run_obstacle(global) {
 		//function to change over to next animation in cycle
 		this.animation.onEnd= function() {
 		
-			this.direction= this.enum[index];
+			this.direction= directions[index];
 
 			this.animation.changeAnimation(this.direction);
 
@@ -184,7 +198,7 @@ function run_obstacle(global) {
 			}
 			else {
 				this.rotating= false;
-				this.count= 0;
+				//this.count= 0;
 				this.animation.speed= 1;
 
 				this.sounds.latch.play();
@@ -200,13 +214,13 @@ function run_obstacle(global) {
 		}.bind(this);
 
 		//index of current direction
-		var index= this.enum.indexOf(this.direction);
+		var index= directions[this.direction];
 
 		//calculate index of direction we are headed
-		index= ((index - 1) + this.enum.length)%this.enum.length;
+		index= ((index - 1) + directions.length)%directions.length;
 
 		//change animation to direction we are headed
-		this.animation.changeAnimation(this.enum[index]);
+		this.animation.changeAnimation(directions[index]);
 
 		//set animation to play backward, starting at the last frame
 		if (this.animation.speed > 0) {
@@ -224,24 +238,28 @@ function run_obstacle(global) {
 
 	Obstacle.prototype.revert= function() {
 
-		var from= this.enum.indexOf(this.direction);
-		var to= this.enum.indexOf(this.saveState);
+		var from= directions[this.direction];
+		var to= directions[this.saveState];
 		var distance= to - from;
 
 		if (distance != 0) {
+
+			this.rotating = false;
+
+			console.log(distance);
 
 			this.animation.speed= 4;
 
 			if (distance > 2) {
 				
-				distance %= this.enum.length;
-				distance -= this.enum.length;
+				distance %= directions.length;
+				distance -= directions.length;
 
 			}
 			else if (distance < -2) {
 				
-				distance %= this.enum.length;
-				distance += this.enum.length;
+				distance %= directions.length;
+				distance += directions.length;
 			}
 					
 			this.count= distance;
@@ -303,21 +321,17 @@ function run_obstacle(global) {
 		
 		//increment counter to track the number of clicks
 		this.count++;
+		this.animation.speed = this.count;
 	}
 
 	Obstacle.prototype.undo = function() {
 
 		this.count--;
+		this.animation.speed = this.count;
 	}
 
 	Obstacle.prototype.updateLevelData = function() {
 
-/*
-		var index = this.enum.indexOf(this.direction) + this.count;
-		index = (index + this.enum.length) % this.enum.length;
-
-		this.level.updateLevelData(this, this.enum[index]);
-*/
 		this.level.updateLevelData(this, this.direction);
 	}
 
