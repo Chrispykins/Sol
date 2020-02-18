@@ -707,7 +707,7 @@ function run_level(global) {
 		//final level should be a bit more epic
 		if (this.number == 50) {
 
-			this.zooming= 3;
+			this.zooming= 3.3;
 
 		}
 		else {

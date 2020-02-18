@@ -41,13 +41,19 @@ function run_start(global) {
 		this.sound= options.sound;
 		this.level= options.level || global.currentLevel;
 
-		this.image= options.image || global.images['start'+this.direction];
+		this.startImage= options.startImage || global.images['start'+this.direction];
+		this.stopImage = options.stopImage  || global.images['start'+this.direction];
 
 	}
 
 	Start.prototype.draw= function(dt) {
 
-		viewport.drawImage(this.image, this.xy[0], this.xy[1], this.size[0], this.size[1]);
+		if (!this.level.playing) {
+			viewport.drawImage(this.startImage, this.xy[0], this.xy[1], this.size[0], this.size[1]);
+		}
+		else {
+			viewport.drawImage(this.stopImage, this.xy[0], this.xy[1], this.size[0], this.size[1]);
+		}
 	}
 
 	Start.prototype.launch= function() {
