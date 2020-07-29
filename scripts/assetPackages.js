@@ -10,7 +10,7 @@
 
 			sounds: [],
 
-			images: ['splashScreen'],
+			images: [/*'splashScreen'*/],
 
 			scripts: [
 
@@ -19,6 +19,7 @@
 				'AudioManager',
 				'AudioGroup',
 				'SpriteAnimation',
+				'roundedRect',
 				'gui',
 				'screen',
 				'levels',
@@ -26,13 +27,26 @@
 				'input',
 				'main'
 
-			]
+			],
+
+		},
+
+		splashScreen: {
+			sounds:  [],
+			images:  ['splashScreen'],
+			scripts: []
 		},
 
 		title: {
+			sounds:  ['titleSound'],
+			images:  ['title'],
+			scripts: []
+		},
 
-			sounds:  ['titleSound',	'level_in',	'level_in_slow', 'level_out'],
-			images:  ['title', 'startup', 'startdown', 'startleft', 'startright', 'ballSheet'],
+		core: {
+
+			sounds:  [/*'titleSound',*/	'level_in',	'level_in_slow', 'level_out'],
+			images:  [/*'title',*/ 'startup', 'startdown', 'startleft', 'startright', 'ballSheet'],
 			scripts: ['ball', 'note', 'twoTone','start', 'level','undo',]
 		},
 
@@ -54,7 +68,7 @@
 		sidebars: {
 
 			sounds:  [],
-			images:  ['undoSheet', 'quarterNote', 'eighthNote', 'dottedNote', 'replaySheet','cancelSheet'],
+			images:  ['undoSheet', 'quarterNote', 'eighthNote', 'dottedQuarterNote', 'replaySheet','cancelSheet'],
 			scripts: ['toolbar', 'sidebars', 'levelSelect']
 		},
 

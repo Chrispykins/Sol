@@ -20,23 +20,27 @@ function run_resize(global) {
 		if (screenRatio > gameRatio) {
 		
 			//screen is wider than game
-			this.height= screenHeight;
-			this.width= screenHeight * gameRatio;
+			this.height = Math.floor(screenHeight * devicePixelRatio);
+			this.width = Math.floor(screenHeight * devicePixelRatio * gameRatio);
+
+			this.style.height = screenHeight;
+			this.style.width = screenHeight * gameRatio;
+
 			wrapper.style.paddingLeft= (screenWidth - this.width)/2 +"px";
 			wrapper.style.paddingright= (screenWidth - this.width)/2 +"px";
 					
 			wrapper.style.paddingTop= "0px";
 			wrapper.style.paddingBottom= "0px";
 
-			this.scale= screenHeight/gameDimensions[1];
-			
-
-			
+			this.scale= screenHeight * devicePixelRatio / gameDimensions[1];
 		}
 		else {
 			//screen is taller than game
-			this.width= screenWidth;
-			this.height= screenWidth / gameRatio;
+			this.width = Math.floor(screenWidth * devicePixelRatio);
+			this.height = Math.floor(screenWidth * devicePixelRatio / gameRatio);
+
+			this.style.width = screenWidth;
+			this.style.height = screenWidth / gameRatio;
 
 			wrapper.style.paddingTop= (screenHeight - this.height)/2 +"px";
 			wrapper.style.paddingBottom= (screenHeight - this.height)/2 +"px";
@@ -44,7 +48,7 @@ function run_resize(global) {
 			wrapper.style.paddingLeft= "0px";
 			wrapper.style.paddingright= "0px";
 
-			this.scale= screenWidth/gameDimensions[0];
+			this.scale= screenWidth * devicePixelRatio / gameDimensions[0];
 			
 		}
 

@@ -23,10 +23,13 @@ const SQRT_2 = Math.sqrt(2);
 
 	// initialize global variables
 	global.canvas= document.getElementById('canvas');
-	global.context= global.canvas.getContext('2d');
+	global.context= global.canvas.getContext('2d', {alpha: false});
 	global.requestAnimationFrame= window.requestAnimationFrame;
 	global.Math= Math;
 	global.Date= Date;
+
+	//create global audio context
+	global.audioContext = new AudioContext();
 
 	//forward declaration of gameplay classes
 	global.Wormhole = function() {};
@@ -40,14 +43,22 @@ const SQRT_2 = Math.sqrt(2);
 
 	global.noteOrder = ["_do", "mi", "fa", "fi", "sol", "do"];
 
-	//check for localStorage
+	//initialize localStorage
 	if (!localStorage.Sol_progress) {
 		localStorage.Sol_progress= '1';
 	}
 
-	if (!localStorage.Sol_firstTime) {
-		localStorage.Sol_firstTime= 'true';
+	if (!localStorage.Sol_currentLevel) {
+		localStorage.Sol_currentLevel = '1';
 	}
+
+	if (!localStorage.Sol_midsession) {
+		localStorage.Sol_midsession = '0';
+	}
+
+	/*if (!localStorage.Sol_firstTime) {
+		localStorage.Sol_firstTime= 'true';
+	}*/
 
 	if (!localStorage.Sol_unlocked) {
 		localStorage.Sol_unlocked = '[]';
@@ -56,10 +67,10 @@ const SQRT_2 = Math.sqrt(2);
 	else global.unlockedNotes = JSON.parse(localStorage.Sol_unlocked);
 
 	//canvas settings
-	global.canvas.imageSmoothingEnabled= true;
+	global.canvas.imageSmoothingEnabled= false;
 	
 	//shift context by half a pixel for pixel perfect drawing
-	global.context.translate(0.5, 0.5)
+	//global.context.translate(0.5, 0.5)
 
 	//adding distance formula to Math
 	Math.distance= function(a, b) {
@@ -130,7 +141,7 @@ const SQRT_2 = Math.sqrt(2);
 
 				newImg.src = 'graphics/'+ filename + '.png';
 
-				newImg.addEventListener('load', function loaded() {
+				function loaded() {
 
 					var newCanvas = document.createElement('canvas');
 					newCanvas.width = this.width;
@@ -150,7 +161,9 @@ const SQRT_2 = Math.sqrt(2);
 
 					this.removeEventListener('load', loaded);
 
-				})
+				}
+
+				newImg.addEventListener('load', loaded);
 			}
 
 			for (var i = 0, l = filenames.length; i < l; i++) {
@@ -227,7 +240,13 @@ const SQRT_2 = Math.sqrt(2);
 
 				newSound.preload = 'auto';
 
-				newSound.addEventListener('canplaythrough', function loaded() {
+				//load web audio version
+				fetch('audio/' + filename + fileType)
+					.then((response) => response.arrayBuffer())
+					.then((arrayBuffer) => global.audioContext.decodeAudioData(arrayBuffer))
+					.then ((audioBuffer) => global.audioManager.webAudio[filename] = audioBuffer);
+
+				function loaded() {
 
 					tracker.soundsLoaded++;
 					updateLoadingBar(tracker);
@@ -240,7 +259,9 @@ const SQRT_2 = Math.sqrt(2);
 					if (tracker.soundsLoaded >= tracker.numSounds) resolve();
 
 					this.removeEventListener('canplaythrough', loaded);
-				});
+				}
+
+				newSound.addEventListener('canplaythrough', loaded);
 
 				newSound.addEventListener('error', function error() {
 
@@ -433,7 +454,11 @@ const SQRT_2 = Math.sqrt(2);
 	//then it loads the scripts and executes them.
 	async function loadAssets(assets) {
 
-		if (assets.loaded) return;
+		if (assets.loading) return assets.loading;
+
+		//empty value to store promise resolver function
+		var loadingComplete = null;
+		assets.loading = new Promise((resolve) => {loadingComplete = resolve});
 
 		assets.images= assets.images || [];
 		assets.sounds= assets.sounds || [];
@@ -458,6 +483,9 @@ const SQRT_2 = Math.sqrt(2);
 		if (assets.onLoad) assets.onLoad();
 
 		assets.loaded = true;
+
+		//resolve the promise
+		loadingComplete();
 		
 		/*
 		function retry() {
@@ -490,7 +518,7 @@ const SQRT_2 = Math.sqrt(2);
 	function updateLoadingBar(tracker) {
 
 		//only update loading bar on the first load
-		if (!document.getElementById('loading')) return;
+		if (!document.getElementById('loading') || parseInt(localStorage.Sol_midsession)) return;
 
 		var progress= (tracker.imagesLoaded + tracker.soundsLoaded + tracker.scriptsLoaded + tracker.scriptsRun) / tracker.totalAssets;
 
@@ -519,13 +547,20 @@ const SQRT_2 = Math.sqrt(2);
 
 
 	//execute loading functions
-	var packages = document.createElement("script");
-	packages.src = "scripts/assetPackages.js";
+	var packages = document.getElementById('assetPackages') || document.createElement("script");
+	if (!packages.src.length) packages.src = "scripts/assetPackages.js";
 
-	packages.addEventListener('load', function loaded() { 
-		loadAssets(global.assetPackages.init); 
-		this.removeEventListener('load', loaded);
-	});
+	if (global.assetPackages) {
+
+		loadAssets(global.assetPackages.init);
+	}
+	else {
+		
+		packages.addEventListener('load', function loaded() { 
+			loadAssets(global.assetPackages.init);
+			this.removeEventListener('load', loaded);
+		});
+	}
 
 	document.body.appendChild(packages);
 

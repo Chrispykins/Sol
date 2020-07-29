@@ -36,11 +36,14 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		global.lastTick= global.Date.now();
 		global.lastDraw= global.Date.now();
 
-		splashScreen();
+		if (!parseInt(localStorage.Sol_midsession)) splashScreen();
+		else loadSession();
 	}
 
 
-	function splashScreen() {
+	async function splashScreen() {
+
+		await global.loadAssets(global.assetPackages.splashScreen);
 
 		var splash= new global.Gui( {size: gameDimensions, image: images.splashScreen} );
 
@@ -70,11 +73,11 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 			splash.onClick = function() {};
 
-			var loadComplete = global.loadAssets(global.assetPackages.title);
+			//var loadComplete = global.loadAssets(global.assetPackages.title);
 
 			splash.fade.onEnd = async function() {
 
-				await loadComplete;
+				//await loadComplete;
 
 				startGame();
 				splash= null;
@@ -89,6 +92,27 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		requestAnimationFrame(global.draw);
 	}
 
+	async function loadSession() {
+
+		await global.loadAssets(global.assetPackages.core); 
+		await createSidebars();
+
+		//begin drawing loop
+		requestAnimationFrame(global.draw);
+
+		await loadLevel(parseInt(localStorage.Sol_currentLevel));
+
+		global.playing= true;
+
+		//set last tick right before beginning update loop
+		global.lastTick= global.Date.now();
+
+		//begin update loop
+		global.update();
+
+	}
+
+/*
 	async function displayTutorial() {
 
 		if (!global.assetPackages.tutorial.loaded) await global.loadAssets(global.assetPackages.tutorial);
@@ -135,13 +159,15 @@ function run_main(global) { //whatever is passed to the global parameter will be
 	}
 
 	global.displayTutorial = displayTutorial;
-
+*/
 	
 	async function startGame() {
 
 		if (!localStorage.Sol_progress) {
 			localStorage.Sol_progress= 0;
 		}
+
+		await Promise.all([global.loadAssets(global.assetPackages.title), global.loadAssets(global.assetPackages.core)]);
 
 		var title= new global.Gui( {size: gameDimensions, image: images.title} );
 
@@ -271,7 +297,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 	async function importLevel(levelData) {
 
-		global.currentScreen= new global.Screen('level_', [toolbar, noteBar, optionsBar, levelSelect]);
+		global.currentScreen= new global.Screen('level_', [noteBar, optionsBar, levelSelect, toolbar]);
 
 		if (global.currentLevel) global.currentLevel.unload();
 
@@ -288,7 +314,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 		if (global.currentLevel) await global.currentLevel.unload();
 
-		global.currentScreen = new global.Screen("level_"+number, [toolbar, noteBar, optionsBar, levelSelect]);
+		global.currentScreen = new global.Screen("level_"+number, [noteBar, optionsBar, levelSelect, toolbar]);
 
 		if (global.newLevels[number])   var levelData = global.newLevels[number];
 		else if (global.levels[number])	{
@@ -301,9 +327,9 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		global.currentLevel = await createLevel(levelData, saveData);
 		global.currentLevel.isCanon = true;
 
-		if (global.currentLevel.number == 1 && localStorage.Sol_firstTime) {
+		/*if (global.currentLevel.number == 1 && localStorage.Sol_firstTime) {
 			global.loadAssets(global.assetPackages.tutorial);
-		}
+		}*/
 	}
 
 	global.loadLevel = loadLevel;
@@ -325,15 +351,10 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		if (document.hidden) {
 			return;
 		}
-
 		now= global.Date.now();
 		updateDelta= (now - global.lastTick)/1000.0;
 		updateDelta = Math.min(updateDelta, 0.1);
 		updateDelta*= global.gameSpeed;
-
-		//DEBUG: frame rate counter
-		
-		//END DEBUG
 
 		if (global.gameActive) {
 
@@ -349,6 +370,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 
 	//set up global drawing loop to render graphics to screen
+	var screenHidden = true;
 	global.draw= function () {
 		requestAnimationFrame(global.draw);
 
@@ -384,6 +406,10 @@ function run_main(global) { //whatever is passed to the global parameter will be
 			
 			//END DEBUG
 
+			if (screenHidden) {
+				canvas.hidden = screenHidden = false;
+			}
+
 		}
 
 		global.lastDraw= now;
@@ -397,6 +423,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 			global.lastDraw= global.Date.now();
 			global.lastTick= global.Date.now();
 			global.update();
+			//requestAnimationFrame(global.draw);
 
 		}
 	});

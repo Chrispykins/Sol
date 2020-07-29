@@ -184,8 +184,8 @@ function run_gate(global) {
 
 	Gate.prototype.revert= function() {
 
-		if (!this.saveState != !this.open) {
-			this.onClick(this.center);
+		if (this.saveState != this.open) {
+			this.activate();
 		}
 	}
 

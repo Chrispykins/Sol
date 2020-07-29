@@ -46,6 +46,10 @@ function run_sidebars(global) {
 		if (this.unlocked.includes(note)) return false;
 		else this.unlocked.push(note);
 
+		//calculate display name with upper case first letter
+		/*var displayName = note.replace("_", "");
+		displayName[0] = String.fromCharCode(displayName.charCodeAt(0) - 32);*/
+
 		var ui = new global.Rectangle(0, 0, 100, 100);
 
 		var newNote = new global.Note({xy: ui.xy, size: ui.size, viewport: global.guiViewport, solfege: note});
@@ -77,7 +81,6 @@ function run_sidebars(global) {
 
 		//readjust attach points
 		for (var i = 0, l = this.notes.length; i < l; i++) {
-
 			var x = this.notes[i].size[0]  / 2;
 			var y = (i + 1) * this.size[1] / (l + 1);
 
@@ -190,29 +193,53 @@ function run_sidebars(global) {
 		this.slideDirection = 0;
 
 		this.slideProgress = 1;
+
 	
 		this.uiElements = {	
 
 			undoButton: {
-				gui: new global.Gui({size: [100, 100]}),
+
+				gui: new global.Gui({
+					size: [100, 100],
+					tooltip: new global.Tooltip([-150, 20], [120, 60], "Undo", 30)
+				}),
+
 				attach: [75, 150],
 				opacity: 1
 			},
 
-			quarterNote: {
-				gui: new global.Gui({image: global.images.quarterNote, size: [100, 100]}),
+			dottedNote: {
+
+				gui: new global.Gui({
+					image: global.images.dottedQuarterNote, 
+					size: [100, 100],
+					tooltip: new global.Tooltip([-175, 22], [180, 60], "1/3 Speed", 30)
+				}),
+
 				attach: [75, 425],
-				opacity: 0.3
+				opacity: 0.5
 			},
 
-			dottedNote: {
-				gui: new global.Gui({image: global.images.dottedNote, size: [100, 100]}),
-				attach: [70, 550],
-				opacity: 0.3
+			quarterNote: {
+
+				gui: new global.Gui({
+					image: global.images.quarterNote, 
+					size: [100, 100],
+					tooltip: new global.Tooltip([-175, 22], [180, 60], "1/2 Speed", 30)
+				}),
+
+				attach: [75, 550],
+				opacity: 0.5,
 			},
 
 			eigthNote: {
-				gui: new global.Gui({image: global.images.eighthNote, size: [100, 100]}),
+
+				gui: new global.Gui({
+					image: global.images.eighthNote,
+					size: [100, 100],
+					tooltip: new global.Tooltip([-175, 20], [190, 60], "Full Speed", 30)
+				}),
+
 				attach: [70, 675],
 				opacity: 1
 			}
@@ -239,21 +266,21 @@ function run_sidebars(global) {
 			this.gui.animation.start('default');
 		}
 
+		ui.dottedNote.onClick = function() {
+
+			global.gameSpeed = 0.333;
+
+			this.opacity = 1;
+			ui.quarterNote.opacity = 0.5;
+			ui.eigthNote.opacity = 0.5;
+		}
+
 		ui.quarterNote.onClick = function() {
 
 			global.gameSpeed = 0.5;
 
 			this.opacity = 1;
 			ui.dottedNote.opacity = 0.5;
-			ui.eigthNote.opacity = 0.5;
-		}
-
-		ui.dottedNote.onClick = function() {
-
-			global.gameSpeed = 0.75;
-
-			this.opacity = 1;
-			ui.quarterNote.opacity = 0.5;
 			ui.eigthNote.opacity = 0.5;
 		}
 
@@ -289,11 +316,11 @@ function run_sidebars(global) {
 
 		ui.undoButton.gui.draw(dt);
 
-		context.globalAlpha = ui.quarterNote.opacity;
-		ui.quarterNote.gui.draw(dt);
-
 		context.globalAlpha = ui.dottedNote.opacity;
 		ui.dottedNote.gui.draw(dt);
+
+		context.globalAlpha = ui.quarterNote.opacity;
+		ui.quarterNote.gui.draw(dt);
 
 		context.globalAlpha = ui.eigthNote.opacity;
 		ui.eigthNote.gui.draw(dt);
@@ -319,11 +346,11 @@ function run_sidebars(global) {
 		ui.undoButton.gui.xy[0]  = this.xy[0] + ui.undoButton.attach[0];
 		ui.undoButton.gui.xy[1]  = this.xy[1] + ui.undoButton.attach[1];
 
-		ui.quarterNote.gui.xy[0] = this.xy[0] + ui.quarterNote.attach[0];
-		ui.quarterNote.gui.xy[1] = this.xy[1] + ui.quarterNote.attach[1];
-
 		ui.dottedNote.gui.xy[0]  = this.xy[0] + ui.dottedNote.attach[0];
 		ui.dottedNote.gui.xy[1]  = this.xy[1] + ui.dottedNote.attach[1];
+
+		ui.quarterNote.gui.xy[0] = this.xy[0] + ui.quarterNote.attach[0];
+		ui.quarterNote.gui.xy[1] = this.xy[1] + ui.quarterNote.attach[1];
 
 		ui.eigthNote.gui.xy[0]   = this.xy[0] + ui.eigthNote.attach[0];
 		ui.eigthNote.gui.xy[1]   = this.xy[1] + ui.eigthNote.attach[1];

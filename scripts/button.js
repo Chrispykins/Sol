@@ -138,6 +138,9 @@ function run_button(global) {
 		this.currentImage= images.on;
 		this.isPressed = true;
 
+		//play deferred actions if the level will not be playing them itself
+		if (!global.currentLevel.playing) global.currentLevel.playDeferredActions();
+
 		//change image back to normal
 		setTimeout(function() { this.currentImage= images.off }.bind(this), 1000/this.level.bps);
 
@@ -171,11 +174,7 @@ function run_button(global) {
 
 	Button.prototype.onClick= function(click) {
 
-		if (!click) {
-			click = this.center;
-		}
-
-		if ( this.contains(click) ) {
+		if ( !click || this.contains(click) ) {
 
 			var notes = this.activate();
 
@@ -183,11 +182,11 @@ function run_button(global) {
 					
 				//adjust volume for multiple notes
 				var volume= Math.min( 1, 0.25 + 1/l);
-				global.audioManager.play(notes[i], volume);
+				global.audioManager.playWebAudio(notes[i], volume);
 			}
 
 			//play delayed actions
-			this.level.playDeferredActions();
+			//this.level.playDeferredActions();
 
 			//register action with undo buffer
 			this.level.undoManager.registerAction(this.gridPos.slice(), this.entityType);

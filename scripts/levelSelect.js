@@ -196,6 +196,8 @@ function run_levelSelect(global) {
 
 		context.globalAlpha = 1;
 
+		//this.bounds.draw();
+
 	}
 
 	LevelSelect.prototype.updateUnlocked = function(progress) {
@@ -248,10 +250,14 @@ function run_levelSelect(global) {
 
 						if (this.selection + index <= this.unlocked && this.selection + index > 0) {
 
-							//player has clicked on number
-							this.animateToSelection(this.selection + index);
+							//don't select the level unless the level-select is mostly on
+							if (this.slideProgress < 0.5) {
 
-							this.selectLevel(this.selection + index);
+								//player has clicked on number
+								this.animateToSelection(this.selection + index);
+
+								this.selectLevel(this.selection + index);
+							}
 						}
 					}
 				}

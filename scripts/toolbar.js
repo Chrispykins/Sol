@@ -28,7 +28,10 @@ function run_toolbar(global) {
 			xy: [this.xy[0] + 75, this.xy[1] + 25],
 			size: [150, 150],
 			//sound: global.sounds._do,
-			image: global.images.replay
+			image: global.images.replay,
+			//tooltip: new global.Tooltip([0, -125], [350, 85], "Replay Solution", 40)
+			tooltip: new global.Tooltip([175, 22.5], [350, 85], "Replay Solution", 40)
+
 		});
 
 		//define sprite animation for gui object
@@ -83,7 +86,9 @@ function run_toolbar(global) {
 			xy: [this.xy[0] + this.size[0] - 200, this.xy[1] + this.size[1] - 175],
 			size: [150, 150],
 			//sound: global.sounds._do,
-			image: global.images.cancel
+			image: global.images.cancel,
+			//tooltip: new global.Tooltip([-275, -125], [350, 85], "Cancel Playback", 40)
+			tooltip: new global.Tooltip([-375, 22.5], [350, 85], "Cancel Playback", 40)
 		});
 
 		//define animation of gui object

@@ -17,6 +17,9 @@ function run_gui(global) {
 
 		this.animation; //animation must be defined after construction 
 
+		this.tooltip = options.tooltip || undefined; 
+		if (this.tooltip) this.tooltip.parent = this;
+
 		this.bounds= options.bounds || new Rectangle(this.xy, this.size);
 
 		this.canvas= canvas;
@@ -24,12 +27,13 @@ function run_gui(global) {
 
 	}
 
-
 	Gui.prototype.draw= function(dt) {
 
 		var scale= this.canvas.scale;
 
 		if (this.fade) this.context.globalAlpha= this.fade.value(global.Date.now());
+
+		if (this.tooltip) this.tooltip.draw(dt);
 
 		if (this.animation) {
 
@@ -53,8 +57,6 @@ function run_gui(global) {
 	Gui.prototype.contains = function(point) {
 		return this.bounds.contains(point);
 	}
-
-
 
 	//one type of boundary for gui objects        // ---others could be Circles, Triangles, or irregular polygons--- //
 	///variadic arguments: Rectangle([x, y, width, height]) or (xy, size) or (x, y, width, height)
@@ -94,6 +96,70 @@ function run_gui(global) {
 		return false;
 	}
 
+	Rectangle.prototype.draw = function() {
+		global.context.strokeRect(this.xy[0] * global.canvas.scale, this.xy[1] * global.canvas.scale, this.size[0] * global.canvas.scale, this.size[1] * global.canvas.scale);
+	}
+
+	//tooltip class for GUI objects
+	function Tooltip(offset, dimensions, text, fontSize) {
+
+		this.parent; //parent must be of type GUI, must be set after construction
+		this.offset = offset.slice();
+		this.dimensions = dimensions.slice();
+		this.text = text;
+
+		this.timer = 0;
+		this.fadeTime  = 0.3;
+		this.delay = 0.3;
+
+		this.backgroundColor = global.levelNumberColor;//'#259'
+		this.textColor = 'white';
+		this.fontSize = fontSize || 50;
+	}
+
+	Tooltip.prototype.draw = function(dt) {
+
+		if (this.parent) {
+
+			var context = this.parent.context;
+			var scale   = this.parent.canvas.scale;
+
+			var direction = this.parent.contains(global.mouse) ? 1 : -1.5;
+
+			//opacity
+			this.timer += (dt/1000) * direction;
+			this.timer = Math.clamp(-this.delay, this.fadeTime + this.delay, this.timer);
+			var time = Math.clamp(0, this.fadeTime, this.timer);
+
+			var oldOpacity = context.globalAlpha;
+			var opacity = time / this.fadeTime;
+
+			var x = (this.parent.xy[0] + this.offset[0]) * scale;
+			var y = (this.parent.xy[1] + this.offset[1]) * scale;
+			var width  = this.dimensions[0] * scale;
+			var height = this.dimensions[1] * scale;
+
+			//background
+			context.globalAlpha = opacity;
+			context.fillStyle = this.backgroundColor;
+			context.roundedRect(x, y, width, height, (this.fontSize * .8) * scale);
+			context.fill();
+
+			//text
+			context.globalAlpha = opacity * opacity;
+			context.font = Math.floor(this.fontSize * scale) + 'px Arial';
+			context.fillStyle = this.textColor;
+			context.textAlign = 'center';
+			context.textBaseline = 'middle';
+			context.fillText(this.text,  x + width/2, y + height/2);
+
+			context.globalAlpha = oldOpacity;
+		}
+		else console.error("Tooltip must have a valid parent!");
+
+	}
+
+	//a class that fades a value between 0 and 1
 	function Fade(direction, length) { //length in milliseconds
 	    
 	    this.direction= direction;
@@ -139,5 +205,6 @@ function run_gui(global) {
 	global.Gui= Gui;
 	global.Fade= Fade;
 	global.Rectangle= Rectangle;
+	global.Tooltip = Tooltip;
 	
 }

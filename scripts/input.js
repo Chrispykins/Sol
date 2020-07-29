@@ -25,18 +25,25 @@ function run_input(global) {
 		x = x - offset.left;
 		y = y - offset.top;
 
-		x = x / canvas.scale;
-		y = y / canvas.scale;
+		x = x * devicePixelRatio / canvas.scale;
+		y = y * devicePixelRatio / canvas.scale;
 
 		global.mouse = [x, y];
+		if (isLeftClick(event))	global.mouseDown = true;
 
+/*
 		if (!global.mouseDown && isLeftClick(event)) global.mouseDown = true;
 		else if (global.mouseDown && !isLeftClick(event)) global.mouseDown = false;
+*/
+		//console.log(event.type + ": " + global.mouseDown, global.mouse.toString());
 
-		for (var i = global.currentScreen.layers.length - 1; i >= 0; i--) {
+		if (global.currentScreen) {
 
-			if (global.currentScreen.layers[i].onMouseMove) {
-				if (global.currentScreen.layers[i].onMouseMove(global.mouse)) return;
+			for (var i = global.currentScreen.layers.length - 1; i >= 0; i--) {
+
+				if (global.currentScreen.layers[i].onMouseMove) {
+					if (global.currentScreen.layers[i].onMouseMove(global.mouse)) return;
+				}
 			}
 		}
 
@@ -46,9 +53,12 @@ function run_input(global) {
 
 	function onClick(event) {
 
-		var click = onMouseMove(event);
+		//hack for web audio
+		if (global.audioContext) global.audioContext.resume();
 
-		//console.log('mouse down')
+		//console.log("--------------------\n" + event.type + "\n---------------------");
+		if (isLeftClick(event)) global.mouseDown = true;
+		var click = onMouseMove(event);
 
 		for (var i= global.currentScreen.layers.length - 1; i >= 0; i--) {
 
@@ -61,9 +71,10 @@ function run_input(global) {
 
 	function onRelease(event) {
 
-		var click = onMouseMove(event);
+		//console.log("---------------------\n" + event.type + "\n---------------------");
+		if (isLeftClick(event) || event.type == 'touchend') global.mouseDown = false;
+		var click = global.mouse//onMouseMove(event);
 
-		//console.log('mouse up')
 
 		for (var i = global.currentScreen.layers.length - 1; i >= 0; i--) {
 
@@ -93,13 +104,18 @@ function run_input(global) {
 		if (event.which == 90 && event.ctrlKey) {
 			global.currentLevel.undoManager.undo();
 		}
+
+		//ctrl+y -- redo
+		if (event.which == 89 && event.ctrlKey) {
+			global.currentLevel.undoManager.redo();
+		}
 	}
 
 	function isLeftClick(event) {
 
 		var button = event.which || event.button;
 
-		return button == 1;
+		return button == 1 || event.type == 'touchstart';
 	}
 
 	function onBackButton(event) {
@@ -114,7 +130,7 @@ function run_input(global) {
 		}
 	}
 
-	function enableMouseEvents() {
+	function enableMouseEvents() {/*
 		canvas.addEventListener('mousedown', onClick);
 		canvas.addEventListener('mouseup', onRelease);
 
@@ -122,14 +138,20 @@ function run_input(global) {
 
 		canvas.removeEventListener('touchstart', onClick);
 		canvas.removeEventListener('touchend', onRelease);
-		removeEventListener('mousemove', enableMouseEvents);
-	}
 
-	//we're going to assume the user has no mouse, but if they do, force them to use it
-	canvas.addEventListener('touchstart', onClick);
-	canvas.addEventListener('touchend', onRelease);
+		removeEventListener('mousemove', enableMouseEvents);
+	*/}
+
+	canvas.addEventListener('mousedown', onClick);
+	canvas.addEventListener('mouseup', onRelease);
+
+	canvas.addEventListener('touchstart', function(event) { event.preventDefault(); onClick(event); });
+	canvas.addEventListener('touchend',   function(event) { event.preventDefault(); onRelease(event); });
+
+	addEventListener('touchmove', onMouseMove);
 	addEventListener('mousemove', onMouseMove);
-	addEventListener('mousemove', enableMouseEvents);
+
+	//addEventListener('mousemove', enableMouseEvents);
 	addEventListener('keydown', onKey);
 	addEventListener('backbutton', onBackButton);
 

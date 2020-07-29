@@ -47,7 +47,7 @@ function run_level(global) {
 
 		this.createGrid(options.level);
 
-		this.undoManager = new global.UndoManager({level: this});
+		this.undoManager = new global.UndoManager({level: this, actions: JSON.parse(localStorage.Sol_undoBuffer || null)});
 
 		this.canvas= canvas;
 		this.context= context;
@@ -128,19 +128,13 @@ function run_level(global) {
 				viewport.xy[1]+= this.viewportOffset[1] * viewport.scale;
 
 				//launch the level for the credits
-				if (this.number < 0) {
-					this.launch();
-				}
-				else {
-					//otherwise just give the solution to the player
-					this.playSolution();
+				if (this.number < 0) this.launch();
+				else this.playSolution();
 
-					if (this.number == 1 && localStorage.Sol_firstTime) {
+					/*if (this.number == 1 && localStorage.Sol_firstTime) {
 						global.displayTutorial();
 						localStorage.Sol_firstTime= false;
-					}
-				}
-
+					}*/
 			}
 		}
 	}
@@ -423,6 +417,28 @@ function run_level(global) {
 
 	Level.prototype.playSolution= function() {
 
+		if (!this.playingSolution) {
+
+			this.playingSolution = true;
+
+			var noteLength = 1/(this.bps * global.gameSpeed);
+
+			for (var i = 0; i < this.solution.length; i++) {
+
+				var notes = this.solution[i];
+
+				for (var noteIndex = 0; noteIndex < notes.length; noteIndex++) {
+
+					var volume = Math.min(1, 0.25 + 1 / notes.length);
+					console.log(notes, i * noteLength);
+					global.audioManager.playWebAudio(this.solution[i][noteIndex], volume, i * noteLength);
+				}
+			}
+
+			var level = this;
+			setTimeout(function() { level.playingSolution = false; }, noteLength * this.solution.length * 1000);
+		}
+/*
 		if (this.number > 0) {
 			
 			var solution= this.solution;
@@ -456,6 +472,8 @@ function run_level(global) {
 				}
 			}, 1000/(this.bps * global.gameSpeed));
 		}
+
+*/
 	}
 
 	Level.prototype.checkSolution= function() {
@@ -564,7 +582,7 @@ function run_level(global) {
 			if (thisBeat[i]) {
 				//adjust volume for multiple notes
 				var volume= Math.min( 1, 0.25 + 1/l);
-				global.audioManager.play(thisBeat[i], volume);
+				global.audioManager.playWebAudio(thisBeat[i], volume);
 				
 			}
 		}
@@ -584,12 +602,14 @@ function run_level(global) {
 
 	Level.prototype.playDeferredActions = function() {
 
+
 		for (var i = 0, l = this.delayedButtonActions.length; i < l; i++) {
 
 			this.delayedButtonActions[i].activate();
 		}
 
 		for (var i = 0, l = this.buttons.length; i < l; i++) this.buttons[i].isPressed = false;
+
 
 		//clear queue
 		this.delayedButtonActions.length = 0;
@@ -601,7 +621,7 @@ function run_level(global) {
 		this.zooming= 1/200;
 
 		//play woosh out sound
-		global.audioManager.play(this.sounds.onWin);
+		global.audioManager.playWebAudio(this.sounds.onWin);
 
 		this.unload();
 	
@@ -611,7 +631,7 @@ function run_level(global) {
 			if (!global.assetPackages.sidebars.loaded) global.loadAssets(global.assetPackage.sidebars);
 			
 			if (this.number == 0) {
-				await global.loadLevel(parseInt(localStorage.Sol_progress));
+				await global.loadLevel(parseInt(localStorage.Sol_currentLevel));
 				global.levelSelect.reset();
 			}
 			else if (this.number < 0) {
@@ -666,22 +686,30 @@ function run_level(global) {
 		for (var i = 0, l = this.obstacles.length; i < l; i++) {
 			if (this.obstacles[i] instanceof global.Obstacle) this.obstacles[i].sounds.turn.remove();
 		}
-*/
+
+		*/
 
 		//Level.unload shouldn't be an async function, but we need to wait for sidebar assets to be loaded
 		//before we load the first level, so return the promise from createSidebars()
 		if (this.number == 0) return global.createSidebars();
+
+		//after each level completes, we end the session. A new one starts when the next level loads.
+		localStorage.Sol_midsession = 0;
+		localStorage.removeItem("Sol_undoBuffer");
 	}
 
 	Level.prototype.onLoad= function() {
 
 		//loop through assets, check if we've unlocked any new notes
-		if (this.number != 0) {
+		if (this.number > 0) {
 
 			for (var i = 0, l = this.assets.length; i < l; i++) {
 
 				global.noteBar.checkUnlock(this.assets[i]);
 			}
+
+			//set current level in local storage
+			localStorage.Sol_currentLevel = this.number;
 		}
 
 		//set level select bar to this level
@@ -695,48 +723,56 @@ function run_level(global) {
 
 		//focus viewport on level to center level and store final scale
 		viewport.focus(this);
-		viewport.xy[0]+= this.viewportOffset[0] * viewport.scale;
-		viewport.xy[1]+= this.viewportOffset[1] * viewport.scale;
 
-		//store final scale
-		this.finalZoom= viewport.scale;
+		if (parseInt(localStorage.Sol_midsession) == 0) {
+			viewport.xy[0]+= this.viewportOffset[0] * viewport.scale;
+			viewport.xy[1]+= this.viewportOffset[1] * viewport.scale;
 
-		//start level small and zoom in
-		viewport.zoom(0.01);
+			//store final scale
+			this.finalZoom= viewport.scale;
 
-		//final level should be a bit more epic
-		if (this.number == 50) {
+			//start level small and zoom in
+			viewport.zoom(0.01);
 
-			this.zooming= 3.3;
+			//final level should be a bit more epic
+			if (this.number == 50) {
 
+				this.zooming= 3.3;
+
+			}
+			else {
+				this.zooming= 10;
+			}
+
+			//wind sound
+			global.audioManager.playWebAudio(this.sounds.onLoad);
+
+			if (this.number < 0) {
+				global.showCredits();
+				return;
+				//don't show the number if it's the credits sequence
+			}
+
+
+			///////////////////////////////////////////////////////////////
+			// The animation for the number of the level
+			///////////////////////////////////////////////////////////////
+
+			this.numberDisplay= {
+				startTime: global.Date.now(),
+				startY: -200,
+				endY: 525,
+				endTime: 2500
+			}
+
+			if (this.number== 50) {
+				this.numberDisplay.endTime= 4000;
+			}
 		}
-		else {
-			this.zooming= 10;
-		}
 
-		//wind sound
-		global.audioManager.play(this.sounds.onLoad);
-
-		if (this.number < 0) {
-			global.showCredits();
-			return;
-			//don't show the number if it's the credits sequence
-		}
-
-
-		///////////////////////////////////////////////////////////////
-		// The animation for the number of the level
-		///////////////////////////////////////////////////////////////
-
-		this.numberDisplay= {
-			startTime: global.Date.now(),
-			startY: -200,
-			endY: 525,
-			endTime: 2500
-		}
-
-		if (this.number== 50) {
-			this.numberDisplay.endTime= 4000;
+		//start new session (used by android devices to prevent replaying starting sequencing when turning phone back on)
+		if (this.number > 0) {
+			localStorage.Sol_midsession = 1;
 		}
 	}
 
@@ -748,12 +784,18 @@ function run_level(global) {
 		var type = thing.entityType;
 
 		this.levelData[y][x][type] = data;
+		this.save();
 	}
 
 	//saves current level configuration
 	Level.prototype.save = function() {
 
-		if (this.isCanon) localStorage["Sol_level_"+ this.number] = JSON.stringify(this.levelData);
+		//Not sure if we should check if level is in the canon when saving. It is necessary in development,
+		//because we don't want to constantly overwrite new levels with old saves, but maybe we can let it slide in release?
+		if (this.isCanon) {
+			localStorage.Sol_undoBuffer = JSON.stringify(this.undoManager.getBuffer());
+			localStorage["Sol_level_"+ this.number] = JSON.stringify(this.levelData);
+		}
 	}
 	
 	//captures and processes click event on level
@@ -795,10 +837,10 @@ function run_level(global) {
 
 			this.onExit();
 			global.startGame();
-		}
+		}/*
 		else {
 			Cocoon.App.exit();
-		}
+		}*/
 	}
 			
 

@@ -5,6 +5,7 @@ function run_AudioManager(global) {
 	var manager = global.audioManager = { 
 
 		sounds: {},
+		webAudio: {},
 	}
 
 
@@ -32,6 +33,24 @@ function run_AudioManager(global) {
 		playSound(newSound, volume, listener);
 
 		return newSound;
+	}
+
+	manager.playWebAudio = function(sound, volume, delay) {
+
+		if (!global.audioContext) return;
+
+		var gainNode = global.audioContext.createGain();
+		gainNode.gain = volume;
+
+		var sourceNode = global.audioContext.createBufferSource();
+		sourceNode.buffer = this.webAudio[sound];
+
+		sourceNode.connect(gainNode);
+		gainNode.connect(global.audioContext.destination);
+
+		console.log(delay);
+
+		sourceNode.start(global.audioContext.currentTime + (delay || 0));
 	}
 
 	manager.copy = function(sound) {
