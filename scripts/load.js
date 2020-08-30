@@ -241,10 +241,14 @@ const SQRT_2 = Math.sqrt(2);
 				newSound.preload = 'auto';
 
 				//load web audio version
+				/*
 				fetch('audio/' + filename + fileType)
-					.then((response) => response.arrayBuffer())
-					.then((arrayBuffer) => global.audioContext.decodeAudioData(arrayBuffer))
-					.then ((audioBuffer) => global.audioManager.webAudio[filename] = audioBuffer);
+					.then( (response)    => response.arrayBuffer() )
+					.then( (arrayBuffer) => global.audioContext.decodeAudioData(arrayBuffer) )
+					.then( (audioBuffer) => global.audioManager.webAudio[filename] = audioBuffer );
+				*/
+
+				console.log("Loading " + filename);
 
 				function loaded() {
 
@@ -255,6 +259,8 @@ const SQRT_2 = Math.sqrt(2);
 					//global.audioManager.copy(filename);
 					//global.audioManager.copy(filename);
 
+					console.log(filename + " loaded!");
+
 					//resolve the Promise once all sounds are loaded
 					if (tracker.soundsLoaded >= tracker.numSounds) resolve();
 
@@ -263,8 +269,9 @@ const SQRT_2 = Math.sqrt(2);
 
 				newSound.addEventListener('canplaythrough', loaded);
 
-				newSound.addEventListener('error', function error() {
+				newSound.addEventListener('error', function error(event) {
 
+					console.error("Could not load sound:", event.target.src);
 					loadSound(filename);
 					this.removeEventListener('error', error);
 					this.removeEventListener('canplaythrough', loaded);

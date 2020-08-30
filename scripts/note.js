@@ -111,7 +111,7 @@ function run_note(global) {
 		this.activate();
 
 		//the audio from clicking has been separated from the audio from the ball
-		global.audioManager.playWebAudio(this.solfege);
+		global.audioManager.play(this.solfege); //TODO: playWebAudio
 	}
 
 	global.Note= Note;

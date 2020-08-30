@@ -146,7 +146,7 @@ function run_twoTone(global) {
 
 		//the audio for clicking has been separated from the audio from the ball
 		var solfege = this['solfege_'+this.outer];
-		global.audioManager.playWebAudio(solfege);
+		global.audioManager.play(solfege); //TODO: playWebAudio
 
 		this.activate();
 
@@ -165,6 +165,4 @@ function run_twoTone(global) {
 	}
 
 	global.TwoTone= TwoTone;
-
-
 }

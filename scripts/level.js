@@ -416,7 +416,7 @@ function run_level(global) {
 	}
 
 	Level.prototype.playSolution= function() {
-
+/*
 		if (!this.playingSolution) {
 
 			this.playingSolution = true;
@@ -431,14 +431,14 @@ function run_level(global) {
 
 					var volume = Math.min(1, 0.25 + 1 / notes.length);
 					console.log(notes, i * noteLength);
-					global.audioManager.playWebAudio(this.solution[i][noteIndex], volume, i * noteLength);
+					global.audioManager.playplayWebAudio(this.solution[i][noteIndex], volume, i * noteLength);
 				}
 			}
 
 			var level = this;
 			setTimeout(function() { level.playingSolution = false; }, noteLength * this.solution.length * 1000);
 		}
-/*
+*/
 		if (this.number > 0) {
 			
 			var solution= this.solution;
@@ -473,7 +473,7 @@ function run_level(global) {
 			}, 1000/(this.bps * global.gameSpeed));
 		}
 
-*/
+
 	}
 
 	Level.prototype.checkSolution= function() {
@@ -582,7 +582,7 @@ function run_level(global) {
 			if (thisBeat[i]) {
 				//adjust volume for multiple notes
 				var volume= Math.min( 1, 0.25 + 1/l);
-				global.audioManager.playWebAudio(thisBeat[i], volume);
+				global.audioManager.play(thisBeat[i], volume); //TODO: playWebAudio
 				
 			}
 		}
@@ -621,14 +621,14 @@ function run_level(global) {
 		this.zooming= 1/200;
 
 		//play woosh out sound
-		global.audioManager.playWebAudio(this.sounds.onWin);
+		global.audioManager.play(this.sounds.onWin); //TODO: playWebAudio
 
 		this.unload();
 	
 		
 		setTimeout(async function() {
 
-			if (!global.assetPackages.sidebars.loaded) global.loadAssets(global.assetPackage.sidebars);
+			if (!global.assetPackages.sidebars.loaded) global.loadAssets(global.assetPackages.sidebars);
 			
 			if (this.number == 0) {
 				await global.loadLevel(parseInt(localStorage.Sol_currentLevel));
@@ -745,7 +745,7 @@ function run_level(global) {
 			}
 
 			//wind sound
-			global.audioManager.playWebAudio(this.sounds.onLoad);
+			global.audioManager.play(this.sounds.onLoad); //TODO: playWebAudio
 
 			if (this.number < 0) {
 				global.showCredits();

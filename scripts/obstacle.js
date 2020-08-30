@@ -246,7 +246,7 @@ function run_obstacle(global) {
 
 			this.rotating = false;
 
-			console.log(distance);
+			//console.log(distance);
 
 			this.animation.speed= 4;
 
