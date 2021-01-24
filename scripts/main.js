@@ -36,8 +36,10 @@ function run_main(global) { //whatever is passed to the global parameter will be
 		global.lastTick= global.Date.now();
 		global.lastDraw= global.Date.now();
 
-		if (!parseInt(localStorage.Sol_midsession)) splashScreen();
-		else loadSession();
+		splashScreen();
+		
+		/*if (!parseInt(localStorage.Sol_midsession)) splashScreen();
+		else loadSession();*/
 	}
 
 
@@ -242,7 +244,8 @@ function run_main(global) { //whatever is passed to the global parameter will be
 
 		global.credits= new global.Credits({
 			lines: [
-				{scale: 1.5, text: 'Congratulations!'},
+				{scale: 1, text: 'Congratulations!'},
+				{scale: 1.5, text: 'You win!'},
 				{scale: 1, text: ''},
 				{scale: 1, text: 'Created By:'},
 				{scale: 1.5, text: 'Chris Gallegos'},

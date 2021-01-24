@@ -519,6 +519,33 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "load.js",
+			"settings":
+			{
+				"buffer_size": 16398,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "main.js",
+			"settings":
+			{
+				"buffer_size": 10628,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "credits.js",
+			"settings":
+			{
+				"buffer_size": 1430,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -588,6 +615,7 @@
 	],
 	"file_history":
 	[
+		"/E/DRIVERS/PC50_Win7_64/Files/RDIF1053.INF",
 		"/C/xampp/htdocs/Sol/index.html",
 		"/C/xampp/htdocs/Sol/scripts/load.js",
 		"/C/xampp/htdocs/Sol/scripts/resize.js",
@@ -714,8 +742,7 @@
 		"/C/Program Files/Quadrant/nwjs-sdk-v0.13.3-win-x64/scripts/preloader.js",
 		"/C/Program Files/nwjs-sdk-v0.13.3-win-x64/scripts/preloader.js",
 		"/C/Program Files/nwjs-sdk-v0.13.3-win-x64/package.json",
-		"/C/Users/Chris/Desktop/Quadrant/Quadrant.html",
-		"/C/Users/Chris/Desktop/Quadrant/scripts/levels.js"
+		"/C/Users/Chris/Desktop/Quadrant/Quadrant.html"
 	],
 	"find":
 	{
@@ -723,7 +750,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 93.0,
+		"height": 113.0,
 		"where_history":
 		[
 			""
@@ -935,8 +962,94 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "load.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 16398,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								324,
+								324
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "main.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10628,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5981,
+								5981
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 5148.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "credits.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1430,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								815,
+								815
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 264.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
 			]
 		}
 	],

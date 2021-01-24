@@ -60,7 +60,7 @@ function run_AudioManager(global) {
 		newSound.preload = 'auto';
 		preload.append(newSound);
 
-		newSound.paused = true;
+		newSound.pause();
 		newSound.currentTime = 0;
 
 		//hack to preload sounds

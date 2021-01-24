@@ -520,31 +520,6 @@
 	"buffers":
 	[
 		{
-			"file": "/E/Chris/CodingProjects/Cordova/Sol/package.json",
-			"settings":
-			{
-				"buffer_size": 708,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/E/Chris/CodingProjects/Cordova/Sol/node_modules/q/package.json",
-			"settings":
-			{
-				"buffer_size": 2731,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/E/Chris/CodingProjects/Cordova/Sol/plugins/cordova-plugin-ionic-webview/plugin.xml",
-			"settings":
-			{
-				"buffer_size": 4156,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "builds/Cordova/www/index.html",
 			"settings":
 			{
@@ -665,6 +640,9 @@
 	],
 	"file_history":
 	[
+		"/E/Chris/CodingProjects/Cordova/Sol/plugins/cordova-plugin-ionic-webview/plugin.xml",
+		"/E/Chris/CodingProjects/Cordova/Sol/node_modules/q/package.json",
+		"/E/Chris/CodingProjects/Cordova/Sol/package.json",
 		"/E/Users/Chris/.AndroidStudio3.6/config/options/recentProjects.xml",
 		"/E/Users/Chris/.AndroidStudio3.6/config/options/path.macros.xml",
 		"/E/Chris/CodingProjects/Sol/scripts/levels.js",
@@ -789,10 +767,7 @@
 		"/C/Chris/Coding Projects/Sol/scripts/gate",
 		"/C/Chris/Coding Projects/Sol/Level Editor/levelData_template.js",
 		"/C/Chris/Coding Projects/Quadrant/scripts/level_editor.js",
-		"/C/Chris/Coding Projects/Sol/Level Editor/script.js",
-		"/C/Chris/Coding Projects/Sol/Level Editor/editor.html",
-		"/C/xampp/htdocs/ballistic/connect.js",
-		"/C/xampp/htdocs/ballistic/init.js"
+		"/C/Chris/Coding Projects/Sol/Level Editor/script.js"
 	],
 	"find":
 	{
@@ -843,97 +818,11 @@
 	"groups":
 	[
 		{
-			"selected": 7,
+			"selected": 4,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "/E/Chris/CodingProjects/Cordova/Sol/package.json",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 708,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JSON Key-Value/JSON Key-Value.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/E/Chris/CodingProjects/Cordova/Sol/node_modules/q/package.json",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2731,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								242,
-								248
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JSON Key-Value/JSON Key-Value.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "/E/Chris/CodingProjects/Cordova/Sol/plugins/cordova-plugin-ionic-webview/plugin.xml",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4156,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/XML/XML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
 					"file": "builds/Cordova/www/index.html",
 					"semi_transient": false,
 					"settings":
@@ -961,7 +850,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 1,
 					"file": "builds/Cordova/www/scripts/levels.js",
 					"semi_transient": false,
 					"settings":
@@ -989,7 +878,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 2,
 					"file": "builds/Cordova/www/scripts/assetPackages.js",
 					"semi_transient": false,
 					"settings":
@@ -1017,7 +906,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 3,
 					"file": "builds/Cordova/www/scripts/main.js",
 					"semi_transient": false,
 					"settings":
@@ -1045,7 +934,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 4,
 					"file": "builds/Cordova/www/scripts/load.js",
 					"semi_transient": false,
 					"settings":
@@ -1057,8 +946,8 @@
 						"selection":
 						[
 							[
-								0,
-								0
+								428,
+								428
 							]
 						],
 						"settings":
@@ -1066,7 +955,7 @@
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1761.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,

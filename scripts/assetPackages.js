@@ -4,7 +4,7 @@
 
 (function(global) {
 
-	packages = {
+	var packages = {
 
 		init: {
 

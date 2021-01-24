@@ -13,7 +13,7 @@ function run_credits(global) {
 		this.lineDistance= options.lineDistance || 200;
 
 		this.xy= options.xy || [960, 1080 + this.lineDistance];
-		this.v = options.v || [0, -175];
+		this.v = options.v || [0, -160];
 
 		this.lines= options.lines || []
 

@@ -1,12 +1,6 @@
-///////////////////////////////////////////
-// ****************************************
-// * Single global DOM variable "Sol"
-// * operates as the global namespace to
-// * contain the entire game.
-// ****************************************
-///////////////////////////////////////////
 
-var Sol= {};
+
+window.cordova = window.cordova || false;
 
 ///////////////////////////////////////////
 // begin loading content
@@ -135,7 +129,7 @@ const SQRT_2 = Math.sqrt(2);
 		else return new Promise( function(resolve, reject) {
 
 			//ansynchornize all the things!
-			async function loadImage(filename) {
+			async function loadImage(filename, index, onLoad) {
 				
 				var newImg = document.createElement('img');
 
@@ -156,6 +150,8 @@ const SQRT_2 = Math.sqrt(2);
 					tracker.imagesLoaded++;
 					updateLoadingBar(tracker);
 
+					if (onLoad) onLoad(index + 1);
+
 					//resolve the Promise once all the images are loaded
 					if (tracker.imagesLoaded >= tracker.numImages) resolve();
 
@@ -166,9 +162,22 @@ const SQRT_2 = Math.sqrt(2);
 				newImg.addEventListener('load', loaded);
 			}
 
-			for (var i = 0, l = filenames.length; i < l; i++) {
+			if (!cordova) {
 
-				loadImage(filenames[i]);
+				for (var i = 0, l = filenames.length; i < l; i++) {
+
+					loadImage(filenames[i]);
+				}
+			}
+			else {
+
+				//iterate through filename list recursively, waiting for each image to load
+				function recurse(index) {
+
+					if (index < filenames.length) loadImage(filenames[index], index, recurse);
+				}
+
+				recurse(0);
 			}
 
 		});
@@ -208,9 +217,9 @@ const SQRT_2 = Math.sqrt(2);
 
 	global.sprites= {};
 
-	/////////////
+	//////////////////////////////////////////////////////////
 	// each individual sound is loaded through this function
-	/////////////
+	//////////////////////////////////////////////////////////
 
 	global.sounds= {};
 
@@ -234,7 +243,7 @@ const SQRT_2 = Math.sqrt(2);
 			}
 
 			//define stand-alone function to retry load if there is an error
-			async function loadSound(filename) {
+			async function loadSound(filename, index, onLoad) {
 
 				var newSound = new Audio('audio/' + filename + fileType);
 
@@ -261,6 +270,8 @@ const SQRT_2 = Math.sqrt(2);
 
 					console.log(filename + " loaded!");
 
+					if (onLoad) onLoad(index + 1);
+
 					//resolve the Promise once all sounds are loaded
 					if (tracker.soundsLoaded >= tracker.numSounds) resolve();
 
@@ -269,10 +280,11 @@ const SQRT_2 = Math.sqrt(2);
 
 				newSound.addEventListener('canplaythrough', loaded);
 
+				//retry on error
 				newSound.addEventListener('error', function error(event) {
 
 					console.error("Could not load sound:", event.target.src);
-					loadSound(filename);
+					//loadSound(filename);
 					this.removeEventListener('error', error);
 					this.removeEventListener('canplaythrough', loaded);
 				})
@@ -282,13 +294,26 @@ const SQRT_2 = Math.sqrt(2);
 				//add sound to audioManager;
 				global.audioManager.sounds[filename] = [newSound];
 
-				global.audioManager.copy(filename);
-				global.audioManager.copy(filename);
+				//global.audioManager.copy(filename);
+				//global.audioManager.copy(filename);
 			}
 
-			for (var i = 0, l = filenames.length; i < l; i++) {
+			if (!cordova) {
 
-				loadSound(filenames[i]);				
+				for (var i = 0, l = filenames.length; i < l; i++) {
+
+					loadSound(filenames[i]);				
+				}
+			}
+			else {
+
+				//iterate through filename list recursively, waiting for each sound to load
+				function recurse(index) {
+
+					if (index < filenames.length) loadSound(filenames[index], index, recurse);
+				}
+
+				recurse(0);
 			}
 
 		});
@@ -338,6 +363,26 @@ const SQRT_2 = Math.sqrt(2);
 
 	function loadScripts(scripts, tracker) {
 
+		if (!scripts.length) return false;
+
+		for (var index = tracker.scriptsRun; index < tracker.numScripts; index++) {
+
+			if (window['run_'+ scripts[index]]) {
+
+				window['run_'+ scripts[index]](global);
+
+				tracker.scriptsLoaded++;
+				tracker.scriptsRun++;
+				updateLoadingBar(tracker);
+			}
+		}
+
+		return true;
+	}
+
+/* Version 2
+	function loadScripts(scripts, tracker) {
+
 		if (!scripts.length) return Promise.resolve();
 
 		else return new Promise(function(resolve) {
@@ -380,8 +425,9 @@ const SQRT_2 = Math.sqrt(2);
 		});
 
 	}
+*/
 
-/*
+/* Version 1
 	function loadScripts(scripts, tracker) {
 
 		var numScripts= scripts.length;
@@ -481,11 +527,13 @@ const SQRT_2 = Math.sqrt(2);
 
 		tracker.totalAssets= tracker.numImages + tracker.numSounds + tracker.numScripts * 2;
 
-		await Promise.all( [loadImages(assets.images, tracker), loadSounds(assets.sounds, tracker)] );
+		//await Promise.all( [loadImages(assets.images, tracker), loadSounds(assets.sounds, tracker)] );
+		await loadImages(assets.images, tracker);
+		await loadSounds(assets.sounds, tracker);
 
 		//console.log('loading asset:', Object.keys(global.assetPackages).find(key => global.assetPackages[key] === assets))
 
-		await loadScripts(assets.scripts, tracker);
+		/*await*/ loadScripts(assets.scripts, tracker);
 
 		if (assets.onLoad) assets.onLoad();
 
@@ -554,8 +602,8 @@ const SQRT_2 = Math.sqrt(2);
 
 
 	//execute loading functions
-	var packages = document.getElementById('assetPackages') || document.createElement("script");
-	if (!packages.src.length) packages.src = "scripts/assetPackages.js";
+	//var packages = document.getElementById('assetPackages') || document.createElement("script");
+	//if (!packages.src.length) packages.src = "scripts/assetPackages.js";
 
 	if (global.assetPackages) {
 
@@ -569,7 +617,7 @@ const SQRT_2 = Math.sqrt(2);
 		});
 	}
 
-	document.body.appendChild(packages);
+	//document.body.appendChild(packages);
 
 	/*
 	loadAssets({

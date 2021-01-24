@@ -499,7 +499,7 @@ function run_level(global) {
 
 			//matches is an boolean array, listing whether or not each note 
 			//in the solution and player input has found a match
-			var matches= []
+			var matches= [];
 
 
 			//if both inputs are empty, return true
