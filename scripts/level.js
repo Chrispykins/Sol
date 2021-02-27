@@ -128,8 +128,14 @@ function run_level(global) {
 				viewport.xy[1]+= this.viewportOffset[1] * viewport.scale;
 
 				//launch the level for the credits
-				if (this.number < 0) this.launch();
-				else this.playSolution();
+				if (this.number < 0) {
+					this.launch();
+					global.audioManager.playWebAudio("overCredits", 1);
+				}
+
+				//don't play the solution on "level 0"
+				else if (this.number > 0) 
+					this.playSolution(0.4);
 
 					/*if (this.number == 1 && localStorage.Sol_firstTime) {
 						global.displayTutorial();
@@ -285,7 +291,7 @@ function run_level(global) {
 							size: [this.cellSize, this.cellSize],
 							gridPos: [x ,y],
 							direction: grid[y][x].obstacle.slice(0, -4),
-							open: grid[y][x].gate,
+							open: Number(grid[y][x].gate),
 							level: this,
 						});
 					}
@@ -363,6 +369,8 @@ function run_level(global) {
 		this.timer= 0;
 		this.playerSolution= [];
 
+		this.clearMusicBox();
+
 		if (!this.playing) {
 			this.perform("save");
 		}
@@ -415,13 +423,15 @@ function run_level(global) {
 		}
 	}
 
-	Level.prototype.playSolution= function() {
-/*
+	Level.prototype.playSolution= function(delay) {
+
+		delay = delay || 0;
+
 		if (!this.playingSolution) {
 
-			this.playingSolution = true;
+			this.playingSolution = [];
 
-			var noteLength = 1/(this.bps * global.gameSpeed);
+			var noteLength = 1 / (this.bps * global.gameSpeed);
 
 			for (var i = 0; i < this.solution.length; i++) {
 
@@ -430,15 +440,19 @@ function run_level(global) {
 				for (var noteIndex = 0; noteIndex < notes.length; noteIndex++) {
 
 					var volume = Math.min(1, 0.25 + 1 / notes.length);
-					console.log(notes, i * noteLength);
-					global.audioManager.playplayWebAudio(this.solution[i][noteIndex], volume, i * noteLength);
+					var gainNode = global.audioManager.playWebAudio(this.solution[i][noteIndex], volume, i * noteLength + delay);
+
+					//save note playback in case we want to mute it later
+					this.playingSolution.push(gainNode);
 				}
 			}
 
+			//cancel playback after a given amount of time
 			var level = this;
-			setTimeout(function() { level.playingSolution = false; }, noteLength * this.solution.length * 1000);
+			this.musicBox = setTimeout(level.clearMusicBox.bind(level), (noteLength * level.solution.length + delay) * 1000);
 		}
-*/
+
+/*
 		if (this.number > 0) {
 			
 			var solution= this.solution;
@@ -472,8 +486,24 @@ function run_level(global) {
 				}
 			}, 1000/(this.bps * global.gameSpeed));
 		}
+*/
 
+	}
 
+	Level.prototype.clearMusicBox= function() {
+
+		if (this.musicBox) {
+			clearInterval(this.musicBox)
+			this.musicBox = null;
+		}
+
+		if (this.playingSolution) {
+
+			for (gainNode of this.playingSolution)
+				gainNode.gain.linearRampToValueAtTime(0, global.audioContext.currentTime + 0.15);
+		}
+
+		this.playingSolution = false;
 	}
 
 	Level.prototype.checkSolution= function() {
@@ -582,7 +612,7 @@ function run_level(global) {
 			if (thisBeat[i]) {
 				//adjust volume for multiple notes
 				var volume= Math.min( 1, 0.25 + 1/l);
-				global.audioManager.play(thisBeat[i], volume); //TODO: playWebAudio
+				global.audioManager.playWebAudio(thisBeat[i], volume);
 				
 			}
 		}
@@ -621,7 +651,7 @@ function run_level(global) {
 		this.zooming= 1/200;
 
 		//play woosh out sound
-		global.audioManager.play(this.sounds.onWin); //TODO: playWebAudio
+		global.audioManager.playWebAudio(this.sounds.onWin, 1);
 
 		this.unload();
 	
@@ -660,8 +690,9 @@ function run_level(global) {
 
 	Level.prototype.onExit= function() {
 
-		clearInterval(this.musicBox);
-		this.musicBox= null;
+		//clearInterval(this.musicBox);
+		//this.musicBox= null;
+		this.clearMusicBox();
 
 		this.playing= false;
 
@@ -675,14 +706,17 @@ function run_level(global) {
 		this.save();
 
 		//stop playing solution melody
+		/*
 		if (this.musicBox) {
-			clearInterval(this.musicBox);
+			//clearInterval(this.musicBox);
 			this.musicBox = null;
 		}
+		*/
+		this.clearMusicBox();
 
 		global.gameSpeed = 1;
 
-/*
+		/*
 		for (var i = 0, l = this.obstacles.length; i < l; i++) {
 			if (this.obstacles[i] instanceof global.Obstacle) this.obstacles[i].sounds.turn.remove();
 		}
@@ -724,7 +758,8 @@ function run_level(global) {
 		//focus viewport on level to center level and store final scale
 		viewport.focus(this);
 
-		if (parseInt(localStorage.Sol_midsession) == 0) {
+		//if (parseInt(localStorage.Sol_midsession) == 0) {
+
 			viewport.xy[0]+= this.viewportOffset[0] * viewport.scale;
 			viewport.xy[1]+= this.viewportOffset[1] * viewport.scale;
 
@@ -745,12 +780,17 @@ function run_level(global) {
 			}
 
 			//wind sound
-			global.audioManager.play(this.sounds.onLoad); //TODO: playWebAudio
+			global.audioManager.playWebAudio(this.sounds.onLoad, 1);
 
 			if (this.number < 0) {
+
+				//remove sidebars for credits level
+				global.currentScreen.layers = [];
+
 				global.showCredits();
-				return;
+
 				//don't show the number if it's the credits sequence
+				return;
 			}
 
 
@@ -768,7 +808,7 @@ function run_level(global) {
 			if (this.number== 50) {
 				this.numberDisplay.endTime= 4000;
 			}
-		}
+		//}
 
 		//start new session (used by android devices to prevent replaying starting sequencing when turning phone back on)
 		if (this.number > 0) {

@@ -1,16 +1,12 @@
 
-
-window.cordova = window.cordova || false;
-
 ///////////////////////////////////////////
 // begin loading content
 ///////////////////////////////////////////
 
-//var Cocoon;
-
 const SQRT_2 = Math.sqrt(2);
 
 (function (global) { //The Sol variable gets passed here as the global scope
+
 'use strict';
 
 	var startup = true;
@@ -162,58 +158,13 @@ const SQRT_2 = Math.sqrt(2);
 				newImg.addEventListener('load', loaded);
 			}
 
-			if (!cordova) {
+			for (var i = 0, l = filenames.length; i < l; i++) {
 
-				for (var i = 0, l = filenames.length; i < l; i++) {
-
-					loadImage(filenames[i]);
-				}
+				loadImage(filenames[i]);
 			}
-			else {
-
-				//iterate through filename list recursively, waiting for each image to load
-				function recurse(index) {
-
-					if (index < filenames.length) loadImage(filenames[index], index, recurse);
-				}
-
-				recurse(0);
-			}
-
 		});
 	}
-/*
-	function loadImage(filename, tracker) {
 
-		//load image into DOM Element
-		var newImg= document.createElement('img');
-
-		newImg.src= 'graphics/' + filename + '.png';
-
-		//event listener will update the loading screen
-		newImg.addEventListener('load', function loaded() {
-			
-			//create canvas element, and draw image on canvas for faster drawing
-			var newCanvas= document.createElement('canvas');
-			newCanvas.width= newImg.width;
-			newCanvas.height= newImg.height;
-			newCanvas.getContext('2d').drawImage(newImg, 0, 0);
-
-			preload.appendChild(newCanvas);
-
-			//store a reference to the canvas
-			global.images[filename]= newCanvas;	
-
-			imagesLoaded++;
-			tracker.imagesLoaded++;
-			updateLoadingBar(tracker);
-			this.removeEventListener('load', loaded);
-		});
-
-		
-
-	}
-*/
 
 	global.sprites= {};
 
@@ -250,12 +201,12 @@ const SQRT_2 = Math.sqrt(2);
 				newSound.preload = 'auto';
 
 				//load web audio version
-				/*
+				
 				fetch('audio/' + filename + fileType)
 					.then( (response)    => response.arrayBuffer() )
 					.then( (arrayBuffer) => global.audioContext.decodeAudioData(arrayBuffer) )
 					.then( (audioBuffer) => global.audioManager.webAudio[filename] = audioBuffer );
-				*/
+				
 
 				console.log("Loading " + filename);
 
@@ -298,62 +249,16 @@ const SQRT_2 = Math.sqrt(2);
 				//global.audioManager.copy(filename);
 			}
 
-			if (!cordova) {
+			for (var i = 0, l = filenames.length; i < l; i++) {
 
-				for (var i = 0, l = filenames.length; i < l; i++) {
-
-					loadSound(filenames[i]);				
-				}
-			}
-			else {
-
-				//iterate through filename list recursively, waiting for each sound to load
-				function recurse(index) {
-
-					if (index < filenames.length) loadSound(filenames[index], index, recurse);
-				}
-
-				recurse(0);
+				loadSound(filenames[i]);				
 			}
 
 		});
 
 	}
 
-/*
-	function loadSound(filename, fileType, tracker) {
 
-		var newSound= new Audio('audio/' + filename + fileType);
-
-		//var newSound= document.createElement('audio');
-		//newSound.src= filename + fileType;
-		newSound.preload= "auto";
-
-		newSound.addEventListener('canplaythrough', function loaded() {
-			soundsLoaded++;
-			tracker.soundsLoaded++;
-			updateLoadingBar(tracker);
-
-			//hack to load sound in Cocoon
-			newSound.volume= 0;
-			newSound.play();
-
-			this.removeEventListener('canplaythrough', loaded);
-		});
-
-		newSound.addEventListener('error', function error() {
-
-			loadSound(filename, fileType);
-
-			this.removeEventListener('error', error);
-		})
-
-		preload.appendChild(newSound);
-
-		global.sounds[filename]= newSound;
-		
-	}
-	*/
 
 	//////////////////////////////
 	// This function takes an list of scripts and loads them all consecutively via a recursive function
@@ -380,89 +285,8 @@ const SQRT_2 = Math.sqrt(2);
 		return true;
 	}
 
-/* Version 2
-	function loadScripts(scripts, tracker) {
+	////////////////////////////////////////////////////////////////////////////
 
-		if (!scripts.length) return Promise.resolve();
-
-		else return new Promise(function(resolve) {
-
-			for (var i = 0, l = scripts.length; i < l; i++) {
-
-				let script = scripts[i];
-				let newScript;
-
-				newScript = document.createElement('script');
-				newScript.type = 'text/javascript';
-				newScript.src = 'scripts/' + script + '.js';
-
-				newScript.addEventListener('load', function loaded() {
-
-					tracker.scriptsLoaded++;
-					updateLoadingBar(tracker);
-
-					for (var index = tracker.scriptsRun; index < tracker.numScripts; index++) {
-
-						//if next script in queue has loaded, run it
-						if (window['run_'+ scripts[index]]) {
-							window['run_'+ scripts[index]](global);
-						}
-						else break;
-					}
-
-					tracker.scriptsRun = index;
-					updateLoadingBar(tracker);
-
-					this.removeEventListener('load', loaded);
-
-					if (tracker.scriptsRun == tracker.numScripts) resolve();
-				});
-
-				document.body.appendChild(newScript);
-
-			}
-
-		});
-
-	}
-*/
-
-/* Version 1
-	function loadScripts(scripts, tracker) {
-
-		var numScripts= scripts.length;
-
-		function recurse(count) {
-
-			if (count < numScripts) {
-
-				var newScript= document.createElement('script');
-				newScript.type= 'text/javascript';
-				newScript.src= 'scripts/' + scripts[count] + '.js';
-
-				newScript.addEventListener('load', function loaded() {
-
-					scriptsLoaded++;
-					tracker.scriptsLoaded++;
-
-					if (scriptsLoaded < numScripts) {
-						updateLoadingBar(tracker);
-						recurse(count+1);
-					}
-
-					this.removeEventListener('load', loaded);
-				});
-
-				document.body.appendChild(newScript)
-			}
-			else {
-				return;
-			}
-		}
-
-		recurse(0);
-	}
-*/
 
 	//creates a lists of assets that must be loaded before the level.
 	//should only be used on old levels that don't have this data baked in

@@ -3,7 +3,7 @@ function run_roundedRect(global) {
 //////////////////////////////////////////////////////////////////////////////////////////
 
 //=================================================================
-//draws a speech bubble with rounded corners in given canvas context
+//draws a rectangle with rounded corners in given canvas context
 // parameters:
 // @context: 2D rendering context for javascrpt canvas
 // @left: 	the x-coordinate of the left side of the rectangle

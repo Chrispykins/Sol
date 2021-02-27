@@ -375,6 +375,7 @@ function run_main(global) { //whatever is passed to the global parameter will be
 	//set up global drawing loop to render graphics to screen
 	var screenHidden = true;
 	global.draw= function () {
+
 		requestAnimationFrame(global.draw);
 
 		now= global.Date.now();
@@ -388,11 +389,10 @@ function run_main(global) { //whatever is passed to the global parameter will be
 			global.scale= global.canvas.scale * global.viewport.scale;
 			context.clearRect(0, 0, global.gameDimensions[0], global.gameDimensions[1]);
 
-			//global.update(true);
-
 			//draw game objects, passing dt variable to update their animations
 			global.currentScreen.draw(renderDelta);
 
+			/*
 			//DEBUG: frame rate display
 			
 			frameTimer+= renderDelta/1000.0;
@@ -402,12 +402,14 @@ function run_main(global) { //whatever is passed to the global parameter will be
 				fps= frameCount * 2;
 				frameCount= 0;
 			}
+
 			
 			context.font= Math.floor(30 * canvas.scale) +'px Arial';
 			context.fillStyle= 'black';
 			context.fillText(fps.toString(), 50 * canvas.scale, 50 * canvas.scale);
 			
 			//END DEBUG
+			*/
 
 			if (screenHidden) {
 				canvas.hidden = screenHidden = false;

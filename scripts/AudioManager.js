@@ -48,9 +48,9 @@ function run_AudioManager(global) {
 		sourceNode.connect(gainNode);
 		gainNode.connect(global.audioContext.destination);
 
-		console.log(delay);
-
 		sourceNode.start(global.audioContext.currentTime + (delay || 0));
+
+		return gainNode;
 	}
 
 	manager.copy = function(sound) {

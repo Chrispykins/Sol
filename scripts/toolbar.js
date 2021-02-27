@@ -51,9 +51,7 @@ function run_toolbar(global) {
 
 				var level= global.currentLevel;
 				
-				if (level.musicBox) {
-					clearInterval(level.musicBox);
-				}
+				level.clearMusicBox();
 
 				if (level.playing) {
 					
@@ -66,7 +64,7 @@ function run_toolbar(global) {
 				
 
 
-				global.currentLevel.playSolution();
+				global.currentLevel.playSolution(0.2);
 				this.replayButton.animation.start();
 			}
 
@@ -108,9 +106,7 @@ function run_toolbar(global) {
 
 			this.cancelButton.animation.start();
 			
-			if (level.musicBox) {
-				clearInterval(level.musicBox);
-			}
+			level.clearMusicBox();
 
 			if (level.playing) {
 				

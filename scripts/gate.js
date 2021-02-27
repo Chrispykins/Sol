@@ -38,7 +38,7 @@ function run_gate(global) {
 		this.center= [this.xy[0] + this.size[0]/2, this.xy[1] + this.size[1]/2];
 
 		this.direction= options.direction || 'vert';
-		this.open= options.open || false;
+		this.open= options.open || 0;
 
 		this.saveState= false;
 
@@ -173,18 +173,20 @@ function run_gate(global) {
 		else this.animation.stop();
 		
 
-		this.open= false;
+		this.open= 0;
 		this.sound.play();
 	}
 
 	Gate.prototype.save= function() {
 
 		this.saveState= this.open;
+
 	}
 
 	Gate.prototype.revert= function() {
 
-		if (this.saveState != this.open) {
+		//toggle gate if the save state is different from current state, but ignore direction
+		if (Math.abs(this.saveState) != Math.abs(this.open)) {
 			this.activate();
 		}
 	}

@@ -182,7 +182,7 @@ function run_button(global) {
 					
 				//adjust volume for multiple notes
 				var volume= Math.min( 1, 0.25 + 1/l);
-				global.audioManager.play(notes[i], volume); //TODO: playWebAudio
+				global.audioManager.playWebAudio(notes[i], volume);
 			}
 
 			//play delayed actions

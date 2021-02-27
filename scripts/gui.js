@@ -109,8 +109,8 @@ function run_gui(global) {
 		this.text = text;
 
 		this.timer = 0;
-		this.fadeTime  = 0.3;
-		this.delay = 0.3;
+		this.fadeTime  = 0.2;
+		this.delay = 0.1;
 
 		this.backgroundColor = global.levelNumberColor;//'#259'
 		this.textColor = 'white';
@@ -134,6 +134,7 @@ function run_gui(global) {
 			var oldOpacity = context.globalAlpha;
 			var opacity = time / this.fadeTime;
 
+			//update position of tooltip in case parent has moved
 			var x = (this.parent.xy[0] + this.offset[0]) * scale;
 			var y = (this.parent.xy[1] + this.offset[1]) * scale;
 			var width  = this.dimensions[0] * scale;

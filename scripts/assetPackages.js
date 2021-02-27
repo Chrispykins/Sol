@@ -52,7 +52,7 @@
 
 		credits: {
 
-			sounds:  [],
+			sounds:  ['overCredits'],
 			images:  ['endScreen'],
 			scripts: ['credits']
 		},
